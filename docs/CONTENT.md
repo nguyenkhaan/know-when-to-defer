@@ -45,6 +45,7 @@ docs/
 └── plans/                                  # kế hoạch triển khai từng bước (code + thí nghiệm + paper)
     ├── 00-README.md                        # tổng quan phase, 2 luồng song song, ràng buộc chung
     ├── phase-0-setup.md                    # 05–06/11 · repo, dữ liệu, LLM, template paper
+    ├── phase-0b-smoke-test.md              # 06–07/11 · kiểm tra nhanh: LLM có dịch sai đủ nhiều không
     ├── phase-1-core-pipeline.md            # 06–08/11 · snapshot, DSL, solver, nhãn tác hại
     ├── phase-2-pilot-go-no-go.md           # 08–10/11 · pilot, quyết định Go/No-go
     ├── phase-3-benchmark-and-signals.md    # 11–16/11 · benchmark chính, tập người viết, baseline mạnh
@@ -61,7 +62,7 @@ docs/
 | Lệnh DSL có những loại nào? | 06 §3 |
 | Điểm rủi ro tính từ đâu? | 11 §2–§4 |
 | Chọn ngưỡng `λ` thế nào? | 12 §2 |
-| Khi nào dừng đề tài (go/no-go)? | 13 §2, 15 §2 |
+| Khi nào dừng đề tài (go/no-go)? | `plans/phase-0b-smoke-test.md` (báo động sớm), 13 §3, 15 §2 |
 | Paper cần những bảng và hình nào? | 03 §2, 13 §1 |
 | Ví dụ kiểm thử chuẩn (bệnh viện) ở đâu? | 14 §4 |
 | Yêu cầu nộp bài? | 16 |
@@ -100,3 +101,4 @@ Khi nội dung học thuật thay đổi (claim, RQ, đóng góp), sửa `MoTaDe
 | 05/11/2026 | Task 0.1 xong (chờ commit): package `kwd` (Python 3.12, `uv`), `kwd --help`/`kwd version`, 2 test pass, ruff sạch; `.gitignore` thêm `data/`, `runs/`, file phụ LaTeX. `torch`/`sentence-transformers` để Phase 3. |
 | 05/11/2026 | Quyết định (Task 0.5): câu yêu cầu của bộ chính và bộ human bằng **tiếng Anh**; tình huống trên thẻ bộ human được viết tiếng Việt. |
 | 05/11/2026 | Task 0.2 xong (chờ commit): LMRC 2,3 GB tải đủ; 6.112 tuyến, 17 trạm / 5 thành phố, 2.571 tuyến đủ điều kiện; kho ở vị trí 0; ~6% điểm có khung giờ. Đổi đơn vị thời gian nội bộ sang **giây** (spec 04 §5). |
+| 05/11/2026 | Thêm `plans/phase-0b-smoke-test.md`: kiểm tra nhanh ~50 câu viết tay × M1, M2 ngay sau Task 0.3, để phát hiện sớm rủi ro "LLM gần như không sai". |

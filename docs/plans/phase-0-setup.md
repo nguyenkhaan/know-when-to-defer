@@ -52,6 +52,8 @@ Hiện chỉ có tài liệu. Chưa có git, môi trường Python, dữ liệu,
 - [ ] **Step 4 [EXP]:** Chạy script; mọi mô hình trả lời được.
 - [ ] **Step 5:** Ghi mô hình đã chọn vào spec 10 §2 và `docs/CONTENT.md` §6. API key nằm trong `.env` (đã gitignore). Commit `chore: model roster and budget`.
 
+> **Ngay sau Task 0.3:** làm kiểm tra nhanh `phase-0b-smoke-test.md` (A, ~2–3 giờ) trước khi bắt đầu Phase 1.
+
 ### Task 0.4: Template paper IEEE và khung section · **[B]**
 
 **Files:**

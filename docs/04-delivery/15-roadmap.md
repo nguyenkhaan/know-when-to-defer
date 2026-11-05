@@ -17,6 +17,7 @@
 | Ngày | Quyết định | Căn cứ |
 |---|---|---|
 | 06/11 | Chốt 5 mô hình và ngân sách `max_usd` | Giá, có logprobs, chạy thử (spec 10 §2) |
+| 07/11 | **Báo động sớm**: làm tiếp / điều chỉnh / dừng | Kiểm tra nhanh 50 câu (`plans/phase-0b-smoke-test.md`) |
 | 08/11 | Chốt 6–8 loại lệnh DSL | Chạy thử pilot |
 | 10/11 | **Go / No-go**; đóng băng định nghĩa tín hiệu; chốt `α_main` | E0 (spec 13 §3, §14.0) |
 | 10/11 | Kích thước benchmark chính và `k` | Chi phí thật mỗi câu từ E0 |

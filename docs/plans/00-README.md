@@ -17,6 +17,7 @@
 | Phase | File | Ngày | Vấn đề cần giải quyết | Mốc |
 |---|---|---|---|---|
 | 0 | `phase-0-setup.md` | 05–06/11 | Chưa có repo, dữ liệu, mô hình, khung paper | `pytest` chạy; `main.pdf` biên dịch |
+| 0b | `phase-0b-smoke-test.md` | 06–07/11 | Rủi ro lớn nhất: LLM gần như không dịch sai. Kiểm tra nhanh bằng ~50 câu viết tay, chưa cần solver | Quyết định sớm: làm tiếp / điều chỉnh / báo động |
 | 1 | `phase-1-core-pipeline.md` | 06–08/11 | Chưa biến được một tuyến thật + một lệnh thành kế hoạch và nhãn tác hại | Ví dụ bệnh viện cho `h = 1` |
 | 2 | `phase-2-pilot-go-no-go.md` | 08–10/11 | Chưa biết LLM có sai đủ nhiều và tín hiệu solver có ích không; chưa biết chi phí thật | **M1 · 10/11: Go/No-go + đóng băng tín hiệu + chốt `α_main`** (GVHD review) |
 | 3 | `phase-3-benchmark-and-signals.md` | 11–16/11 | Cần benchmark lớn, tập câu người viết, đủ tín hiệu và baseline mạnh | **M2 · 16/11** |
