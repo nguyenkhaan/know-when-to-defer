@@ -1,0 +1,54 @@
+[project]
+name = "kwd"
+version = "0.1.0"
+description = "Know When to Defer: risk-controlled execution of LLM-translated route edits"
+authors = [
+    { name = "cloudian", email = "nguyenkhaan2006@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "httpx>=0.28.1",
+    "ijson>=3.6.0",
+    "matplotlib>=3.11.2",
+    "numpy>=2.5.4",
+    "ortools>=9.15.6755",
+    "pandas>=3.1.1",
+    "pyarrow>=26.0.1",
+    "pydantic>=2.14.3",
+    "pyyaml>=6.0.3",
+    "scikit-learn>=1.9.1",
+    "scipy>=1.18.1",
+    "tqdm>=4.70.1",
+    "typer>=0.27.3",
+]
+
+[project.scripts]
+kwd = "kwd.cli:app"
+
+[build-system]
+requires = ["uv_build>=0.13.1,<0.14.0"]
+build-backend = "uv_build"
+
+# torch is only needed for the local embedding model (M5); force the CPU build
+# so uv does not download the large CUDA wheels (the machine has no GPU).
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = [{ index = "pytorch-cpu" }]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.2.0",
+    "ruff>=0.17.3",
+]

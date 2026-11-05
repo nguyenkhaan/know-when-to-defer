@@ -20,11 +20,11 @@ Hiện chỉ có tài liệu. Chưa có git, môi trường Python, dữ liệu,
 **Interfaces:**
 - Produces: lệnh `kwd` (typer app `kwd.cli:app`), package `kwd`.
 
-- [ ] **Step 1 [CODE]:** `git init`; tạo `.gitignore` gồm `data/`, `runs/`, `.venv/`, `__pycache__/`, `paper/build/`, `paper/*.aux`, `paper/*.log`.
-- [ ] **Step 2 [CODE]:** `uv init --package --name kwd --python 3.12`; thêm dependency: `uv add ortools pydantic pandas pyarrow numpy scipy scikit-learn matplotlib typer pyyaml httpx tqdm ijson sentence-transformers` và `uv add --dev pytest ruff`. Ép `torch` bản CPU (khai báo index `https://download.pytorch.org/whl/cpu` cho `torch` trong `pyproject.toml`) để không tải bản CUDA nặng.
-- [ ] **Step 3 [CODE]:** Viết test `tests/test_smoke.py::test_cli_help` gọi `typer.testing.CliRunner().invoke(app, ["--help"])`, assert `exit_code == 0`.
-- [ ] **Step 4 [CODE]:** Tạo `kwd.cli:app` (typer) với một lệnh `version`. Khai báo `[project.scripts] kwd = "kwd.cli:app"`.
-- [ ] **Step 5:** Chạy `uv run pytest -q` → `1 passed`. Chạy `uv run kwd --help` → in danh sách lệnh.
+- [x] **Step 1 [CODE]:** `git init`; tạo `.gitignore` gồm `data/`, `runs/`, `.venv/`, `__pycache__/`, `paper/build/`, `paper/*.aux`, `paper/*.log`.
+- [x] **Step 2 [CODE]:** `uv init --package --name kwd --python 3.12`; thêm dependency: `uv add ortools pydantic pandas pyarrow numpy scipy scikit-learn matplotlib typer pyyaml httpx tqdm ijson sentence-transformers` và `uv add --dev pytest ruff`. Ép `torch` bản CPU (khai báo index `https://download.pytorch.org/whl/cpu` cho `torch` trong `pyproject.toml`) để không tải bản CUDA nặng.
+- [x] **Step 3 [CODE]:** Viết test `tests/test_smoke.py::test_cli_help` gọi `typer.testing.CliRunner().invoke(app, ["--help"])`, assert `exit_code == 0`.
+- [x] **Step 4 [CODE]:** Tạo `kwd.cli:app` (typer) với một lệnh `version`. Khai báo `[project.scripts] kwd = "kwd.cli:app"`.
+- [x] **Step 5:** Chạy `uv run pytest -q` → `1 passed`. Chạy `uv run kwd --help` → in danh sách lệnh.
 - [ ] **Step 6:** Commit `chore: init kwd package`.
 
 ### Task 0.2: Tải dữ liệu LMRC · **[B]**

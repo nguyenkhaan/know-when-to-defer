@@ -97,3 +97,4 @@ Khi nội dung học thuật thay đổi (claim, RQ, đóng góp), sửa `MoTaDe
 | 05/11/2026 | Nâng cấp v0.2: thêm tập câu người viết (E6), phân loại lỗi (E7), kiểm tra độ bền nhãn (V1–V3), baseline G1 và L6, đóng băng tín hiệu sau pilot; còn 5 mô hình, benchmark ~3.000 câu, `k = 4`; khóa kết quả 22/11; paper viết bằng VS Code + TinyTeX. |
 | 05/11/2026 | Bổ sung định nghĩa chỉ số và tiêu chí đạt (spec 13 §14); `α_main` chọn từ pilot; fit 30%; tập human ~200 câu (B, C); phân vai A/B/C/GVHD trong `plans/`. |
 | 05/11/2026 | Chuyển `MoTaDeTai.md`, `DienGiaiYTuong.md`, `MoTaCuTheThucNghiem.md` vào `docs/`. |
+| 05/11/2026 | Task 0.1 xong (chờ commit): package `kwd` (Python 3.12, `uv`), `kwd --help`/`kwd version`, 2 test pass, ruff sạch; `.gitignore` thêm `data/`, `runs/`, file phụ LaTeX. `torch`/`sentence-transformers` để Phase 3. |
