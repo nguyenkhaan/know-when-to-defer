@@ -38,12 +38,12 @@ Abstract và Results viết sau cùng. Mọi phần còn lại viết trước, 
 
 ## Danh sách mô hình (5)
 
-| ID | Vai trò | Gợi ý | Chạy ở đâu |
+| ID | Vai trò | Mô hình (chốt 05/11, `configs/llm.yaml`) | Chạy ở đâu |
 |---|---|---|---|
-| M1 | Dịch · mô hình mở nhỏ | Qwen2.5-7B-Instruct | API dịch vụ |
-| M2 | Dịch · mô hình mạnh | 1 mô hình frontier | API |
-| M3 | Paraphrase câu benchmark | mô hình cỡ vừa, khác họ M1/M2/M4 | API, chỉ lúc dựng benchmark |
-| M4 | Judge (L2, L5, L6, kiểm tra nghĩa paraphrase) | mô hình cỡ vừa, khác họ M1/M2 | API, chỉ trên câu được thực thi |
+| M1 | Dịch · mô hình mở nhỏ | `qwen/qwen3.5-9b` (có logprobs) | OpenRouter |
+| M2 | Dịch · mô hình mạnh, chi phí thấp | `deepseek/deepseek-v4-flash` | OpenRouter |
+| M3 | Paraphrase câu benchmark | `meta-llama/llama-3.3-70b-instruct` | OpenRouter, chỉ lúc dựng benchmark |
+| M4 | Judge (L2, L5, L6, kiểm tra nghĩa paraphrase) | `openai/gpt-oss-120b` | OpenRouter, chỉ trên câu được thực thi |
 | M5 | Embedding cho baseline G1 | `bge-small-en-v1.5` | CPU cục bộ, miễn phí |
 
 Đã bỏ: mô hình dịch cỡ vừa (Qwen2.5-14B).

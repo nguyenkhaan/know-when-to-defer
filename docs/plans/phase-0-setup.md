@@ -46,10 +46,10 @@ Hiện chỉ có tài liệu. Chưa có git, môi trường Python, dữ liệu,
 
 - Create: `configs/llm.yaml`, `.env` (không commit), `scripts/ping_models.py`
 
-- [ ] **Step 1 [DECIDE]:** Chọn nhà cung cấp và mô hình cụ thể cho M1–M4 (bảng ở `00-README.md`). Tiêu chí: endpoint tương thích OpenAI, có `seed`; M1 có `logprobs`; M3 và M4 khác họ với M1, M2 và khác nhau. Ghi giá input/output mỗi triệu token.
-- [ ] **Step 2 [DECIDE]:** Đặt `max_usd` cho từng mô hình trong `configs/llm.yaml`. Ước lượng ban đầu cho bản chính (~3.000 câu, `k = 4`, prompt ~2,5k token, có prompt caching): M1 và M2 mỗi mô hình ~3.000 × 5 lời gọi; M4 ~3 lời gọi cho mỗi câu được thực thi, mỗi mô hình dịch; M3 ~3.000 lời gọi ngắn. Con số chính xác chốt lại sau pilot (Phase 2).
-- [ ] **Step 3 [CODE]:** `scripts/ping_models.py`: gọi 1 prompt ngắn tới M1–M4, in latency, số token, có/không có logprobs; tải `bge-small-en-v1.5` (M5) và encode thử 2 câu trên CPU.
-- [ ] **Step 4 [EXP]:** Chạy script; mọi mô hình trả lời được.
+- [x] **Step 1 [DECIDE]:** Chọn nhà cung cấp và mô hình cụ thể cho M1–M4 (bảng ở `00-README.md`). Tiêu chí: endpoint tương thích OpenAI, có `seed`; M1 có `logprobs`; M3 và M4 khác họ với M1, M2 và khác nhau. Ghi giá input/output mỗi triệu token.
+- [x] **Step 2 [DECIDE]:** Đặt `max_usd` cho từng mô hình trong `configs/llm.yaml`. Ước lượng ban đầu cho bản chính (~3.000 câu, `k = 4`, prompt ~2,5k token, có prompt caching): M1 và M2 mỗi mô hình ~3.000 × 5 lời gọi; M4 ~3 lời gọi cho mỗi câu được thực thi, mỗi mô hình dịch; M3 ~3.000 lời gọi ngắn. Con số chính xác chốt lại sau pilot (Phase 2).
+- [x] **Step 3 [CODE]:** `scripts/ping_models.py`: gọi 1 prompt ngắn tới M1–M4, in latency, số token, có/không có logprobs; tải `bge-small-en-v1.5` (M5) và encode thử 2 câu trên CPU.
+- [x] **Step 4 [EXP]:** Chạy script; mọi mô hình trả lời được.
 - [ ] **Step 5:** Ghi mô hình đã chọn vào spec 10 §2 và `docs/CONTENT.md` §6. API key nằm trong `.env` (đã gitignore). Commit `chore: model roster and budget`.
 
 > **Ngay sau Task 0.3:** làm kiểm tra nhanh `phase-0b-smoke-test.md` (A, ~2–3 giờ) trước khi bắt đầu Phase 1.
@@ -80,5 +80,5 @@ Hiện chỉ có tài liệu. Chưa có git, môi trường Python, dữ liệu,
 
 - [ ] `uv run pytest -q` pass; `uv run kwd --help` chạy.
 - [ ] 4 file LMRC có trên máy.
-- [ ] Gọi được M1–M4 qua API, M5 chạy trên CPU; `max_usd` đã đặt.
+- [x] Gọi được M1–M4 qua API, M5 chạy trên CPU; `max_usd` đã đặt.
 - [ ] `paper/build/main.pdf` biên dịch trong VS Code, `make check` pass.

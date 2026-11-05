@@ -1,0 +1,67 @@
+# Model roster and API budget (Task 0.3). Decision record:
+# docs/superpowers/specs/2026-11-05-model-roster-design.md
+# Prices: OpenRouter API, checked 2026-11-05, USD per 1M tokens, for the pinned endpoint.
+
+backend:
+  name: openrouter
+  base_url: https://openrouter.ai/api/v1
+  api_key_env: OPENROUTER_API_KEY   # set in .env (never committed)
+
+budget:
+  total_usd: 10.0      # hard cap for the whole project
+  reserve_usd: 2.0     # smoke test, reruns, overruns; not allocated to any model
+
+# Every request pins `endpoint` (OpenRouter provider tag = provider/quantization) and sets
+# provider.allow_fallbacks = false and provider.require_parameters = true, so OpenRouter never
+# routes to a provider without seed/logprobs. `fallback` is used only by editing this file.
+models:
+  M1:
+    role: translator          # small open model
+    family: qwen
+    model: qwen/qwen3.5-9b
+    endpoint: darkbloom/fp4
+    fallback: parasail/bf16   # 0.10 / 0.25, no cache
+    params:
+      reasoning: {enabled: false}
+      logprobs: true
+    price: {input: 0.08, output: 0.13, cache_read: 0.04}
+    max_usd: 3.0
+
+  M2:
+    role: translator          # strong low-cost API model
+    family: deepseek
+    model: deepseek/deepseek-v4-flash
+    endpoint: deepinfra/fp8
+    fallback: gmicloud/fp8    # same price
+    params:
+      reasoning: {enabled: false}
+    price: {input: 0.09, output: 0.18, cache_read: 0.018}
+    max_usd: 2.5
+
+  M3:
+    role: paraphraser         # benchmark build only (spec 08 §5)
+    family: llama
+    model: meta-llama/llama-3.3-70b-instruct
+    endpoint: deepinfra/turbo
+    fallback: parasail/fp8    # 0.22 / 0.50
+    params: {}
+    price: {input: 0.10, output: 0.32, cache_read: null}
+    max_usd: 0.5
+
+  M4:
+    role: judge               # L2, L5, L6 and the paraphrase meaning check
+    family: gpt-oss
+    model: openai/gpt-oss-120b
+    endpoint: akashml/fp4
+    fallback: deepinfra/bf16  # 0.037 / 0.17, no cache
+    params:
+      reasoning: {effort: low}
+    price: {input: 0.03, output: 0.19, cache_read: 0.03}
+    max_usd: 2.0
+
+  M5:
+    role: embedding           # G1 baseline, local CPU, no API cost
+    family: bge
+    model: BAAI/bge-small-en-v1.5
+    local: true
+    max_usd: 0.0

@@ -1,6 +1,6 @@
 # 10 · LLM Translation
 
-> Status: Draft v0.2 · Updated 2026-11-05 · v0.2: 5-model roster (medium translator dropped), cost controls, all models via API (no GPU).
+> Status: Draft v0.3 · Updated 2026-11-05 · v0.3: final roster on OpenRouter (§2). v0.2: 5-model roster (medium translator dropped), cost controls, all models via API (no GPU).
 
 ## 1. Purpose
 
@@ -10,13 +10,17 @@ Translate `(P, q)` into an `EditSet` `ê` (spec 06), plus the raw material for L
 
 The machine has no GPU, so open-weight models are called through a hosted API (OpenAI-compatible endpoint).
 
-| ID | Role | Model (proposed, final pick in Phase 0) | Notes |
-|---|---|---|---|
-| M1 | Translator · small open | Qwen2.5-7B-Instruct (hosted) | logprobs if provider supports; expected higher `μ`; cheap |
-| M2 | Translator · strong | one frontier API model | logprobs may be `NA` |
-| M3 | Paraphraser (spec 08) | a mid-size model of a **different family** from M1, M2, M4 (e.g. Llama-3.3-70B-Instruct hosted) | used only at benchmark build time |
-| M4 | Judge (L2, L5, L6; paraphrase meaning check) | a mid-size model of a **different family** from M1, M2 | called only on executed items |
-| M5 | Embedding (G1 baseline, spec 11) | `bge-small-en-v1.5` run **locally on CPU** via `sentence-transformers` | no API cost |
+All API models go through **OpenRouter**, each pinned to one endpoint (`provider.order`, `allow_fallbacks: false`, `require_parameters: true`). Final pick 2026-11-05 (Task 0.3); config: `configs/llm.yaml`; rationale: `docs/superpowers/specs/2026-11-05-model-roster-design.md`.
+
+| ID | Role | Model (OpenRouter id) | Pinned endpoint | Price in / out / cache, USD per 1M | `max_usd` | Notes |
+|---|---|---|---|---|---|---|
+| M1 | Translator · small open | `qwen/qwen3.5-9b` | `darkbloom/fp4` | 0.08 / 0.13 / 0.04 | 3.0 | thinking off; **logprobs returned**; expected higher `μ` |
+| M2 | Translator · strong low-cost | `deepseek/deepseek-v4-flash` | `deepinfra/fp8` | 0.09 / 0.18 / 0.018 | 2.5 | thinking off; logprobs `NA`. Not a frontier model (budget); call it "a strong low-cost API model" in the paper |
+| M3 | Paraphraser (spec 08) | `meta-llama/llama-3.3-70b-instruct` | `deepinfra/turbo` | 0.10 / 0.32 / – | 0.5 | used only at benchmark build time |
+| M4 | Judge (L2, L5, L6; paraphrase meaning check) | `openai/gpt-oss-120b` | `akashml/fp4` | 0.03 / 0.19 / 0.03 | 2.0 | reasoning effort `low`; called only on executed items |
+| M5 | Embedding (G1 baseline, spec 11) | `BAAI/bge-small-en-v1.5` | local CPU (`sentence-transformers`) | 0 | 0 | no API cost |
+
+Total API budget 10 USD: 8 USD allocated above + 2 USD reserve. Qwen2.5-7B (v0.1 proposal) was dropped: its only OpenRouter provider returns no logprobs. A free judge (`nvidia/nemotron-3.5-lightning:free`) was rejected: 1,000 requests/day cannot cover ~22k judge calls in Phase 3–4, and a 3B-active judge would make L5/L6 weak baselines.
 
 Dropped vs v0.1: the optional medium translator (Qwen2.5-14B). Rules: the judge and paraphraser are never the translator of the same row; M3 ≠ M4.
 
