@@ -76,7 +76,7 @@ Nhãn người phụ trách ghi ở cuối tiêu đề mỗi task, dạng **[A]*
 - Hạn nộp nội bộ **30/11/2026**; chính thức 01/12/2026 qua https://most2027.hotcrp.com/.
 - **Khóa kết quả 22/11**: sau mốc này chỉ sửa lỗi, không chạy thí nghiệm mới.
 - **Đóng băng tín hiệu 10/11**: không sửa định nghĩa tín hiệu sau khi đã nhìn kết quả benchmark chính hoặc tập người viết.
-- Thời gian nội bộ là phút nguyên tính từ giờ xuất phát; chỉ hiển thị `HH:MM` giờ địa phương.
+- Thời gian nội bộ là **giây nguyên** tính từ giờ xuất phát; chỉ hiển thị `HH:MM` giờ địa phương; kết quả báo bằng phút.
 - `kwd.signals` không import `kwd.harm`, không đọc `gold` (spec 04 §5).
 - Mọi lời gọi LLM và solver đi qua cache trên đĩa. Mỗi mô hình có giới hạn `max_usd` trong `configs/llm.yaml`.
 - Mọi random lấy seed từ YAML trong `configs/`. Chia dữ liệu **theo tuyến**.

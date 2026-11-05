@@ -15,31 +15,35 @@ Hiện chỉ có tài liệu. Chưa có git, môi trường Python, dữ liệu,
 ### Task 0.1: Repo và môi trường Python · **[B]**
 
 **Files:**
+
 - Create: `pyproject.toml`, `.gitignore`, `src/kwd/__init__.py`, `src/kwd/cli.py`, `tests/test_smoke.py`, `configs/` (thư mục rỗng có `.gitkeep`)
 
 **Interfaces:**
+
 - Produces: lệnh `kwd` (typer app `kwd.cli:app`), package `kwd`.
 
-- [x] **Step 1 [CODE]:** `git init`; tạo `.gitignore` gồm `data/`, `runs/`, `.venv/`, `__pycache__/`, `paper/build/`, `paper/*.aux`, `paper/*.log`.
-- [x] **Step 2 [CODE]:** `uv init --package --name kwd --python 3.12`; thêm dependency: `uv add ortools pydantic pandas pyarrow numpy scipy scikit-learn matplotlib typer pyyaml httpx tqdm ijson sentence-transformers` và `uv add --dev pytest ruff`. Ép `torch` bản CPU (khai báo index `https://download.pytorch.org/whl/cpu` cho `torch` trong `pyproject.toml`) để không tải bản CUDA nặng.
-- [x] **Step 3 [CODE]:** Viết test `tests/test_smoke.py::test_cli_help` gọi `typer.testing.CliRunner().invoke(app, ["--help"])`, assert `exit_code == 0`.
-- [x] **Step 4 [CODE]:** Tạo `kwd.cli:app` (typer) với một lệnh `version`. Khai báo `[project.scripts] kwd = "kwd.cli:app"`.
-- [x] **Step 5:** Chạy `uv run pytest -q` → `1 passed`. Chạy `uv run kwd --help` → in danh sách lệnh.
-- [ ] **Step 6:** Commit `chore: init kwd package`.
+- [X] **Step 1 [CODE]:** `git init`; tạo `.gitignore` gồm `data/`, `runs/`, `.venv/`, `__pycache__/`, `paper/build/`, `paper/*.aux`, `paper/*.log`.
+- [X] **Step 2 [CODE]:** `uv init --package --name kwd --python 3.12`; thêm dependency: `uv add ortools pydantic pandas pyarrow numpy scipy scikit-learn matplotlib typer pyyaml httpx tqdm ijson sentence-transformers` và `uv add --dev pytest ruff`. Ép `torch` bản CPU (khai báo index `https://download.pytorch.org/whl/cpu` cho `torch` trong `pyproject.toml`) để không tải bản CUDA nặng.
+- [X] **Step 3 [CODE]:** Viết test `tests/test_smoke.py::test_cli_help` gọi `typer.testing.CliRunner().invoke(app, ["--help"])`, assert `exit_code == 0`.
+- [X] **Step 4 [CODE]:** Tạo `kwd.cli:app` (typer) với một lệnh `version`. Khai báo `[project.scripts] kwd = "kwd.cli:app"`.
+- [X] **Step 5:** Chạy `uv run pytest -q` → `1 passed`. Chạy `uv run kwd --help` → in danh sách lệnh.
+- [X] **Step 6:** Commit `chore: init kwd package`.
 
 ### Task 0.2: Tải dữ liệu LMRC · **[B]**
 
 **Files:**
+
 - Create: `scripts/download_lmrc.sh`, `data/raw/lmrc/` (không commit)
 
-- [ ] **Step 1 [CODE]:** Viết `scripts/download_lmrc.sh` dùng `uvx --from awscli aws s3 cp --no-sign-request --recursive s3://amazon-last-mile-challenges/almrrc2021/almrrc2021-data-training/model_build_inputs/ data/raw/lmrc/`. Kiểm tra trước dung lượng bằng `aws s3 ls --summarize --human-readable --recursive`. Lưu ý `travel_times.json` có thể nặng vài GB, cần đủ chỗ đĩa.
-- [ ] **Step 2 [EXP]:** Chạy script. Kiểm tra có đủ 4 file `route_data.json`, `package_data.json`, `travel_times.json`, `actual_sequences.json`.
-- [ ] **Step 3 [READ]:** Mở 1 tuyến bằng `python -c` + `json` (đọc stream nếu file quá lớn, dùng `ijson`). Ghi tên trường thật vào spec 05 §2 nếu khác. Đặc biệt kiểm tra định dạng thời gian của `time_window` và danh sách `station_code` để làm bảng múi giờ.
+- [x] **Step 1 [CODE]:** Viết `scripts/download_lmrc.sh`: tải qua HTTPS công khai bằng `curl` (không cần AWS CLI), tải tiếp được khi bị ngắt, kiểm tra dung lượng đĩa và kích thước từng file. Tổng ~2,3 GB (`travel_times.json` 1,8 GB). Viết thêm `scripts/inspect_lmrc.py` để đọc dần dữ liệu và in các thông tin spec 05 cần.
+- [x] **Step 2 [EXP]:** Chạy `bash scripts/download_lmrc.sh`. Kiểm tra có đủ file `route_data.json`, `package_data.json`, `travel_times.json`, `actual_sequences.json`.
+- [x] **Step 3 [READ]:** Chạy `uv run python scripts/inspect_lmrc.py`. Đối chiếu kết quả với spec 05 (tên trường đã kiểm trước một phần ngày 05/11): danh sách `station_code` (để làm bảng múi giờ), vị trí 0 của thứ tự thực tế có phải kho không, % điểm có khung giờ, số tuyến đủ điều kiện, ma trận thời gian có đầy đủ không.
 - [ ] **Step 4:** Commit `chore: add LMRC download script` (+ sửa spec 05 nếu có).
 
 ### Task 0.3: Chốt 5 mô hình và ngân sách API · **[A]**
 
 **Files:**
+
 - Create: `configs/llm.yaml`, `.env` (không commit), `scripts/ping_models.py`
 
 - [ ] **Step 1 [DECIDE]:** Chọn nhà cung cấp và mô hình cụ thể cho M1–M4 (bảng ở `00-README.md`). Tiêu chí: endpoint tương thích OpenAI, có `seed`; M1 có `logprobs`; M3 và M4 khác họ với M1, M2 và khác nhau. Ghi giá input/output mỗi triệu token.
@@ -51,6 +55,7 @@ Hiện chỉ có tài liệu. Chưa có git, môi trường Python, dữ liệu,
 ### Task 0.4: Template paper IEEE và khung section · **[B]**
 
 **Files:**
+
 - Create: `paper/main.tex`, `paper/sections/{00-abstract,01-introduction,02-related-work,03-problem,04-method,05-benchmark,06-experiments,07-conclusion}.tex`, `paper/refs.bib`, `paper/figures/`, `paper/tables/`, `paper/Makefile`, `paper/NOTES.md`
 
 - [ ] **Step 1 [READ]:** Mở https://www.ieeemobility.org/submission.html và CFP PDF. Ghi các điểm bắt buộc vào `paper/NOTES.md`: 8 trang tính cả references, double-blind, PDF nhúng font, HotCRP, ngày. Nếu có thay đổi so với spec 16 thì sửa spec 16.
@@ -66,7 +71,7 @@ Hiện chỉ có tài liệu. Chưa có git, môi trường Python, dữ liệu,
 ### Task 0.5: Chốt các quyết định mở · **[A]**
 
 - [ ] **Step 1 [DECIDE]:** Xác nhận luật R2 ("bỏ nhầm điểm dừng là gây hại", spec 09). Nếu giữ: sửa `MoTaDeTai.md` §2.2 và `DienGiaiYTuong.md` cho khớp.
-- [ ] **Step 2 [DECIDE]:** Xác nhận câu yêu cầu bằng tiếng Anh (spec 08 §5).
+- [x] **Step 2 [DECIDE]:** Xác nhận câu yêu cầu bằng tiếng Anh (spec 08 §5). *Đã xác nhận 05/11/2026.*
 - [ ] **Step 3:** Ghi các quyết định vào `docs/CONTENT.md` §6; commit `docs: record phase-0 decisions`.
 
 ## Kết thúc Phase 0 khi

@@ -42,7 +42,7 @@ cost = travel_minutes + late_penalty · lateness_minutes + dev_weight · deviati
 ```python
 class Plan(BaseModel):
     sequence: list[str]          # remaining stop_ids, in order
-    arrival: dict[str, int]      # minutes since departure
+    arrival: dict[str, int]      # seconds since departure
     end_time: int                # return to depot
     travel_min: float
     lateness_min: float          # vs original LMRC windows

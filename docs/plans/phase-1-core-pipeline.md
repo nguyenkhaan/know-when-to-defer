@@ -29,7 +29,7 @@
 - [ ] **Step 1 [CODE]:** Test `test_load_route_mini`: `r = load_route(FIX, "<id>")`; assert `len(r.actual_order) == 12`, `r.actual_order[0]` là depot (type `Station`), `r.travel_s[a][b] > 0`.
 - [ ] **Step 2 [CODE]:** Test `test_select_routes_filters_and_is_deterministic`: trên fixture có 3 tuyến (1 Low score, 1 thiếu ma trận, 1 hợp lệ, với ngưỡng số điểm hạ trong test) → trả đúng 1 tuyến; gọi 2 lần cùng seed → kết quả bằng nhau.
 - [ ] **Step 3:** Chạy `uv run pytest tests/data -q` → FAIL.
-- [ ] **Step 4 [CODE]:** Cài `models.py`, `load_route`, `select_routes` (lọc theo spec 05 §3, lấy mẫu phân tầng theo `station_code`). Đọc file JSON lớn bằng `ijson` khi cần.
+- [ ] **Step 4 [CODE]:** Cài `models.py`, `load_route`, `select_routes` (lọc theo spec 05 §3, lấy mẫu phân tầng theo `station_code`). Chuyển `NanToNullReader` từ `scripts/inspect_lmrc.py` vào `src/kwd/data/jsonstream.py` (kèm test). Đọc `travel_times.json` **một lần** bằng `ijson` và ghi riêng file cho từng tuyến được chọn; không bao giờ nạp nguyên file vào RAM (spec 05 §2).
 - [ ] **Step 5:** Test PASS. Commit `feat(data): load and select LMRC routes`.
 
 ### Task 1.2: Snapshot tuyến đang chạy và bản hiển thị · **[B]**
@@ -62,7 +62,7 @@
 - Produces:
   - `Edit` (union theo `op`, 7 op ở spec 06 §3), `EditSet(edits: list[Edit], confidence: int | None)`
   - `ParseError(code: str, detail: str)` với `code ∈ {invalid_json, schema, unknown_stop, unknown_zone, done_stop, bad_interval}`
-  - `parse_editset(raw: str, p: RouteSnapshot) -> EditSet | ParseError` (trả `EditSet` đã đổi tên → `stop_id`, giờ → phút)
+  - `parse_editset(raw: str, p: RouteSnapshot) -> EditSet | ParseError` (trả `EditSet` đã đổi tên → `stop_id`, giờ → giây tính từ lúc xuất phát)
   - `canonical(e: EditSet, p: RouteSnapshot) -> tuple`
   - `equivalent(a: EditSet, b: EditSet, p: RouteSnapshot, tol_min: int = 0) -> bool`
   - `render_editset_en(e: EditSet, p: RouteSnapshot) -> str` (vd. `"Deliver to An Binh Hospital no earlier than 15:00."`)

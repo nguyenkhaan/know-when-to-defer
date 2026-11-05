@@ -79,7 +79,7 @@ ieee-most-2027/
 2. **All LLM calls go through a disk cache** keyed by hash(model, prompt, params). Re-runs cost nothing.
 3. **Deterministic solver**: same input → same output (spec 07).
 4. **Evaluation isolation**: `kwd.signals` must not import `kwd.harm` nor read `gold` fields. A test enforces this.
-5. **Internal time unit**: integer minutes since route departure. Convert to `HH:MM` local time only when rendering for an LLM or a human.
+5. **Internal time unit**: integer **seconds** since route departure (LMRC service times average ~107 s and legs ~6 min, so rounding to minutes would accumulate errors of the same size as the harm threshold ε). Convert to `HH:MM` local time only when rendering for an LLM or a human; report results in minutes.
 
 ## 6. Acceptance criteria
 

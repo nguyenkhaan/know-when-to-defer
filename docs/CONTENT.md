@@ -98,3 +98,5 @@ Khi nội dung học thuật thay đổi (claim, RQ, đóng góp), sửa `MoTaDe
 | 05/11/2026 | Bổ sung định nghĩa chỉ số và tiêu chí đạt (spec 13 §14); `α_main` chọn từ pilot; fit 30%; tập human ~200 câu (B, C); phân vai A/B/C/GVHD trong `plans/`. |
 | 05/11/2026 | Chuyển `MoTaDeTai.md`, `DienGiaiYTuong.md`, `MoTaCuTheThucNghiem.md` vào `docs/`. |
 | 05/11/2026 | Task 0.1 xong (chờ commit): package `kwd` (Python 3.12, `uv`), `kwd --help`/`kwd version`, 2 test pass, ruff sạch; `.gitignore` thêm `data/`, `runs/`, file phụ LaTeX. `torch`/`sentence-transformers` để Phase 3. |
+| 05/11/2026 | Quyết định (Task 0.5): câu yêu cầu của bộ chính và bộ human bằng **tiếng Anh**; tình huống trên thẻ bộ human được viết tiếng Việt. |
+| 05/11/2026 | Task 0.2 xong (chờ commit): LMRC 2,3 GB tải đủ; 6.112 tuyến, 17 trạm / 5 thành phố, 2.571 tuyến đủ điều kiện; kho ở vị trí 0; ~6% điểm có khung giờ. Đổi đơn vị thời gian nội bộ sang **giây** (spec 04 §5). |

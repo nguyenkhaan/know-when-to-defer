@@ -16,7 +16,7 @@ A request maps to an `EditSet` — one or more ops (compound requests → severa
 ```
 
 - `stop` fields use the **display name** from the snapshot (spec 05 §4.8).
-- Times are local `HH:MM` strings in the JSON; parsed to minutes since departure internally.
+- Times are local `HH:MM` strings in the JSON; parsed to seconds since departure internally.
 - `confidence` (0–100) is the verbalized confidence; optional, ignored by the solver.
 
 ## 3. Operations (v0.1 candidate list)
@@ -55,7 +55,7 @@ A parse error ⇒ the system **defers automatically** (no execution). Record it;
 
 Needed for self-consistency (spec 11) and string-level error rate (spec 13 E1).
 
-1. Resolve names → `stop_id`; times → minutes; `null` bounds → explicit (`t_now`, `shift_end`).
+1. Resolve names → `stop_id`; times → seconds since departure; `null` bounds → explicit (`t_now`, `shift_end`).
 2. Rewrite `deadline` → `set_time_window`.
 3. Merge multiple windows on the same stop by intersection.
 4. Sort ops by `(op, args)`; drop exact duplicates.
