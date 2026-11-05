@@ -192,3 +192,7 @@ paper/**/*.fls
 paper/**/*.out
 paper/**/*.synctex.gz
 paper/**/*.toc
+
+# Smoke-test hand-off copies (contain hand-written items; B must not read them) - never commit
+/smoke/
+/KWD_Phase0b_SmokeTest_*.zip
