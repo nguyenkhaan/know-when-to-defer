@@ -18,7 +18,7 @@ Loss per calibration item: `L_i(λ) = 1{executable_i and s_i ≤ λ} · h_i` (no
 
 (CRC, Angelopoulos et al., Thm. 1, with the parametrization flipped so loss is monotone in the right direction.) Grid = sorted unique calibration scores plus `−∞` (defer all).
 
-Why this satisfies Thm. 1 (state these in the paper, §III):
+Why this satisfies Thm. 1 (paper: conditions and `−∞` in §III; grid/continuity argument in §IV):
 - Thm. 1 needs `L_i` **non-increasing**, right-continuous, bounded by `B`, and `L_i(λ_max) ≤ α`. Our `L_i` is non-decreasing in `λ`, so the theorem is applied to `θ = −λ` with `B = 1`.
 - The most conservative setting is `λ = −∞` (defer all), with loss 0 ≤ α. **The grid must always contain `−∞`.**
 - After the flip, `1{s ≤ −θ}` is left- rather than right-continuous. Restricting the grid to calibration scores gives a `λ̂` equal to or stricter than standard CRC run with the rule `s < t`, so the executed set is a subset and the bound still holds. The unit test in §5 is the empirical check of this argument.
@@ -28,7 +28,7 @@ Why this satisfies Thm. 1 (state these in the paper, §III):
 
 Run §2.1 separately on each group `ĉ` = **op type of the LLM edit `ê`** (decided 2026-11-06). Gives `λ̂_ĉ`. Rationale: a single global `λ` can hide violations concentrated in rare op types (Role-Stratified CRC, P22).
 
-- **Why `ĉ`, not the gold type `c`:** the threshold must be chosen at deployment, where `e*` is unknown. `ĉ` is read from `ê`, so per-group CRC keeps its guarantee `E[L(λ̂_ĉ) | ĉ] ≤ α`. Grouping by gold `c` would need the answer to pick the threshold.
+- **Why `ĉ`, not the gold type `c`:** the threshold must be chosen at deployment, where `e*` is unknown. `ĉ` is read from `ê`, so per-group CRC keeps its guarantee `E[L(λ̂_ĉ) | x = 1, ĉ] ≤ α` (`x` is also known at deployment). Grouping by gold `c` would need the answer to pick the threshold.
 - Groups exist only for executable items (`x = 1`); non-executable items are always deferred and are not in any group.
 - `ĉ = op_type(ê)` (spec 06 §5.1), computed on the canonical form, so `deadline` and `set_time_window` fall in the same group. Compound `ê` (more than one op after canonicalization, including two ops of the same type): group `compound`. (The "riskiest op" option is dropped: it needs per-type risk before grouping.)
 - **Sample floor depends on `α`.** Even with zero harmful executions, the rule in §2.1 needs `1/(n+1) ≤ α`, i.e. `n ≥ 1/α − 1`; allowing `k` harmful executions needs `n ≥ (k+1)/α − 1`. Below the floor CRC already returns `−∞`, so the guarantee holds, but the group's coverage is 0. Use `min_n(α) = max(20, ⌈1/α⌉ − 1)`: 99 at α = 0.01, 49 at 0.02, 20 at 0.05 and 0.10. A group with fewer than `min_n(α)` calibration items gets `λ̂_ĉ = −∞` (defer all).

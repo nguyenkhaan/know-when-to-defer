@@ -1,6 +1,6 @@
 # 11 · Verification Signals & Risk Score
 
-> Status: Draft v0.2 · Updated 2026-11-05 · **Main contribution (C3).** Solver signals are the novelty; LLM signals and the learned guardian are baselines. v0.2 adds L6 and G1. Signal definitions are **frozen after the pilot** (spec 13 §3).
+> Status: Draft v0.3 · Updated 2026-11-06 · v0.3: "plan unchanged" / digest equality in S3–S4 uses the digest of spec 07 §5 (order + service-start times). · **Main contribution (C3).** Solver signals are the novelty; LLM signals and the learned guardian are baselines. v0.2 adds L6 and G1. Signal definitions are **frozen after the pilot** (spec 13 §3).
 
 ## 1. Purpose
 
@@ -16,8 +16,8 @@ Let `ê` = greedy edit, `P̂ = solve(P, ê)`, and `ref(ê)` = stops/zones refere
 |---|---|---|---|
 | S1 | `edit_nonbinding` | 1 if the **current plan `P` already satisfies `ê`** (no change needed), else 0 | edits that do nothing, as in the hospital case |
 | S2 | `change_magnitude` | `P̂.changed_positions`, `max |Δarrival|` over `ref(ê)`, `Δtravel_min` vs `P` (3 numbers) | no-op or over-reaching edits |
-| S3 | `flip_exposes` | Build rule-based **counter-readings** of `ê` (§2.1). 1 if `ê` is non-binding **but** at least one counter-reading is binding (would change the plan), else 0. Also the fraction of counter-readings whose plan differs from `P̂` | direction flips, wrong stop, non-binding errors |
-| S4 | `plan_disagreement` | Solve each sampled edit; `1 − share of samples whose plan digest == P̂.digest`; plus mean `|Δcost|` vs `P̂` | ambiguity visible **in plans**, not in JSON |
+| S3 | `flip_exposes` | Build rule-based **counter-readings** of `ê` (§2.1). 1 if `ê` is non-binding **but** at least one counter-reading is binding (would change the plan: digest differs, spec 07 §5), else 0. Also the fraction of counter-readings whose plan differs from `P̂` | direction flips, wrong stop, non-binding errors |
+| S4 | `plan_disagreement` | Solve each sampled edit; `1 − share of samples whose plan digest == P̂.digest` (digest: order + service times, spec 07 §5); plus mean `|Δcost|` vs `P̂` | ambiguity visible **in plans**, not in JSON |
 | S5 | `scope_mismatch` | Stops/categories/zones **mentioned in `q`** (string match on display names, categories, zone words) vs `ref(ê)`: Jaccard distance | wrong stop, missing part of compound request |
 
 ### 2.1 Counter-readings (for S3)

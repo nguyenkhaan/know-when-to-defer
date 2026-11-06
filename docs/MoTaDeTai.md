@@ -78,14 +78,14 @@ Hệ quả là một lệnh sai nhưng không vi phạm luật nào thì đượ
 | Dạng | Công thức | Công cụ | Vai trò trong bài |
 |---|---|---|---|
 | Rủi ro kết hợp | `E[1{s ≤ λ} · h] ≤ α` | CRC [P11] Thm. 1 (xem ghi chú điều kiện bên dưới) | **Chính** |
-| Rủi ro theo loại lệnh | `E[1{s ≤ λ_ĉ} · h \| ĉ] ≤ α` với mỗi loại `ĉ` của **lệnh LLM sinh** | CRC hiệu chỉnh riêng từng nhóm `ĉ`, theo hướng Role-Stratified CRC [P22] | Dùng nếu pilot cho thấy `μ` chênh lệch lớn giữa các nhóm `ĉ` |
+| Rủi ro theo loại lệnh | `E[1{s ≤ λ_ĉ} · h \| x = 1, ĉ] ≤ α` với mỗi loại `ĉ` của **lệnh LLM sinh** | CRC hiệu chỉnh riêng từng nhóm `ĉ`, theo hướng Role-Stratified CRC [P22] | Dùng nếu pilot cho thấy `μ` chênh lệch lớn giữa các nhóm `ĉ` |
 | Rủi ro có điều kiện | `P(h = 1 \| s ≤ λ) ≤ α` | LTT [P12], cận selective classification [P16] (loss **không đơn điệu**, không dùng CRC được — CRC Prop. 1 [P11]) | Phụ; **câu hỏi mở:** có cắt khỏi bản nộp không (xem Mục 6) |
 
 Phân biệt rủi ro kết hợp với rủi ro có điều kiện, và kiểm tra bảo đảm dưới shift, **đã có trong CORA** [P21] (chỉ số HR và mHR, weighted CRC). Đề tài dùng các công cụ này để đánh giá, không claim mới. Báo cáo sai loại bảo đảm vẫn là lỗi reviewer dễ bắt nhất.
 
 **Điều kiện áp CRC Thm. 1 [P11].** Định lý yêu cầu loss *không tăng* theo tham số, liên tục phải, bị chặn bởi `B`, và `L(λmax) ≤ α` tại mức thận trọng nhất. Loss của đề tài `L_i(λ) = x_i · h_i · 1{s_i ≤ λ}` (`x_i = 1` nếu lệnh thực thi được) lại *không giảm* theo `λ`, nên áp định lý cho `θ = −λ`, với `B = 1`. Mức thận trọng nhất là `λ = −∞` (chuyển duyệt tất cả), có loss 0, vì vậy lưới ngưỡng phải luôn chứa `−∞`. Lưới ngưỡng chỉ gồm điểm calibration (spec 12 §2.1) cho ngưỡng bằng hoặc chặt hơn CRC chuẩn, nên bảo đảm vẫn giữ. Rủi ro có điều kiện không đơn điệu theo `λ`, và CRC Prop. 1 cho thấy khi đó rủi ro có thể tiến tới `B`, nên phải dùng LTT.
 
-**Loại dùng để chọn ngưỡng là loại của lệnh LLM sinh (`ĉ`), không phải của đáp án (`c`).** Lúc triển khai không có đáp án, nên ngưỡng `λ_c` theo loại đáp án không áp được cho yêu cầu mới. Nhóm theo `ĉ` đọc được từ chính `ê`, và CRC chạy riêng trong từng nhóm vẫn giữ bảo đảm `E[L | ĉ] ≤ α`. Rủi ro theo loại đáp án `c` vẫn được báo cáo, nhưng chỉ để phân tích. Quyết định ngày 06/11/2026.
+**Loại dùng để chọn ngưỡng là loại của lệnh LLM sinh (`ĉ`), không phải của đáp án (`c`).** Lúc triển khai không có đáp án, nên ngưỡng `λ_c` theo loại đáp án không áp được cho yêu cầu mới. Nhóm theo `ĉ` đọc được từ chính `ê`, và CRC chạy riêng trong từng nhóm vẫn giữ bảo đảm `E[L | x = 1, ĉ] ≤ α` (chỉ xét lệnh thực thi được, `x = 1`, vì lệnh không thực thi được luôn chuyển duyệt). Rủi ro theo loại đáp án `c` vẫn được báo cáo, nhưng chỉ để phân tích. Quyết định ngày 06/11/2026.
 
 **Lý do cần hiệu chỉnh theo loại lệnh:** Role-Stratified CRC [P22] chỉ ra rằng nếu loại `c` chiếm tần suất `p_c`, thì muốn bảo đảm `α` cho riêng loại đó bằng một ngưỡng chung, ngân sách tổng phải co lại còn `α · p_c`. Một `α` chung có thể che giấu vi phạm tập trung ở các loại lệnh hiếm nhưng dễ sai.
 

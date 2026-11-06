@@ -1,6 +1,6 @@
 # 09 · Harm Labeling (Plan-Level Loss)
 
-> Status: Draft v0.1 · Updated 2026-11-05 · This is contribution C1 — keep it simple, precise and reproducible.
+> Status: Draft v0.2 · Updated 2026-11-06 · v0.2: plan digest covers order and service-start times (spec 07 §5), so `nonbinding_error` means the plan is literally unchanged. · This is contribution C1 — keep it simple, precise and reproducible.
 
 ## 1. Purpose
 
@@ -39,7 +39,7 @@ These items **count in the denominator** of coverage and joint risk (they contri
 |---|---|
 | `string_correct` | `canonical(ê) ≡ canonical(e*)` (spec 06 §5) |
 | `harmless_error` | `not string_correct and h == 0` |
-| `nonbinding_error` | `h == 1 and P̂.digest == P.digest` (plan unchanged, like the hospital case) |
+| `nonbinding_error` | `h == 1 and P̂.digest == P.digest` (plan unchanged in order **and** service times, spec 07 §5; like the hospital case). An edit that only adds waiting is **not** non-binding |
 | `violation_kind` | which rule fired: R1 / R2 / R3 |
 | `delta_cost`, `late_min`, `tw_violations` | magnitude of harm |
 

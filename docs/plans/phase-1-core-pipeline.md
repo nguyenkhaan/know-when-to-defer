@@ -86,8 +86,9 @@
 - Consumes: `RouteSnapshot`, `EditSet`, `travel()`.
 - Produces:
   - `SolverConfig(time_limit_s=3.0, solution_limit: int | None = None, first_solution: str = "PATH_CHEAPEST_ARC", late_penalty=10.0, dev_weight=2.0, shift_penalty=10.0)` — `time_limit_s` và `first_solution` đổi được để chạy kiểm tra V1 (spec 13 §11)
-  - `Plan`, `Infeasible` (spec 07 §5); `Plan.digest() -> str`
-  - `current_plan(p: RouteSnapshot) -> Plan`
+  - `Plan`, `Infeasible` (spec 07 §5); `Plan.digest() -> str` (băm thứ tự **và** `service_start` làm tròn phút, cùng `end_time`; quyết định 06/11)
+  - `schedule(p: RouteSnapshot, sequence: list[str], e: EditSet | None) -> tuple[dict[str, int], dict[str, int], int]` (`arrival`, `service_start`, `end_time`; spec 07 §5). Mọi giờ trong `Plan` lấy từ hàm này, không đọc cumul của OR-Tools; dùng lại `travel()` và quy tắc đi tuyến của spec 05 §4.
+  - `current_plan(p: RouteSnapshot) -> Plan` (= `schedule(p, p.remaining, None)`)
   - `solve(p: RouteSnapshot, e: EditSet | None, cfg: SolverConfig) -> Plan | Infeasible`
   - `check_constraints(p: RouteSnapshot, plan: Plan, e: EditSet, tol_min: int = 1) -> list[Violation]` với `Violation(op: str, stop: str | None, amount_min: float)`
   - `solve_cached(p, e, cfg, cache_dir: Path) -> Plan | Infeasible` (khóa: `snapshot_id` + `canonical(e)` + hash cfg)
@@ -96,8 +97,8 @@
 - [ ] **Step 2 [CODE]:** Một test cho mỗi op: sau `solve`, `check_constraints(p, plan, e) == []`.
 - [ ] **Step 3 [CODE]:** `test_hospital_gold_moves_after_15` (arrival ≥ 15:00); `test_hospital_wrong_keeps_plan` (`plan.digest() == current_plan(p).digest()`).
 - [ ] **Step 4 [CODE]:** Review Focus #3: `test_conflicting_edits_infeasible` — `set_time_window(H, 15:00, 16:00)` + `deadline(H, 14:00)` → `Infeasible`; `precedence(A,B)` + `precedence(B,A)` → `Infeasible`. Không ném exception.
-- [ ] **Step 5 [CODE]:** `test_deterministic`: 3 lần `solve` trên snapshot thật 120 điểm → cùng digest. `test_solve_time`: median ≤ 3 s.
-- [ ] **Step 6:** FAIL → cài đặt theo spec 07 §2–§4 (warm start bằng `ReadAssignmentFromRoutes`; `GUIDED_LOCAL_SEARCH`; 1 worker). `check_constraints` tính độc lập với OR-Tools, từ `plan.arrival`.
+- [ ] **Step 5 [CODE]:** `test_deterministic`: 3 lần `solve` trên snapshot thật 120 điểm → cùng digest. `test_solve_time`: median ≤ 3 s. `test_current_plan_matches_baseline`: `current_plan(p).arrival == baseline_arrivals(p)`. `test_digest_detects_wait_only_change`: giữ nguyên thứ tự, thêm `set_time_window` có `start` muộn hơn giờ phục vụ hiện tại của một điểm → digest khác `current_plan`; `start` sớm hơn → digest bằng.
+- [ ] **Step 6:** FAIL → cài đặt theo spec 07 §2–§4 (warm start bằng `ReadAssignmentFromRoutes`; `GUIDED_LOCAL_SEARCH`; 1 worker). `check_constraints` tính độc lập với OR-Tools, từ `plan.service_start`.
 - [ ] **Step 7:** PASS. Commit `feat(solver): TSPTW re-optimization with edits`.
 
 ### Task 1.5: Nhãn tác hại · **[B]**

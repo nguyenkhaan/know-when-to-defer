@@ -42,7 +42,7 @@ Golden fixture (local clock; departure 13:00, `t_now` = 13:00; service 5 min at 
 | 3 | Nguyen Du School | school | B | 14:45 | until 15:00 |
 | 4 | Thanh Cong Shop | shop | B | 15:25 | none |
 
-The two original windows are required. Without them the gold edit only makes the vehicle wait at the hospital until 15:00, because waiting costs nothing in the objective (spec 07 §3): the order stays the same, the plan digest does not change, and `S3_flag = 1` cannot hold. With them, an exhaustive check of the 24 orders (`test_hospital_fixture_design`) gives:
+The two original windows are required. Without them the gold edit only makes the vehicle wait at the hospital until 15:00, because waiting costs nothing in the objective (spec 07 §3), and the order stays the same. Since 06/11 the digest also hashes service times (spec 07 §5), so that wait would already count as binding; the windows are kept so the gold also changes the **order**, which makes the golden example unambiguous. With them, an exhaustive check of the 24 orders (`test_hospital_fixture_design`) gives:
 
 | Case | Best order | Cost | Next best |
 |---|---|---|---|

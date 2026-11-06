@@ -25,6 +25,7 @@
 
 - [ ] **P2** · Mục IV (Method) phải có: công thức chọn `λ̂` và lưới ngưỡng **có `−∞`**; lập luận lưới điểm calibration (vấn đề liên tục phải sau khi đổi biến `θ = −λ`, spec 12 §2.1); danh sách loại thao tác DSL; nhóm `compound`; nguồn của điểm rủi ro `s` (LLM outputs + solver feedback). Mục III trỏ tới Section IV hai lần.
 - [ ] **P2** · Mục VI (Experiments) phải báo: tần suất vi phạm qua 100 split (vì CRC chỉ bảo đảm trung bình); rủi ro theo nhóm `ĉ` (được bảo đảm) **và** theo loại gold `c` (phân tích); `cov_max` (3) làm đường tham chiếu trong F2/T3; độ nhạy `ε ∈ {0, 5, 10}` (spec 09, check V2).
+- [ ] **P2** · Mục IV phải nói `cost` trong (1) **không** có số hạng độ lệch `dev_weight·deviation` mà solver dùng khi tối ưu (spec 07 §3, spec 09 §2), để reviewer không tưởng nhầm `Solve` tối ưu đúng `cost`. Thêm 06/11.
 - [ ] **P3** · Intro: viết "large language model (LLM)" ở lần dùng đầu; Abstract không dùng viết tắt.
 - [ ] **P2** · Mục IV hoặc VI phải có một câu về nhóm nhỏ: CRC theo nhóm `ĉ` cần tối thiểu `n ≥ 1/α − 1` mẫu calibration (99 ở α = 0,01; 49 ở 0,02), nhóm dưới ngưỡng bị chuyển duyệt hết (bảo đảm vẫn giữ, coverage của nhóm = 0). Báo số nhóm bị chuyển duyệt hết trong T3. Caption F3 và câu về C5 phải ghi rõ `α_F3` và quy tắc chọn (chỉ dựa vào số mẫu, spec 13 §14.0); nếu `α_F3 ≠ α_main` thì giải thích một câu (spec 12 §2.2, spec 13 §14.5; thêm 06/11).
 
@@ -36,11 +37,14 @@
 
 ### 5. Câu hỏi mở về phương pháp
 
+- [x] **P2** · Lỗi non-binding: Mục III viết `P̂ = P`, spec cũ chỉ băm thứ tự. **Đã chốt (a) ngày 06/11:** digest băm thứ tự + `service_start` làm tròn phút + `end_time`; mọi giờ trong `Plan` lấy từ hàm chung `schedule()` (spec 07 v0.2 §5); câu paper giữ nguyên. Đã sửa spec 07, 08, 09, 11, 14 và Task 1.4.
+- [ ] **P1** · **Báo B trước khi làm Task 1.4:** `Plan` có thêm `service_start`, hàm `schedule()`, digest mới, `check_constraints` dùng `service_start`, mô hình OR-Tools thêm cận dưới `tw_start` của khung giờ gốc (spec 07 §2, §5).
+- [ ] **P1** · **`P̂ = P` có thể gần như không bao giờ xảy ra trên tuyến thật** (có từ trước, không do quyết định (a)). `P` là thứ tự tài xế LMRC đã chạy, thường chưa tối ưu; `solve(P, ê)` tối ưu lại nên có thể đổi thứ tự dù `ê` đã thỏa sẵn (spec 07 §7 chỉ yêu cầu `solve(P, ∅)` có cost ≤). Khi đó lỗi non-binding, `gold_binding` và tín hiệu S3 đều sai trên dữ liệu thật, dù fixture bệnh viện vẫn qua. Cần chọn trước pilot 10/11: so `P̂` với `P₀ = solve(P, ∅)` thay vì `P` (paper đổi định nghĩa `P`), hoặc buộc solver giữ thứ tự khi thứ tự hiện tại đã thỏa `ê`. Đo nhanh trên 20 tuyến thật: tỷ lệ `solve(P, ∅).digest != P.digest`.
 - [ ] **P1** · Hỏi GVHD 10/11: dữ liệu chia **theo tuyến** nhưng CRC tính rủi ro **theo yêu cầu**. Các yêu cầu cùng tuyến phụ thuộc nhau, nên giả định "exchangeable" mà mục III nêu có thể không đúng hẳn. Tùy câu trả lời: thêm 1 câu giới hạn ở Mục VII, hoặc đổi đơn vị calibration.
 
 ### 6. Nhất quán thuật ngữ và ký hiệu (rà khi các mục khác đã viết)
 
-- [ ] **P3** · Ký hiệu: paper dùng `t_0`, code/spec dùng `t_now`; `ĉ` (loại lệnh LLM) và `c` (loại gold) không được lẫn ở Results; `Solve(·)` thống nhất.
+- [ ] **P3** · Ký hiệu: ~~`t_0` vs `t_now`~~ đã thống nhất `$t_{\mathrm{now}}$` (06/11); `ĉ` (loại lệnh LLM) và `c` (loại gold) không được lẫn ở Results; `Solve(·)` thống nhất.
 - [ ] **P3** · Thuật ngữ: *non-executable*, *harmless error*, *non-binding error*, *joint risk*, *coverage* dùng đúng một nghĩa trong toàn bài.
 
 ### 7. Văn phong và chính sách

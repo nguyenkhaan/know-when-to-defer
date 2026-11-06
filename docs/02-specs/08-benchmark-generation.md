@@ -1,6 +1,6 @@
 # 08 · Benchmark Generation
 
-> Status: Draft v0.3 · Updated 2026-11-06 · v0.3: `gold_type = op_type(gold)` (spec 06 §5.1) is the only source of gold type `c`. · v0.2: main set ~3,000 items; paraphraser = M3; new §10 human-written test set.
+> Status: Draft v0.3 · Updated 2026-11-06 · v0.3: `gold_type = op_type(gold)` (spec 06 §5.1) is the only source of gold type `c`; `gold_binding` uses the digest of spec 07 §5 (order + service times). · v0.2: main set ~3,000 items; paraphraser = M3; new §10 human-written test set.
 
 ## 1. Purpose
 
@@ -10,7 +10,7 @@ Build a set of dispatcher requests over real LMRC snapshots with **reproducible 
 
 1. Pick a snapshot `P` (spec 05).
 2. **Sample gold** `e*` (1 op, or 2–3 ops for compound items) from the op mix in §3.
-3. **Check** `solve(P, e*)` is feasible; record `gold_binding = (P*.digest != P.digest)`.
+3. **Check** `solve(P, e*)` is feasible; record `gold_binding = (P*.digest != P.digest)`. The digest covers order and service-start times (spec 07 §5), so a gold edit met only by waiting counts as binding.
 4. **Verbalize** `e*` → request `q` with a template for the target ambiguity level (§4).
 5. **Paraphrase** `q` with an LLM (§5); reject paraphrases that fail the meaning check.
 6. Save a `BenchmarkItem`.
