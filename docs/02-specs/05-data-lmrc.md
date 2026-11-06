@@ -49,13 +49,13 @@ Sample a fixed list of routes with `seed = 0`, stratified by `station_code`. Tar
 
 For each selected route:
 
-1. **Baseline plan** = the actual sequence. Compute arrival times by walking the sequence: `arrival[i+1] = depart[i] + travel(i, i+1)`, `depart[i] = max(arrival[i], tw_start[i]) + service[i]`.
-2. **Pick `t_now`**: the departure time from the stop at position `⌊ρ · n⌋`, with `ρ ~ Uniform(0.2, 0.5)` (seeded). Stops up to that position are **done** (frozen); the vehicle is at that stop.
+1. **Baseline plan** = the actual sequence. Compute arrival times by walking the sequence: `arrival[i+1] = depart[i] + travel(i, i+1)`, `depart[i] = max(arrival[i], tw_start[i]) + service[i]`. Travel times are rounded to whole seconds (`np.rint`) in exactly one place, `travel(p)`, so baseline and solver arrival times agree. Arrivals strictly increase: zero-length legs exist, but all 365,971 delivery stops of the eligible routes have a positive service time after rounding.
+2. **Pick `t_now`**: the departure time from the stop at position `k = ⌊ρ · n⌋`, with `n` counting the depot and `ρ ~ Uniform(0.2, 0.5)` (seeded). Positions `1..k` are **done** (frozen); the depot is never in `done`. The vehicle is at position `k`. If `k = 0`, `done` is empty, the vehicle is at the depot and `t_now = 0`.
 3. **Remaining stops** (typically 50–150) are the editable part.
-4. **Stop service time** = sum of `planned_service_time_seconds` over the stop's packages, rounded to whole seconds.
-5. **Stop time window** = intersection of its packages' windows, if any (most stops have none).
-6. **Shift end** = baseline return-to-depot time + 60 min (LMRC has no driver shifts). Configurable.
-7. **Local clock**: convert UTC → station local time zone. Verified 2026-11-05: 17 stations in 5 cities; map by the 2 letters after `D`:
+4. **Stop service time** = sum of `planned_service_time_seconds` over the stop's packages, rounded to whole seconds. The depot has `service_s = 0` and no window.
+5. **Stop time window** = intersection of the windows of the packages that have one; packages without a window are ignored (most stops have none). Measured 2026-11-06 on the 2,571 eligible routes: 24,580 of 365,971 delivery stops have a window, 5,449 stops mix packages with and without one, 1,088 have several different windows, and no package has only one end. `tw` is in whole seconds since departure and **stays negative** when the window opens before departure (9,294 stops), so that the table shows the true time; how to treat it is up to the solver. An empty intersection (`start ≥ end`, 1 stop) gives `tw = None`. No window ends after local midnight.
+6. **Shift end** = baseline return-to-depot time (including the last leg back) + 60 min (LMRC has no driver shifts). Configurable.
+7. **Local clock**: convert UTC → station local time zone. `departure_local` keeps the seconds (`"HH:MM:SS"`): 2,257 of the 2,571 eligible routes do not depart on a whole minute, and `"HH:MM"` would shift every displayed time by up to 59 s, against a tolerance of 1 min. Convert only through `clock_str` (rounds down to the minute) and `clock_to_s`; both reject times outside the local day rather than wrap around. The data span 2018-07-19 to 2018-08-26, with no daylight saving change, so one conversion per route is enough. Verified 2026-11-05: 17 stations in 5 cities; map by the 2 letters after `D`:
 
    | Prefix | City | Stations (routes) | Time zone |
    |---|---|---|---|
@@ -66,7 +66,7 @@ For each selected route:
    | `DSE` | Seattle | DSE2, 4, 5 (1,079) | `America/Los_Angeles` |
 
    Example: departure `2018-07-27 16:02:10 UTC` at DLA3 = 09:02 local.
-8. **Display names**: LMRC stop IDs are opaque. Assign each remaining stop a synthetic, unique **name + category** (e.g. `"Mercy Hospital"`, category `hospital`), drawn with a seeded generator from a fixed list of ~10 categories (residence, office, pharmacy, hospital, school, restaurant, shop, warehouse, clinic, gym). Categories give the benchmark realistic indirect references ("the hospital", "the pharmacy on the north side").
+8. **Display names**: LMRC stop IDs are opaque. Assign every delivery stop, including done ones, a synthetic, unique **name + category** (e.g. `"Oak Clinic"`, category `clinic`), drawn with a seeded generator in sorted `stop_id` order, so names do not depend on `ρ`. The depot is `"Depot"`, category `depot`. Names are unique after normalization (casefold, collapsed whitespace), ASCII only, and share prefixes across stops to keep name confusions realistic. Categories give the benchmark realistic indirect references ("the hospital", "the pharmacy on the north side"), which spec 08 only allows when exactly one such stop remains, so they are **weighted, not uniform** (`kwd.data.names`): residence 70%; office and shop 9% each; restaurant 6%; hospital, school, pharmacy, clinic, gym and warehouse 1% each.
 
 ## 5. Data model
 
@@ -78,14 +78,14 @@ class Stop(BaseModel):
     zone_id: str | None
     lat: float; lng: float
     service_s: int          # seconds
-    tw: tuple[int, int] | None   # seconds since departure; None = no window
+    tw: tuple[int, int] | None   # seconds since departure, may be negative; None = no window
 
 class RouteSnapshot(BaseModel):
     snapshot_id: str        # f"{route_id}@{t_now}"
     route_id: str
     station_code: str
     tz: str
-    departure_local: str    # "HH:MM", for rendering
+    departure_local: str    # "HH:MM:SS" local time, read through clock_str and clock_to_s
     t_now: int              # seconds since departure
     current_stop: str       # vehicle position at t_now
     done: list[str]         # frozen prefix
@@ -93,7 +93,8 @@ class RouteSnapshot(BaseModel):
     stops: dict[str, Stop]
     depot_id: str
     shift_end: int
-    travel_path: str        # path to cached per-route travel-time matrix (seconds, float)
+    travel_path: str        # repo-relative POSIX path to the per-route matrix (seconds, float)
+    node_ids: list[str]     # row/column order of the matrix: all stops with the depot, sorted
 ```
 
 Storage: one JSONL file `data/interim/snapshots.jsonl`; travel matrices as `.npy` per route.

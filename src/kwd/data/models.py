@@ -21,7 +21,7 @@ class RouteSnapshot(BaseModel):
     route_id: str
     station_code: str
     tz: str
-    departure_local: str  # "HH:MM", for rendering
+    departure_local: str  # "HH:MM:SS" local time, read through clock_str and clock_to_s
     t_now: int  # seconds since departure
     current_stop: str  # vehicle position at t_now
     done: list[str]  # frozen prefix

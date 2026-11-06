@@ -42,16 +42,16 @@
 - Produces:
   - `build_snapshot(raw: RawRoute, rho: float, seed: int, shift_slack_min: int = 60) -> RouteSnapshot`
   - `baseline_arrivals(p: RouteSnapshot) -> dict[str, int]` (đi theo `p.remaining` từ `current_stop` lúc `t_now`)
-  - `travel(p: RouteSnapshot) -> np.ndarray` (phút, theo `p.node_ids`)
+  - `travel(p: RouteSnapshot) -> np.ndarray` (giây, `int64`, theo `p.node_ids`)
   - `render_snapshot(p: RouteSnapshot) -> str`
   - `load_fixture_snapshot(name: str) -> RouteSnapshot` (dùng cho test mọi module)
 
-- [ ] **Step 1 [CODE]:** Test `test_snapshot_freezes_prefix`: với `rho=0.25` trên fixture mini → `len(p.done) == 3`, `p.current_stop == p.done[-1]`, `set(p.done).isdisjoint(p.remaining)`.
-- [ ] **Step 2 [CODE]:** Test `test_baseline_arrivals_monotone`: arrival tăng dần theo `p.remaining`.
-- [ ] **Step 3 [CODE]:** Test `test_display_names_unique_and_seeded`: tên hiển thị duy nhất; cùng seed → cùng tên.
-- [ ] **Step 4 [CODE]:** Test `test_render_hospital`: `render_snapshot(load_fixture_snapshot("hospital"))` chứa `"An Binh Hospital"`, `"14:10"`, `"Current time: 13:00"`.
-- [ ] **Step 5:** FAIL → cài đặt theo spec 05 §4 (tên giả lấy từ danh sách cố định ~10 loại trong `names.py`; múi giờ theo bảng `station_code` đã kiểm ở Phase 0). Tạo `hospital.json` bằng tay: 4 điểm + depot, ma trận thời gian sao cho ETA đúng 13:20/14:10/14:45/15:25.
-- [ ] **Step 6:** PASS. Commit `feat(data): in-service snapshots and renderer`.
+- [x] **Step 1 [CODE]:** Test `test_snapshot_freezes_prefix`: với `rho=0.25` trên fixture mini → `len(p.done) == 3`, `p.current_stop == p.done[-1]`, `set(p.done).isdisjoint(p.remaining)`.
+- [x] **Step 2 [CODE]:** Test `test_baseline_arrivals_monotone`: arrival tăng dần theo `p.remaining`.
+- [x] **Step 3 [CODE]:** Test `test_display_names_unique_and_seeded`: tên hiển thị duy nhất; cùng seed → cùng tên.
+- [x] **Step 4 [CODE]:** Test `test_render_hospital`: `render_snapshot(load_fixture_snapshot("hospital"))` chứa `"An Binh Hospital"`, `"14:10"`, `"Current time: 13:00"`.
+- [x] **Step 5:** FAIL → cài đặt theo spec 05 §4 (tên giả lấy từ danh sách cố định ~10 loại trong `names.py`; múi giờ theo bảng `station_code` đã kiểm ở Phase 0). Tạo `hospital.json` bằng tay: 4 điểm + depot, ma trận thời gian sao cho ETA đúng 13:20/14:10/14:45/15:25.
+- [x] **Step 6:** PASS. Commit `feat(data): in-service snapshots and renderer`.
 
 ### Task 1.3: Edit DSL · **[A]**
 

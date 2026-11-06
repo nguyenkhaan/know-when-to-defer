@@ -1,6 +1,6 @@
 # 14 · Reproducibility, Engineering Conventions & Testing
 
-> Status: Draft v0.1 · Updated 2026-11-05
+> Status: Draft v0.1 · Updated 2026-11-06
 
 ## 1. Runs
 
@@ -33,14 +33,22 @@ Caches are append-only during the project. Never cache anything keyed on gold fo
 | Isolation | signals never see gold | import graph test + schema test |
 | Determinism | same config ⇒ same outputs | snapshot hash, solver digest, benchmark file hash |
 
-Golden fixture (local clock; departure 13:00, `t_now` = 13:00):
+Golden fixture (local clock; departure 13:00, `t_now` = 13:00; service 5 min at every delivery stop; shift ends 17:30). Rebuild with `scripts/make_hospital_fixture.py`, which holds the travel matrix:
 
-| Order | Stop | Category | ETA |
+| Order | Stop | Category | Zone | ETA | Original window |
+|---|---|---|---|---|---|
+| 1 | Minh Chau Pharmacy | pharmacy | A | 13:20 | until 14:00 |
+| 2 | An Binh Hospital | hospital | A | 14:10 | none |
+| 3 | Nguyen Du School | school | B | 14:45 | until 15:00 |
+| 4 | Thanh Cong Shop | shop | B | 15:25 | none |
+
+The two original windows are required. Without them the gold edit only makes the vehicle wait at the hospital until 15:00, because waiting costs nothing in the objective (spec 07 §3): the order stays the same, the plan digest does not change, and `S3_flag = 1` cannot hold. With them, an exhaustive check of the 24 orders (`test_hospital_fixture_design`) gives:
+
+| Case | Best order | Cost | Next best |
 |---|---|---|---|
-| 1 | Minh Chau Pharmacy | pharmacy | 13:20 |
-| 2 | An Binh Hospital | hospital | 14:10 |
-| 3 | Nguyen Du School | school | 14:45 |
-| 4 | Thanh Cong Shop | shop | 15:25 |
+| No edit | Pharmacy, Hospital, School, Shop | 180 | 196 |
+| Gold: Hospital from 15:00 | Pharmacy, School, Hospital (15:10), Shop | 196 | 206 |
+| Wrong: Hospital until 15:00 | unchanged | 180 | 351 |
 
 Request: "An Binh Hospital only accepts deliveries from 3 pm." Gold `set_time_window(An Binh Hospital, 15:00, null)`; wrong `set_time_window(An Binh Hospital, null, 15:00)`.
 
