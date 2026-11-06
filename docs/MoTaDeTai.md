@@ -2,7 +2,7 @@
 
 **Hội nghị mục tiêu:** IEEE MOST 2027, hạn nộp **01/12/2026**, tối đa 8 trang, IEEE format, double-blind.
 **Tài liệu liên quan:** bản diễn giải ngắn `DienGiaiYTuong.md`; PDF tham khảo trong `../reference-documents/`.
-**Cập nhật:** 05/11/2026, đồng bộ kết quả đánh giá tính mới ngày 04/11/2026 (bổ sung CORA, Role-Stratified CRC; định vị lại đóng góp; kế hoạch pilot tuần 1).
+**Cập nhật:** 05/11/2026, đồng bộ kết quả đánh giá tính mới ngày 04/11/2026 (bổ sung CORA, Role-Stratified CRC; định vị lại đóng góp; kế hoạch pilot tuần 1). 06/11/2026: §2.2 đủ 3 luật tác hại R1–R3 theo spec 09; §2.3 thêm điều kiện áp CRC Thm. 1 và cận coverage có `π`; ngưỡng theo loại dùng loại `ĉ` của lệnh LLM sinh.
 
 ---
 
@@ -61,28 +61,37 @@ Với mỗi mẫu `i`:
 
 ### 2.2. Định nghĩa tác hại
 
-`h_i = 1` khi xảy ra ít nhất một trong hai điều sau:
+`h_i = 1` khi xảy ra ít nhất một trong ba điều sau (chi tiết và tham số: spec 09):
 
-1. `P̂_i` **vi phạm** một ràng buộc của `e*_i` (khung giờ, thứ tự, giờ về kho, điểm phải bỏ…), tức yêu cầu thật không được thực hiện; hoặc
-2. `P̂_i` **tệ hơn** `P*_i` quá ngưỡng `ε`, tính theo km tăng thêm hoặc phút trễ.
+1. **R1 · Vi phạm đáp án:** `P̂_i` vi phạm một ràng buộc của `e*_i` (khung giờ, thứ tự, giờ về kho, khu cấm, điểm phải bỏ…) quá `tol_min`, tức yêu cầu thật không được thực hiện;
+2. **R2 · Sai tập điểm:** tập điểm được ghé trong `P̂_i` khác trong `P*_i` (bỏ nhầm điểm, hoặc bỏ một điểm mà yêu cầu không hề đòi bỏ); hoặc
+3. **R3 · Chi phí vượt:** `cost(P̂_i) − cost(P*_i) > ε`, với `cost` = phút di chuyển + phạt phút trễ, `ε = max(5 phút, 2% · cost(P*_i))`.
 
-Hệ quả là một lệnh sai nhưng không làm kế hoạch vi phạm ý định thật và không tăng chi phí quá `ε` thì được tính là **lỗi vô hại** (`h_i = 0`). Cách chấm này khác các benchmark hiện có, vốn chấm theo trùng giá trị mục tiêu [P5], Pass@1 [P3] hay update correctness [P4]. Nó cũng khác CORA [P21], nơi tác hại được gán cho từng hành động: ở đây một lệnh sai có thể đúng cú pháp, khả thi, thậm chí không làm kế hoạch thay đổi (khi ràng buộc sai không binding), nên tác hại **chỉ nhìn thấy ở mức kế hoạch**.
+Cần R2 vì nếu thiếu nó, lỗi "bỏ điểm thay vì dời giờ" (loại lỗi nhiều nhất của M1 ở smoke test) bị chấm vô hại: khung giờ của đáp án gắn với một điểm không còn trong tuyến nên R1 không bắt, và tuyến ngắn hơn nên R3 không bắt.
+
+Lệnh lỗi parse hoặc bị solver báo infeasible thì **không được thực thi** (`h_i` không xác định), luôn chuyển người duyệt, nhưng vẫn nằm trong mẫu số khi tính coverage và rủi ro.
+
+Hệ quả là một lệnh sai nhưng không vi phạm luật nào thì được tính là **lỗi vô hại** (`h_i = 0`). Cách chấm này khác các benchmark hiện có, vốn chấm theo trùng giá trị mục tiêu [P5], Pass@1 [P3] hay update correctness [P4]. Nó cũng khác CORA [P21], nơi tác hại được gán cho từng hành động: ở đây một lệnh sai có thể đúng cú pháp, khả thi, thậm chí không làm kế hoạch thay đổi (khi ràng buộc sai không binding), nên tác hại **chỉ nhìn thấy ở mức kế hoạch**.
 
 ### 2.3. Các dạng rủi ro cần kiểm soát
 
 | Dạng | Công thức | Công cụ | Vai trò trong bài |
 |---|---|---|---|
-| Rủi ro kết hợp | `E[1{s ≤ λ} · h] ≤ α` | CRC [P11] (loss đơn điệu theo `λ`, CRC Thm. 1) | **Chính** |
-| Rủi ro theo loại lệnh | `E[1{s ≤ λ_c} · h \| c] ≤ α` với mỗi loại `c` | CRC hiệu chỉnh riêng từng loại, theo hướng Role-Stratified CRC [P22] | Dùng nếu pilot cho thấy `μ` chênh lệch lớn giữa các loại |
+| Rủi ro kết hợp | `E[1{s ≤ λ} · h] ≤ α` | CRC [P11] Thm. 1 (xem ghi chú điều kiện bên dưới) | **Chính** |
+| Rủi ro theo loại lệnh | `E[1{s ≤ λ_ĉ} · h \| ĉ] ≤ α` với mỗi loại `ĉ` của **lệnh LLM sinh** | CRC hiệu chỉnh riêng từng nhóm `ĉ`, theo hướng Role-Stratified CRC [P22] | Dùng nếu pilot cho thấy `μ` chênh lệch lớn giữa các nhóm `ĉ` |
 | Rủi ro có điều kiện | `P(h = 1 \| s ≤ λ) ≤ α` | LTT [P12], cận selective classification [P16] (loss **không đơn điệu**, không dùng CRC được — CRC Prop. 1 [P11]) | Phụ; **câu hỏi mở:** có cắt khỏi bản nộp không (xem Mục 6) |
 
 Phân biệt rủi ro kết hợp với rủi ro có điều kiện, và kiểm tra bảo đảm dưới shift, **đã có trong CORA** [P21] (chỉ số HR và mHR, weighted CRC). Đề tài dùng các công cụ này để đánh giá, không claim mới. Báo cáo sai loại bảo đảm vẫn là lỗi reviewer dễ bắt nhất.
 
+**Điều kiện áp CRC Thm. 1 [P11].** Định lý yêu cầu loss *không tăng* theo tham số, liên tục phải, bị chặn bởi `B`, và `L(λmax) ≤ α` tại mức thận trọng nhất. Loss của đề tài `L_i(λ) = x_i · h_i · 1{s_i ≤ λ}` (`x_i = 1` nếu lệnh thực thi được) lại *không giảm* theo `λ`, nên áp định lý cho `θ = −λ`, với `B = 1`. Mức thận trọng nhất là `λ = −∞` (chuyển duyệt tất cả), có loss 0, vì vậy lưới ngưỡng phải luôn chứa `−∞`. Lưới ngưỡng chỉ gồm điểm calibration (spec 12 §2.1) cho ngưỡng bằng hoặc chặt hơn CRC chuẩn, nên bảo đảm vẫn giữ. Rủi ro có điều kiện không đơn điệu theo `λ`, và CRC Prop. 1 cho thấy khi đó rủi ro có thể tiến tới `B`, nên phải dùng LTT.
+
+**Loại dùng để chọn ngưỡng là loại của lệnh LLM sinh (`ĉ`), không phải của đáp án (`c`).** Lúc triển khai không có đáp án, nên ngưỡng `λ_c` theo loại đáp án không áp được cho yêu cầu mới. Nhóm theo `ĉ` đọc được từ chính `ê`, và CRC chạy riêng trong từng nhóm vẫn giữ bảo đảm `E[L | ĉ] ≤ α`. Rủi ro theo loại đáp án `c` vẫn được báo cáo, nhưng chỉ để phân tích. Quyết định ngày 06/11/2026.
+
 **Lý do cần hiệu chỉnh theo loại lệnh:** Role-Stratified CRC [P22] chỉ ra rằng nếu loại `c` chiếm tần suất `p_c`, thì muốn bảo đảm `α` cho riêng loại đó bằng một ngưỡng chung, ngân sách tổng phải co lại còn `α · p_c`. Một `α` chung có thể che giấu vi phạm tập trung ở các loại lệnh hiếm nhưng dễ sai.
 
-**Cận dưới cho tỷ lệ chuyển duyệt.** Nếu `μ ≤ α`, CRC cho thực thi gần như tất cả và bài không còn gì để kiểm soát. Nếu `μ > α`, kể cả với điểm rủi ro hoàn hảo:
+**Cận dưới cho tỷ lệ chuyển duyệt.** Trên `N` yêu cầu, `μ = Σ x_i h_i / N` (tỷ lệ gây hại khi thực thi mọi lệnh thực thi được, spec 13 §14) và `π = 1 − Σ x_i / N` (tỷ lệ lệnh lỗi parse hoặc infeasible, luôn bị chuyển duyệt). Nếu `μ ≤ α`, CRC cho thực thi gần như tất cả và bài không còn gì để kiểm soát. Nếu `μ > α`, kể cả với điểm rủi ro hoàn hảo:
 
-- rủi ro kết hợp cần chuyển duyệt ít nhất `μ − α` mẫu;
+- rủi ro kết hợp cần chuyển duyệt thêm ít nhất `μ − α` mẫu, nên coverage tối đa là **`1 − π − max(0, μ − α)`**;
 - rủi ro có điều kiện cần chuyển duyệt ít nhất `(μ − α)/(1 − α)` mẫu [P23].
 
 Từ đó suy ra tỷ lệ tự động hóa tối đa có thể đạt, dùng làm mốc so sánh cho điểm rủi ro thực tế và làm tiêu chí go/no-go (Mục 6).
@@ -172,7 +181,7 @@ Tín hiệu đánh dấu *(solver)* là phần đóng góp chính, không cần 
 ### 4.5. Kiểm soát rủi ro
 
 - **(i) Chính – rủi ro kết hợp:** chọn `λ` bằng CRC [P11] Thm. 1.
-- **(ii) Theo loại lệnh:** nếu pilot cho thấy `μ` chênh lệch lớn giữa các loại, hiệu chỉnh `λ_c` riêng cho từng loại [P22]. So sánh với ngưỡng chung về tỷ lệ vi phạm từng loại và coverage. Đây cũng là một điểm khác so với CORA.
+- **(ii) Theo loại lệnh:** nếu pilot cho thấy `μ` chênh lệch lớn giữa các loại, hiệu chỉnh `λ_ĉ` riêng cho từng loại `ĉ` của lệnh LLM sinh [P22] (xem §2.3). So sánh với ngưỡng chung về tỷ lệ vi phạm từng loại và coverage. Đây cũng là một điểm khác so với CORA.
 - **(iii) Dịch chuyển phân phối:** calibrate trên một nhóm loại yêu cầu hoặc nhóm câu diễn đạt, test trên nhóm khác. Có thể so thêm weighted CRC cho covariate shift như CORA [P21].
 - **(iv) Phụ – rủi ro có điều kiện:** LTT [P12], mỗi `λ` ứng với một giả thuyết `H_λ: R(λ) > α`, p-value theo cận binomial, quét ngưỡng bằng fixed-sequence testing từ ngưỡng chặt nhất (khuôn mẫu §3.2 của LTT). So sánh thêm với SGR [P16]. Làm nếu còn thời gian.
 - **(Mở rộng, ngoài MVP)** Cập nhật ngưỡng online khi người chỉ kiểm tra ngẫu nhiên một phần lệnh đã thực thi; ACI [P17] là baseline; khi người chỉ kiểm tra ngẫu nhiên thì cần biến thể ACI cho phản hồi gián đoạn (sẽ tra cứu khi làm phần mở rộng). Có thể dùng bộ mô phỏng stakeholder có utility ẩn của [P9] để mô phỏng điều phối viên trả lời câu hỏi xác nhận, đo giá trị đầu–cuối của việc chuyển duyệt.

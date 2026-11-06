@@ -22,7 +22,7 @@
 | 10/11 | **Go / No-go**; đóng băng định nghĩa tín hiệu; chốt `α_main` | E0 (spec 13 §3, §14.0) |
 | 10/11 | Kích thước benchmark chính và `k` | Chi phí thật mỗi câu từ E0 |
 | 14/11 | Giữ hay cắt LTT (mặc định: **cắt**) | Tiến độ tuần 2 |
-| 14/11 | Dùng CRC theo loại lệnh hay không | `μ` có chênh lệch giữa các loại không |
+| 14/11 | Dùng CRC theo loại lệnh hay không | `μ` có chênh lệch giữa các nhóm `ĉ` (loại của lệnh LLM sinh) không; nhóm nào < 20 mẫu calibration |
 | 22/11 | **Khóa kết quả**: không chạy thí nghiệm mới | — |
 
 ## 3. Rủi ro chính và cách xử lý

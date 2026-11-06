@@ -27,7 +27,7 @@ Thí nghiệm nào không phục vụ claim nào thì không chạy. Phase này 
 **Interfaces:**
 - Produces:
   - `crc_lambda(s: np.ndarray, h: np.ndarray, executable: np.ndarray, alpha: float) -> float` (trả `-np.inf` nếu phải chuyển duyệt hết)
-  - `per_type_lambda(s, h, executable, types: np.ndarray, alpha: float, min_n: int = 20) -> dict[str, float]`
+  - `per_type_lambda(s, h, executable, types: np.ndarray, alpha: float, min_n: int = 20) -> dict[str, float]`. **`types` = loại thao tác của lệnh LLM sinh (`ĉ`, lấy từ `ê`; lệnh ghép → `"compound"`), không phải loại của gold** (spec 12 §2.2, quyết định 06/11). `evaluate` báo cả rủi ro theo nhóm `ĉ` (được bảo đảm) và rủi ro theo loại gold `c` (chỉ để phân tích), spec 13 §14.3.
   - `evaluate(s, h, executable, types, lam: float | dict[str, float], alpha: float, harm_cost: pd.DataFrame | None = None) -> dict` (coverage, rủi ro kết hợp, rủi ro có điều kiện, rủi ro theo loại, `violated`; nếu có `harm_cost` thì thêm số lần gây hại, phút trễ, khung giờ bị vi phạm đã tránh trên 1.000 yêu cầu)
 
 - [ ] **Step 1 [CODE]:** `test_crc_validity_synthetic`: dữ liệu giả hoán đổi được, `μ = 0,15`; 1.000 split 50/50, α = 0,05 → rủi ro thực tế trung bình ≤ 0,05 + 0,005. (CRC chỉ bảo đảm rủi ro **trung bình**; tần suất vi phạm chỉ báo cáo, không làm tiêu chí test.)
