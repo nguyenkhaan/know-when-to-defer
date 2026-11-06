@@ -89,11 +89,12 @@
   - `Plan`, `Infeasible` (spec 07 §5); `Plan.digest() -> str` (băm thứ tự **và** `service_start` làm tròn phút, cùng `end_time`; quyết định 06/11)
   - `schedule(p: RouteSnapshot, sequence: list[str], e: EditSet | None) -> tuple[dict[str, int], dict[str, int], int]` (`arrival`, `service_start`, `end_time`; spec 07 §5). Mọi giờ trong `Plan` lấy từ hàm này, không đọc cumul của OR-Tools; dùng lại `travel()` và quy tắc đi tuyến của spec 05 §4.
   - `current_plan(p: RouteSnapshot) -> Plan` (= `schedule(p, p.remaining, None)`)
+  - `is_fixed_point(p: RouteSnapshot, cfg: SolverConfig) -> bool` (= `solve(p, None, cfg).digest() == current_plan(p).digest()`; bộ lọc snapshot của spec 08 §2.1)
   - `solve(p: RouteSnapshot, e: EditSet | None, cfg: SolverConfig) -> Plan | Infeasible`
   - `check_constraints(p: RouteSnapshot, plan: Plan, e: EditSet, tol_min: int = 1) -> list[Violation]` với `Violation(op: str, stop: str | None, amount_min: float)`
   - `solve_cached(p, e, cfg, cache_dir: Path) -> Plan | Infeasible` (khóa: `snapshot_id` + `canonical(e)` + hash cfg)
 
-- [ ] **Step 1 [CODE]:** `test_empty_edit_keeps_plan`: `solve(hospital, None)` có `cost ≤ cost(current_plan)`.
+- [ ] **Step 1 [CODE]:** `test_empty_edit_keeps_plan`: `solve(hospital, None)` có `cost ≤ cost(current_plan)`; `is_fixed_point(hospital, cfg)` là True.
 - [ ] **Step 2 [CODE]:** Một test cho mỗi op: sau `solve`, `check_constraints(p, plan, e) == []`.
 - [ ] **Step 3 [CODE]:** `test_hospital_gold_moves_after_15` (arrival ≥ 15:00); `test_hospital_wrong_keeps_plan` (`plan.digest() == current_plan(p).digest()`).
 - [ ] **Step 4 [CODE]:** Review Focus #3: `test_conflicting_edits_infeasible` — `set_time_window(H, 15:00, 16:00)` + `deadline(H, 14:00)` → `Infeasible`; `precedence(A,B)` + `precedence(B,A)` → `Infeasible`. Không ném exception.

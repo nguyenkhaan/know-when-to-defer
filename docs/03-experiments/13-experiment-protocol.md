@@ -1,6 +1,6 @@
 # 13 · Experiment Protocol
 
-> Status: Draft v0.5 · Updated 2026-11-06 · v0.5: per-group CRC runs at every α; F3 and C5 use `α_F3` (§14.0, decided 06/11). · v0.4: T3/F3/E3 name groups `ĉ` explicitly; report fully deferred groups (spec 12 §2.2). · v0.3: per-type risk split into per-group risk by the LLM edit's op type `ĉ` (controlled) and per-type risk by gold `c` (analysis); C5 restated on `ĉ`. · v0.2 adds a human-written test set (E6), error taxonomy (E7), label-robustness checks (V1–V3), two stronger baselines (G1, L6), harm-prevented metric and station shift. Every experiment maps to a claim in `01-research/02-research-questions-and-claims.md`.
+> Status: Draft v0.5 · Updated 2026-11-06 · v0.5: E0 adds a solver sanity check (spec 08 §2.1); per-group CRC runs at every α; F3 and C5 use `α_F3` (§14.0, decided 06/11). · v0.4: T3/F3/E3 name groups `ĉ` explicitly; report fully deferred groups (spec 12 §2.2). · v0.3: per-type risk split into per-group risk by the LLM edit's op type `ĉ` (controlled) and per-type risk by gold `c` (analysis); C5 restated on `ĉ`. · v0.2 adds a human-written test set (E6), error taxonomy (E7), label-robustness checks (V1–V3), two stronger baselines (G1, L6), harm-prevented metric and station shift. Every experiment maps to a claim in `01-research/02-research-questions-and-claims.md`.
 
 ## 1. Overview
 
@@ -27,6 +27,7 @@ Pilot benchmark → translate with M1, M2 → label → signals S1–S5, L1, L3 
 - `μ` per model × level and per op; parse-error and infeasible rates; non-binding share of harmful errors;
 - AUROC (bootstrap 95% CI) of S1–S5 vs L3; oracle max coverage per α;
 - **measured cost per item** per model → extrapolate main-run cost; if over budget, reduce main set size or `k` before Phase 3.
+- **solver sanity** (spec 08 §2.1): share of pilot routes dropped by the fixed-point filter; for every non-binding gold, `P*.digest == P.digest`. If the second check fails on any item, fix the solver (Task 1.4) before E1 numbers are trusted.
 
 **Go** if both: (1) at levels 2–3, `μ ≥ 3–5%` for at least one translator and clearly above the α values we report; (2) at least one solver signal beats L3 (non-overlapping CI or ≥ +0.05 AUROC).
 **Fallbacks:** emphasize M1; harder level-3 compound items; else switch to the backup topic in `MoTaDeTai.md` §6.2.

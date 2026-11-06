@@ -1,6 +1,6 @@
 # 08 · Benchmark Generation
 
-> Status: Draft v0.3 · Updated 2026-11-06 · v0.3: `gold_type = op_type(gold)` (spec 06 §5.1) is the only source of gold type `c`; `gold_binding` uses the digest of spec 07 §5 (order + service times). · v0.2: main set ~3,000 items; paraphraser = M3; new §10 human-written test set.
+> Status: Draft v0.3 · Updated 2026-11-06 · v0.4: snapshots must be solver fixed points (§2.1, decided 06/11). v0.3: `gold_type = op_type(gold)` (spec 06 §5.1) is the only source of gold type `c`; `gold_binding` uses the digest of spec 07 §5 (order + service times). · v0.2: main set ~3,000 items; paraphraser = M3; new §10 human-written test set.
 
 ## 1. Purpose
 
@@ -8,12 +8,23 @@ Build a set of dispatcher requests over real LMRC snapshots with **reproducible 
 
 ## 2. Pipeline per item
 
-1. Pick a snapshot `P` (spec 05).
+1. Pick a snapshot `P` (spec 05) that passes the **fixed-point filter** (§2.1).
 2. **Sample gold** `e*` (1 op, or 2–3 ops for compound items) from the op mix in §3.
 3. **Check** `solve(P, e*)` is feasible; record `gold_binding = (P*.digest != P.digest)`. The digest covers order and service-start times (spec 07 §5), so a gold edit met only by waiting counts as binding.
 4. **Verbalize** `e*` → request `q` with a template for the target ambiguity level (§4).
 5. **Paraphrase** `q` with an LLM (§5); reject paraphrases that fail the meaning check.
 6. Save a `BenchmarkItem`.
+
+### 2.1 Fixed-point filter (decided 2026-11-06)
+
+Keep a snapshot only if `solve(P, ∅).digest == P.digest` (`is_fixed_point`, spec 07 §5): with no edit, the solver returns the current plan unchanged in order and service times.
+
+- **Why:** a non-binding error is defined by `P̂ = P` (paper §III, spec 09 §4), and `gold_binding` by `P*.digest != P.digest`. Both are meaningful only if the solver does not rewrite `P` on its own. `P` is the real LMRC driver order, which the solver can sometimes improve.
+- **Measured** 2026-11-06 (throwaway probe of spec 07 §2–§4 on 20 eligible routes, default `dev_weight` = 2 min): 18/20 are fixed points. One failure fixes 9.9 min of lateness on original windows; one shortens travel by 6.8 min. Expect ~10% of routes to fail (95% CI roughly 3–30%).
+- **Replacement:** a failing route is replaced by the next route of the same station from the seeded reserve list (spec 05 §3); `ρ` is not redrawn.
+- **Report** in `README.md` and the paper (§V): number of routes dropped, and how many of them were late on original windows in `P`. Limitation (§VII): routes already running late are under-represented.
+- **Scope of the guarantee:** calibration and test both come from filtered snapshots, so exchangeability holds and the CRC bound applies to fixed-point snapshots. The filter needs no gold, so a deployed system can apply the same check at request time (if the current plan is not a fixed point, re-plan first or defer), which keeps the bound meaningful in deployment. State this in one clause next to the filter sentence (paper §V).
+- Non-binding behaviour **with** an edit is not implied by this filter; it is checked in the pilot (spec 13 E0): for non-binding gold, `P*.digest == P.digest` on every item.
 
 ## 3. Gold sampling rules
 

@@ -1,6 +1,6 @@
 # 07 · Solver: Re-optimize a Snapshot Under Edits
 
-> Status: Draft v0.2 · Updated 2026-11-06 · v0.2: `Plan` times come from one shared walk `schedule()`; `digest()` hashes order **and** service-start times (§5, decided 06/11).
+> Status: Draft v0.2 · Updated 2026-11-06 · v0.2: `Plan` times come from one shared walk `schedule()`; `digest()` hashes order **and** service-start times (§5, decided 06/11); `is_fixed_point` for the benchmark filter (spec 08 §2.1).
 
 ## 1. Purpose
 
@@ -63,13 +63,15 @@ The walk serves every stop as early as allowed, so for a fixed order it gives th
 
 `Plan.digest()` = hash of (`sequence`, `service_start` of each stop rounded to the nearest minute, `end_time` rounded to the nearest minute). Decided 2026-11-06: an edit that keeps the order but makes the vehicle wait (e.g. a later window start on a stop) **changes the plan** and the digest. Used for "plan unchanged" in signals (spec 11 S3, S4), `gold_binding` (spec 08 §2) and `nonbinding_error` (spec 09 §4), so the paper's definition "$\hat{P} = P$" holds literally.
 
+`is_fixed_point(p, cfg) -> bool` = `solve(p, None, cfg).digest() == current_plan(p).digest()`. Benchmark snapshots must pass it (spec 08 §2.1).
+
 ## 6. Performance budget
 
 ~3,150 items (main + human) × 2 translators × (1 greedy + k samples + probes) solves, plus `P*` and the V1 re-solves. With k = 4 and ~4 counter-readings ⇒ ~9 solves per item per translator ⇒ ~57k solves × ≤3 s (≈ 48 CPU-hours before caching). Must run in parallel (process pool) and **cache by hash(snapshot_id, canonical EditSet, solver config)**: many samples are identical after canonicalization.
 
 ## 7. Acceptance criteria
 
-- [ ] `solve(P, ∅)` returns the current plan (or one with cost ≤ it) for 20 test snapshots.
+- [ ] `solve(P, ∅)` never has a higher cost than the current plan (20 test snapshots); on snapshots that pass `is_fixed_point` it returns the current plan exactly. The hospital fixture is a fixed point.
 - [ ] Each edit op has a unit test showing the constraint holds in the returned plan.
 - [ ] Hospital example: gold `[15:00, end]` moves the hospital after 15:00; wrong `[start, 15:00]` returns the **unchanged** plan.
 - [ ] Determinism test: 3 runs ⇒ identical digests.

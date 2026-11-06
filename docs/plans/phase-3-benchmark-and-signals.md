@@ -30,7 +30,7 @@ Việc của người (kiểm duyệt, viết câu) chạy song song với việ
 
 - [ ] **Step 1 [CODE]:** `test_build_reproducible`: chạy `build_items` 2 lần trên 3 snapshot (paraphrase qua `StubClient`) → hai file giống hệt từng byte.
 - [ ] **Step 2 [CODE]:** Cài `bench_stats` (số câu theo op × mức, % binding, độ dài câu trung bình). PASS. Commit `feat(bench): stats and reproducibility test`.
-- [ ] **Step 3 [EXP]:** `kwd snapshot` cho ~300 tuyến (không trùng tuyến pilot và tuyến của tập người viết) → `kwd bench --set main`. Kiểm tra `README.md`: mỗi ô ≥ 100 câu, binding ≈ 70%, tổng ~3.000.
+- [ ] **Step 3 [EXP]:** `kwd snapshot` cho ~300 tuyến (không trùng tuyến pilot và tuyến của tập người viết) → `kwd bench --set main`. Kiểm tra `README.md`: mỗi ô ≥ 100 câu, binding ≈ 70%, tổng ~3.000; số tuyến bị loại vì không phải fixed point (spec 08 §2.1) và bao nhiêu trong đó đang trễ khung giờ gốc. Nếu > 20% thì báo A trước khi chạy dịch.
 
 ### Task 3.2: Tập câu do người viết (E6) · **[A soạn thẻ + kiểm tra; B, C viết]**
 

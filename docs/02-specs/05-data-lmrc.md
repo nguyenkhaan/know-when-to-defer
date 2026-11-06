@@ -1,6 +1,6 @@
 # 05 · Data: LMRC → Route Snapshots
 
-> Status: Draft v0.1 · Updated 2026-11-06
+> Status: Draft v0.2 · Updated 2026-11-06 · v0.2: reserve list for the solver fixed-point filter (spec 08 §2.1).
 > Source: Amazon Last Mile Routing Research Challenge 2021 (Merchán et al., 2022, ref P20). License CC BY-NC 4.0.
 > File and field names below were **checked against the live files on 2026-11-05** (first bytes of each file). Remaining checks after the full download: `scripts/inspect_lmrc.py`.
 
@@ -43,7 +43,7 @@ Keep routes that satisfy all of:
 - 80 ≤ number of stops ≤ 200;
 - complete travel-time matrix (no missing pairs).
 
-Sample a fixed list of routes with `seed = 0`, stratified by `station_code`. Target: **~300 routes** for the main benchmark, **~30 routes** for the pilot. Save the list to `data/interim/routes_selected.json`.
+Sample a fixed list of routes with `seed = 0`, stratified by `station_code`. Target: **~300 routes** for the main benchmark, **~30 routes** for the pilot. Save the list to `data/interim/routes_selected.json`, together with a **seeded reserve list** of ~30% extra routes per station: snapshots that fail the solver fixed-point filter (spec 08 §2.1, ~10% expected) are replaced from it, so the station mix is kept.
 
 ## 4. Snapshot construction
 

@@ -2,6 +2,9 @@
 
 Research project: risk-controlled execution of LLM-translated dispatcher edits for last-mile route re-planning.
 Start from `docs/CONTENT.md`; implementation plans live in `docs/plans/`.
+**Before editing `docs/` or `paper/`, read `docs/CONTRACT.md`.** Locked definitions there change only with the user's explicit approval, a decision-log row in `docs/CONTENT.md`, and the same edit in every file the contract lists.
+
+**Paper debts (`debit-last-submit.md`, repo root).** Read it at two moments: (1) **before** drafting or revising any paper section, and (2) **after** a section is finished or when preparing the submission. List every open debt that falls in the scope being written (by section, notation, citation or parameter), and tell the user before acting on it. **Never add, edit, tick or delete a debt without first telling the user what will change and why.** Paid debts are deleted, not ticked; the decision itself goes to the decision log in `docs/CONTENT.md`.
 
 ## Project skills (`.claude/skills/`)
 
