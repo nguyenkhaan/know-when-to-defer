@@ -176,7 +176,7 @@ pyrightconfig.json
 # End of https://www.toptal.com/developers/gitignore/api/python
 ### Project: Know When to Defer ###
 # Large or generated data (LMRC raw data, benchmark, caches) - never commit
-data/
+/data/
 # Experiment outputs, one folder per run_id
 runs/
 # Secrets (API keys) - .env is already ignored above; also ignore variants

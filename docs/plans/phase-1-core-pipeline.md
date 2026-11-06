@@ -26,11 +26,11 @@
   - `load_route(raw_dir: Path, route_id: str) -> RawRoute`
   - `select_routes(raw_dir: Path, n: int, seed: int) -> list[str]`
 
-- [ ] **Step 1 [CODE]:** Test `test_load_route_mini`: `r = load_route(FIX, "<id>")`; assert `len(r.actual_order) == 12`, `r.actual_order[0]` là depot (type `Station`), `r.travel_s[a][b] > 0`.
-- [ ] **Step 2 [CODE]:** Test `test_select_routes_filters_and_is_deterministic`: trên fixture có 3 tuyến (1 Low score, 1 thiếu ma trận, 1 hợp lệ, với ngưỡng số điểm hạ trong test) → trả đúng 1 tuyến; gọi 2 lần cùng seed → kết quả bằng nhau.
-- [ ] **Step 3:** Chạy `uv run pytest tests/data -q` → FAIL.
-- [ ] **Step 4 [CODE]:** Cài `models.py`, `load_route`, `select_routes` (lọc theo spec 05 §3, lấy mẫu phân tầng theo `station_code`). Chuyển `NanToNullReader` từ `scripts/inspect_lmrc.py` vào `src/kwd/data/jsonstream.py` (kèm test). Đọc `travel_times.json` **một lần** bằng `ijson` và ghi riêng file cho từng tuyến được chọn; không bao giờ nạp nguyên file vào RAM (spec 05 §2).
-- [ ] **Step 5:** Test PASS. Commit `feat(data): load and select LMRC routes`.
+- [x] **Step 1 [CODE]:** Test `test_load_route_mini`: `r = load_route(FIX, "<id>")`; assert `len(r.actual_order) == 12`, `r.actual_order[0]` là depot (type `Station`), `r.travel_s[a][b] > 0`.
+- [x] **Step 2 [CODE]:** Test `test_select_routes_filters_and_is_deterministic`: trên fixture có 3 tuyến (1 Low score, 1 thiếu ma trận, 1 hợp lệ, với ngưỡng số điểm hạ trong test) → trả đúng 1 tuyến; gọi 2 lần cùng seed → kết quả bằng nhau.
+- [x] **Step 3:** Chạy `uv run pytest tests/data -q` → FAIL.
+- [x] **Step 4 [CODE]:** Cài `models.py`, `load_route`, `select_routes` (lọc theo spec 05 §3, lấy mẫu phân tầng theo `station_code`). Chuyển `NanToNullReader` từ `scripts/inspect_lmrc.py` vào `src/kwd/data/jsonstream.py` (kèm test). Đọc `travel_times.json` **một lần** bằng `ijson` và ghi riêng file cho từng tuyến được chọn; không bao giờ nạp nguyên file vào RAM (spec 05 §2).
+- [x] **Step 5:** Test PASS. Commit `feat(data): load and select LMRC routes`.
 
 ### Task 1.2: Snapshot tuyến đang chạy và bản hiển thị · **[B]**
 
@@ -42,16 +42,16 @@
 - Produces:
   - `build_snapshot(raw: RawRoute, rho: float, seed: int, shift_slack_min: int = 60) -> RouteSnapshot`
   - `baseline_arrivals(p: RouteSnapshot) -> dict[str, int]` (đi theo `p.remaining` từ `current_stop` lúc `t_now`)
-  - `travel(p: RouteSnapshot) -> np.ndarray` (phút, theo `p.node_ids`)
+  - `travel(p: RouteSnapshot) -> np.ndarray` (giây, `int64`, theo `p.node_ids`)
   - `render_snapshot(p: RouteSnapshot) -> str`
   - `load_fixture_snapshot(name: str) -> RouteSnapshot` (dùng cho test mọi module)
 
-- [ ] **Step 1 [CODE]:** Test `test_snapshot_freezes_prefix`: với `rho=0.25` trên fixture mini → `len(p.done) == 3`, `p.current_stop == p.done[-1]`, `set(p.done).isdisjoint(p.remaining)`.
-- [ ] **Step 2 [CODE]:** Test `test_baseline_arrivals_monotone`: arrival tăng dần theo `p.remaining`.
-- [ ] **Step 3 [CODE]:** Test `test_display_names_unique_and_seeded`: tên hiển thị duy nhất; cùng seed → cùng tên.
-- [ ] **Step 4 [CODE]:** Test `test_render_hospital`: `render_snapshot(load_fixture_snapshot("hospital"))` chứa `"An Binh Hospital"`, `"14:10"`, `"Current time: 13:00"`.
-- [ ] **Step 5:** FAIL → cài đặt theo spec 05 §4 (tên giả lấy từ danh sách cố định ~10 loại trong `names.py`; múi giờ theo bảng `station_code` đã kiểm ở Phase 0). Tạo `hospital.json` bằng tay: 4 điểm + depot, ma trận thời gian sao cho ETA đúng 13:20/14:10/14:45/15:25.
-- [ ] **Step 6:** PASS. Commit `feat(data): in-service snapshots and renderer`.
+- [x] **Step 1 [CODE]:** Test `test_snapshot_freezes_prefix`: với `rho=0.25` trên fixture mini → `len(p.done) == 3`, `p.current_stop == p.done[-1]`, `set(p.done).isdisjoint(p.remaining)`.
+- [x] **Step 2 [CODE]:** Test `test_baseline_arrivals_monotone`: arrival tăng dần theo `p.remaining`.
+- [x] **Step 3 [CODE]:** Test `test_display_names_unique_and_seeded`: tên hiển thị duy nhất; cùng seed → cùng tên.
+- [x] **Step 4 [CODE]:** Test `test_render_hospital`: `render_snapshot(load_fixture_snapshot("hospital"))` chứa `"An Binh Hospital"`, `"14:10"`, `"Current time: 13:00"`.
+- [x] **Step 5:** FAIL → cài đặt theo spec 05 §4 (tên giả lấy từ danh sách cố định ~10 loại trong `names.py`; múi giờ theo bảng `station_code` đã kiểm ở Phase 0). Tạo `hospital.json` bằng tay: 4 điểm + depot, ma trận thời gian sao cho ETA đúng 13:20/14:10/14:45/15:25.
+- [x] **Step 6:** PASS. Commit `feat(data): in-service snapshots and renderer`.
 
 ### Task 1.3: Edit DSL · **[A]**
 

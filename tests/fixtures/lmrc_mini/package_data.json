@@ -1,0 +1,365 @@
+{
+ "RouteID_00143bdd-0a6b-49ec-bb35-36593d303e77": {
+  "AG": {
+   "PackageID_3b28f781-242e-416e-9575-84c7188b8208": {
+    "scan_status": "DELIVERED",
+    "time_window": {
+     "start_time_utc": NaN,
+     "end_time_utc": NaN
+    },
+    "planned_service_time_seconds": 45.0,
+    "dimensions": {
+     "depth_cm": 25.4,
+     "height_cm": 12.7,
+     "width_cm": 17.8
+    }
+   },
+   "PackageID_c58c3b4e-2fc7-4222-b712-e5067906736b": {
+    "scan_status": "DELIVERED",
+    "time_window": {
+     "start_time_utc": NaN,
+     "end_time_utc": NaN
+    },
+    "planned_service_time_seconds": 45.0,
+    "dimensions": {
+     "depth_cm": 49.5,
+     "height_cm": 7.6,
+     "width_cm": 35.6
+    }
+   }
+  },
+  "BY": {
+   "PackageID_cb9b6e35-82f9-4d8e-a0a2-20c0407bf750": {
+    "scan_status": "DELIVERED",
+    "time_window": {
+     "start_time_utc": NaN,
+     "end_time_utc": NaN
+    },
+    "planned_service_time_seconds": 31.0,
+    "dimensions": {
+     "depth_cm": 43.2,
+     "height_cm": 7.6,
+     "width_cm": 27.9
+    }
+   },
+   "PackageID_28f192d8-7a34-4551-bdf0-8ac512cb77a8": {
+    "scan_status": "DELIVERED",
+    "time_window": {
+     "start_time_utc": NaN,
+     "end_time_utc": NaN
+    },
+    "planned_service_time_seconds": 31.0,
+    "dimensions": {
+     "depth_cm": 49.5,
+     "height_cm": 7.6,
+     "width_cm": 35.6
+    }
+   }
+  },
+  "CW": {
+   "PackageID_fba5c901-e813-45ca-85e2-90b5a98578f3": {
+    "scan_status": "DELIVERED",
+    "time_window": {
+     "start_time_utc": NaN,
+     "end_time_utc": NaN
+    },
+    "planned_service_time_seconds": 29.5,
+    "dimensions": {
+     "depth_cm": 29.2,
+     "height_cm": 3.8,
+     "width_cm": 26.7
+    }
+   },
+   "PackageID_1bcc8776-e936-4ea2-a5fb-2e4aebf7ec39": {
+    "scan_status": "DELIVERED",
+    "time_window": {
+     "start_time_utc": NaN,
+     "end_time_utc": NaN
+    },
+    "planned_service_time_seconds": 29.5,
+    "dimensions": {
+     "depth_cm": 30.5,
+     "height_cm": 4.3,
+     "width_cm": 22.9
+    }
+   }
+  },
+  "GP": {
+   "PackageID_99fdaa4b-9b64-4b6d-beb0-5a76a7c2e031": {
+    "scan_status": "DELIVERED",
+    "time_window": {
+     "start_time_utc": NaN,
+     "end_time_utc": NaN
+    },
+    "planned_service_time_seconds": 34.0,
+    "dimensions": {
+     "depth_cm": 30.5,
+     "height_cm": 10.2,
+     "width_cm": 19.1
+    }
+   }
+  },
+  "HT": {
+   "PackageID_581892a8-0e1c-46b1-b92f-b7285564a41a": {
+    "scan_status": "DELIVERED",
+    "time_window": {
+     "start_time_utc": NaN,
+     "end_time_utc": NaN
+    },
+    "planned_service_time_seconds": 72.5,
+    "dimensions": {
+     "depth_cm": 34.3,
+     "height_cm": 7.6,
+     "width_cm": 24.1
+    }
+   },
+   "PackageID_37371bb1-4082-40d7-9e97-4ec639d47035": {
+    "scan_status": "DELIVERED",
+    "time_window": {
+     "start_time_utc": NaN,
+     "end_time_utc": NaN
+    },
+    "planned_service_time_seconds": 72.5,
+    "dimensions": {
+     "depth_cm": 25.1,
+     "height_cm": 5.1,
+     "width_cm": 13.5
+    }
+   }
+  },
+  "JH": {
+   "PackageID_c7431b36-acab-43e5-a697-866d1f342a67": {
+    "scan_status": "DELIVERED",
+    "time_window": {
+     "start_time_utc": NaN,
+     "end_time_utc": NaN
+    },
+    "planned_service_time_seconds": 37.0,
+    "dimensions": {
+     "depth_cm": 31.8,
+     "height_cm": 11.4,
+     "width_cm": 16.5
+    }
+   }
+  },
+  "LB": {
+   "PackageID_80b8f496-ab73-4aa0-8871-57dd5a2672a6": {
+    "scan_status": "DELIVERED",
+    "time_window": {
+     "start_time_utc": NaN,
+     "end_time_utc": NaN
+    },
+    "planned_service_time_seconds": 63.0,
+    "dimensions": {
+     "depth_cm": 33.0,
+     "height_cm": 20.3,
+     "width_cm": 26.7
+    }
+   }
+  },
+  "QM": {
+   "PackageID_1763cc22-5c4d-49cb-a0b7-61c3cbcdc280": {
+    "scan_status": "DELIVERED",
+    "time_window": {
+     "start_time_utc": "2018-07-27 16:00:00",
+     "end_time_utc": "2018-07-28 02:00:00"
+    },
+    "planned_service_time_seconds": 84.7,
+    "dimensions": {
+     "depth_cm": 33.8,
+     "height_cm": 9.4,
+     "width_cm": 18.5
+    }
+   },
+   "PackageID_c0b8d525-a2c2-40b6-ae11-5d7ff0a77477": {
+    "scan_status": "DELIVERED",
+    "time_window": {
+     "start_time_utc": "2018-07-27 16:00:00",
+     "end_time_utc": "2018-07-28 02:00:00"
+    },
+    "planned_service_time_seconds": 84.7,
+    "dimensions": {
+     "depth_cm": 25.4,
+     "height_cm": 12.7,
+     "width_cm": 17.8
+    }
+   },
+   "PackageID_97270718-4a92-4c85-af89-ca2551454334": {
+    "scan_status": "DELIVERED",
+    "time_window": {
+     "start_time_utc": "2018-07-27 16:00:00",
+     "end_time_utc": "2018-07-27 23:00:00"
+    },
+    "planned_service_time_seconds": 84.7,
+    "dimensions": {
+     "depth_cm": 39.4,
+     "height_cm": 7.6,
+     "width_cm": 31.8
+    }
+   }
+  },
+  "SF": {
+   "PackageID_d5d507ca-23c4-47a3-a4e2-c6ec5b96e786": {
+    "scan_status": "DELIVERED",
+    "time_window": {
+     "start_time_utc": NaN,
+     "end_time_utc": NaN
+    },
+    "planned_service_time_seconds": 34.0,
+    "dimensions": {
+     "depth_cm": 44.7,
+     "height_cm": 13.2,
+     "width_cm": 31.7
+    }
+   },
+   "PackageID_7564b2ce-3a81-4f22-8b64-be8e2d3f4282": {
+    "scan_status": "DELIVERED",
+    "time_window": {
+     "start_time_utc": NaN,
+     "end_time_utc": NaN
+    },
+    "planned_service_time_seconds": 34.0,
+    "dimensions": {
+     "depth_cm": 54.0,
+     "height_cm": 12.4,
+     "width_cm": 41.3
+    }
+   },
+   "PackageID_8b50e128-953a-4b48-857e-ee0e3334108e": {
+    "scan_status": "DELIVERED",
+    "time_window": {
+     "start_time_utc": NaN,
+     "end_time_utc": NaN
+    },
+    "planned_service_time_seconds": 34.0,
+    "dimensions": {
+     "depth_cm": 40.6,
+     "height_cm": 12.7,
+     "width_cm": 30.5
+    }
+   },
+   "PackageID_03f9037c-d00c-471f-b181-12f189eab741": {
+    "scan_status": "DELIVERED",
+    "time_window": {
+     "start_time_utc": NaN,
+     "end_time_utc": NaN
+    },
+    "planned_service_time_seconds": 34.0,
+    "dimensions": {
+     "depth_cm": 53.3,
+     "height_cm": 38.1,
+     "width_cm": 45.7
+    }
+   }
+  },
+  "TG": {
+   "PackageID_fa1e5684-a42e-40d0-85f1-9b4be7b7e6fa": {
+    "scan_status": "DELIVERED",
+    "time_window": {
+     "start_time_utc": NaN,
+     "end_time_utc": NaN
+    },
+    "planned_service_time_seconds": 26.4,
+    "dimensions": {
+     "depth_cm": 37.6,
+     "height_cm": 4.0,
+     "width_cm": 30.4
+    }
+   },
+   "PackageID_4b35c189-7859-4b08-aa41-2020df2129a3": {
+    "scan_status": "DELIVERED",
+    "time_window": {
+     "start_time_utc": NaN,
+     "end_time_utc": NaN
+    },
+    "planned_service_time_seconds": 26.4,
+    "dimensions": {
+     "depth_cm": 25.4,
+     "height_cm": 12.7,
+     "width_cm": 17.8
+    }
+   },
+   "PackageID_dccac80c-2c10-414f-8fba-c10b0df99a02": {
+    "scan_status": "DELIVERED",
+    "time_window": {
+     "start_time_utc": NaN,
+     "end_time_utc": NaN
+    },
+    "planned_service_time_seconds": 26.4,
+    "dimensions": {
+     "depth_cm": 30.5,
+     "height_cm": 10.2,
+     "width_cm": 19.1
+    }
+   },
+   "PackageID_ac9a889c-8458-407f-846e-fea34a0af191": {
+    "scan_status": "DELIVERED",
+    "time_window": {
+     "start_time_utc": NaN,
+     "end_time_utc": NaN
+    },
+    "planned_service_time_seconds": 26.4,
+    "dimensions": {
+     "depth_cm": 23.9,
+     "height_cm": 1.5,
+     "width_cm": 16.3
+    }
+   },
+   "PackageID_6141c2d2-05fb-4f5b-93a2-ca7e8a28013d": {
+    "scan_status": "DELIVERED",
+    "time_window": {
+     "start_time_utc": NaN,
+     "end_time_utc": NaN
+    },
+    "planned_service_time_seconds": 26.4,
+    "dimensions": {
+     "depth_cm": 48.3,
+     "height_cm": 27.9,
+     "width_cm": 31.8
+    }
+   },
+   "PackageID_b5c2165f-2d42-4324-bfb3-a27fa4660435": {
+    "scan_status": "DELIVERED",
+    "time_window": {
+     "start_time_utc": NaN,
+     "end_time_utc": NaN
+    },
+    "planned_service_time_seconds": 26.4,
+    "dimensions": {
+     "depth_cm": 43.2,
+     "height_cm": 31.0,
+     "width_cm": 34.3
+    }
+   },
+   "PackageID_2c45ec38-98fd-4ab7-84e9-c387aa2486de": {
+    "scan_status": "DELIVERED",
+    "time_window": {
+     "start_time_utc": NaN,
+     "end_time_utc": NaN
+    },
+    "planned_service_time_seconds": 26.4,
+    "dimensions": {
+     "depth_cm": 30.2,
+     "height_cm": 2.8,
+     "width_cm": 27.7
+    }
+   }
+  },
+  "VE": {},
+  "VW": {
+   "PackageID_a50c6886-ae6b-4ccc-ba32-c80833309774": {
+    "scan_status": "DELIVERED",
+    "time_window": {
+     "start_time_utc": NaN,
+     "end_time_utc": NaN
+    },
+    "planned_service_time_seconds": 15.0,
+    "dimensions": {
+     "depth_cm": 35.6,
+     "height_cm": 6.6,
+     "width_cm": 22.9
+    }
+   }
+  }
+ }
+}

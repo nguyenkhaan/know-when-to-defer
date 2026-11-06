@@ -1,0 +1,83 @@
+{
+ "RouteID_00143bdd-0a6b-49ec-bb35-36593d303e77": {
+  "station_code": "DLA3",
+  "date_YYYY_MM_DD": "2018-07-27",
+  "departure_time_utc": "16:02:10",
+  "executor_capacity_cm3": 3313071.0,
+  "route_score": "High",
+  "stops": {
+   "AG": {
+    "lat": 34.089727,
+    "lng": -118.28553,
+    "type": "Dropoff",
+    "zone_id": "A-2.1A"
+   },
+   "BY": {
+    "lat": 34.091721,
+    "lng": -118.284539,
+    "type": "Dropoff",
+    "zone_id": "A-1.1A"
+   },
+   "CW": {
+    "lat": 34.093458,
+    "lng": -118.284798,
+    "type": "Dropoff",
+    "zone_id": "A-1.2A"
+   },
+   "GP": {
+    "lat": 34.088709,
+    "lng": -118.284839,
+    "type": "Dropoff",
+    "zone_id": "A-2.2A"
+   },
+   "HT": {
+    "lat": 34.088717,
+    "lng": -118.286484,
+    "type": "Dropoff",
+    "zone_id": "A-2.2A"
+   },
+   "JH": {
+    "lat": 34.09289,
+    "lng": -118.282396,
+    "type": "Dropoff",
+    "zone_id": "A-1.2A"
+   },
+   "LB": {
+    "lat": 34.093152,
+    "lng": -118.282542,
+    "type": "Dropoff",
+    "zone_id": "A-1.2A"
+   },
+   "QM": {
+    "lat": 34.090901,
+    "lng": -118.284257,
+    "type": "Dropoff",
+    "zone_id": "A-2.1A"
+   },
+   "SF": {
+    "lat": 34.092285,
+    "lng": -118.283236,
+    "type": "Dropoff",
+    "zone_id": "A-1.1A"
+   },
+   "TG": {
+    "lat": 34.088467,
+    "lng": -118.284521,
+    "type": "Dropoff",
+    "zone_id": "A-2.2A"
+   },
+   "VE": {
+    "lat": 34.007369,
+    "lng": -118.143927,
+    "type": "Station",
+    "zone_id": NaN
+   },
+   "VW": {
+    "lat": 34.093177,
+    "lng": -118.283405,
+    "type": "Dropoff",
+    "zone_id": "A-1.2A"
+   }
+  }
+ }
+}

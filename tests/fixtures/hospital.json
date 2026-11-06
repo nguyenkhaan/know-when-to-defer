@@ -1,0 +1,84 @@
+{
+ "snapshot_id": "hospital@0",
+ "route_id": "hospital",
+ "station_code": "HOSPITAL",
+ "tz": "Asia/Ho_Chi_Minh",
+ "departure_local": "13:00:00",
+ "t_now": 0,
+ "current_stop": "DP",
+ "done": [],
+ "remaining": [
+  "PH",
+  "HO",
+  "SC",
+  "SH"
+ ],
+ "stops": {
+  "DP": {
+   "stop_id": "DP",
+   "name": "Depot",
+   "category": "depot",
+   "zone_id": null,
+   "lat": 21.0,
+   "lng": 105.8,
+   "service_s": 0,
+   "tw": null
+  },
+  "HO": {
+   "stop_id": "HO",
+   "name": "An Binh Hospital",
+   "category": "hospital",
+   "zone_id": "A",
+   "lat": 21.02,
+   "lng": 105.82,
+   "service_s": 300,
+   "tw": null
+  },
+  "PH": {
+   "stop_id": "PH",
+   "name": "Minh Chau Pharmacy",
+   "category": "pharmacy",
+   "zone_id": "A",
+   "lat": 21.01,
+   "lng": 105.81,
+   "service_s": 300,
+   "tw": [
+    0,
+    3600
+   ]
+  },
+  "SC": {
+   "stop_id": "SC",
+   "name": "Nguyen Du School",
+   "category": "school",
+   "zone_id": "B",
+   "lat": 21.03,
+   "lng": 105.83,
+   "service_s": 300,
+   "tw": [
+    0,
+    7200
+   ]
+  },
+  "SH": {
+   "stop_id": "SH",
+   "name": "Thanh Cong Shop",
+   "category": "shop",
+   "zone_id": "B",
+   "lat": 21.04,
+   "lng": 105.84,
+   "service_s": 300,
+   "tw": null
+  }
+ },
+ "depot_id": "DP",
+ "shift_end": 16200,
+ "travel_path": "hospital_travel.npy",
+ "node_ids": [
+  "DP",
+  "HO",
+  "PH",
+  "SC",
+  "SH"
+ ]
+}
