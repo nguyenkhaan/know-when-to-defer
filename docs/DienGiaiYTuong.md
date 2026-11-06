@@ -26,7 +26,7 @@ Vai trò của từng thành phần:
 - Điểm rủi ro `s`.
 - Kế hoạch mới (nếu lệnh được thực thi).
 
-**Các loại lệnh trong DSL (dự kiến):** `set_time_window(stop, a, b)`, `remove_stop`, `precedence(i, j)`, `driver_end_time(t)`, `avoid_zone_until(z, t)`, `service_time(stop, s)`, `priority(stop, deadline)`. Danh sách cuối sẽ chốt ở tuần 1 (6–8 loại).
+**Các loại lệnh trong DSL (dự kiến):** `set_time_window(stop, a, b)`, `remove_stop`, `precedence(i, j)`, `driver_end_time(t)`, `avoid_zone_until(z, t)`, `deadline(stop, t)`. (`service_time` đã bỏ 07/11: đổi dữ liệu, không phải ràng buộc.) Danh sách cuối sẽ chốt ở tuần 1 (6–8 loại).
 
 **Phạm vi MVP:** chỉ chỉnh sửa trên **một tuyến (một xe)** của bộ dữ liệu Amazon Last Mile Routing Research Challenge 2021 (LMRC). Yêu cầu kiểu "chuyển đơn sang tài xế B" nằm ngoài MVP, vì ma trận thời gian di chuyển chỉ có trong nội bộ từng tuyến.
 
@@ -118,13 +118,13 @@ CRC và các biến thể ở đây là **công cụ chuẩn**, không phải đ
 
 - **Chính – rủi ro kết hợp** `E[1{thực thi ∧ gây hại}] ≤ α`: loss đơn điệu theo ngưỡng, nên áp dụng được CRC.
 - **Theo loại lệnh:** nếu tỷ lệ lỗi gốc `μ` chênh lệch lớn giữa các loại lệnh, hiệu chỉnh ngưỡng riêng cho từng loại (theo hướng Role-Stratified CRC), vì một `α` chung có thể che giấu vi phạm ở loại hiếm nhưng dễ sai.
-- **Dịch chuyển phân phối:** calibrate trên một nhóm loại yêu cầu, kiểm tra trên nhóm khác, và báo cáo trung thực khi bảo đảm bị phá vỡ. Chia dữ liệu theo tuyến, vì các yêu cầu trên cùng tuyến phụ thuộc nhau.
-- **Phụ – rủi ro có điều kiện** `P(gây hại | thực thi) ≤ α`: loss **không đơn điệu**, nên không áp CRC trực tiếp được (CRC, Prop. 1); cần Learn-then-Test (LTT). Làm nếu còn thời gian; có thể cắt khỏi bản nộp.
+- **Dịch chuyển phân phối:** calibrate trên tuyến của một số trạm, kiểm tra trên trạm khác, và báo cáo trung thực khi bảo đảm bị phá vỡ. Chia dữ liệu theo tuyến, vì các yêu cầu trên cùng tuyến phụ thuộc nhau.
+- **Rủi ro có điều kiện** `P(gây hại | thực thi) ≤ α`: loss **không đơn điệu**, không áp CRC được (CRC, Prop. 1). Đã cắt khỏi bài (07/11/2026).
 - **Mở rộng (ngoài MVP):** cập nhật ngưỡng online khi con người chỉ kiểm tra ngẫu nhiên một phần lệnh đã thực thi.
 
 ## Rủi ro lớn nhất
 
-LLM có thể gần như không dịch sai khi yêu cầu được nói tường minh (ReOpt-LLM báo update correctness 100% trên 30 case). Nếu tỷ lệ gây hại gốc `μ` nhỏ hơn `α`, CRC sẽ cho thực thi gần như tất cả và bài không còn gì để kiểm soát. Vì vậy pilot tuần 1 dồn mẫu vào yêu cầu mơ hồ và yêu cầu ghép, chạy thêm một LLM nhỏ 7–14B chạy cục bộ, báo `μ` theo từng loại lệnh, và đo riêng tỷ lệ lỗi không binding. Chi tiết tiêu chí go/no-go ở `MoTaDeTai.md`, Mục 6.
+LLM có thể gần như không dịch sai khi yêu cầu được nói tường minh (ReOpt-LLM báo update correctness 100% trên 30 case). Nếu tỷ lệ gây hại gốc `μ` nhỏ hơn `α`, CRC sẽ cho thực thi gần như tất cả và bài không còn gì để kiểm soát. Vì vậy pilot tuần 1 dồn mẫu vào yêu cầu mơ hồ và yêu cầu ghép, chạy thêm một LLM mở nhỏ (M1, `qwen/qwen3.5-9b`, gọi qua API), báo `μ` theo từng loại lệnh, và đo riêng tỷ lệ lỗi không binding. Chi tiết tiêu chí go/no-go ở `MoTaDeTai.md`, Mục 6.
 
 ## Đóng góp dự kiến
 

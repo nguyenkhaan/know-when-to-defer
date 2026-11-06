@@ -65,10 +65,10 @@ Rủi ro lớn nhất của đề tài: LLM gần như không sai khi câu rõ r
 - [ ] **Step 1 [CODE]:** `test_gold_feasible_and_binding_flag`: 200 lần `sample_gold` → mọi gold giải được; với `want_binding=True` thì `solve` làm đổi digest, với `False` thì không đổi.
 - [ ] **Step 1b [CODE]:** `test_build_items_skips_non_fixed_point`: snapshot có `is_fixed_point == False` (vd. fixture có một điểm đang trễ khung giờ gốc) → `build_items` bỏ qua, không sinh câu nào, và ghi số snapshot bị loại (spec 08 §2.1).
 - [ ] **Step 2 [CODE]:** `test_level2_reference_unique`: khi có 2 bệnh viện, `unique_reference` không trả `"the hospital"`.
-- [ ] **Step 3 [CODE]:** `test_templates_cover_all_ops_levels`: mỗi cặp (op, level) có ≥ 2 template; câu sinh ra chứa đúng giờ (dạng `3 pm` hoặc `15:00`) hoặc cụm thời gian tương đối đúng.
-- [ ] **Step 4:** FAIL → cài đặt theo spec 08 §3–§5. Mỗi op cần **ít nhất 3 template** cho mỗi mức. Mức 3 ghép 2–3 op. Paraphrase kiểm tra nghĩa bằng judge so `q` với `q_template` (không lọc bằng cách dịch ngược).
+- [ ] **Step 3 [CODE]:** `test_templates_cover_all_ops_levels`: mỗi cặp (op, level) có ≥ 3 template; câu sinh ra chứa đúng giờ (dạng `3 pm` hoặc `15:00`) hoặc cụm thời gian tương đối đúng.
+- [ ] **Step 4:** FAIL → cài đặt theo spec 08 §3–§5. Mỗi op cần **ít nhất 3 template** cho mỗi mức. Mức 1–2 chỉ có câu một op; mức 3 một nửa là lệnh ghép 2–3 op, một nửa là câu một op có ý ngầm (spec 08 §3). Paraphrase kiểm tra nghĩa bằng judge so `q` với `q_template` (không lọc bằng cách dịch ngược).
 - [ ] **Step 5:** PASS. Commit `feat(bench): gold sampling, templates, paraphrase`.
-- [ ] **Step 6 [EXP]:** `kwd bench --config configs/bench.yaml --set pilot` → khoảng 300 câu trên 30 tuyến, tỷ lệ mức 1/2/3 là 20/40/40. Ghi số tuyến bị loại vì không phải fixed point (thay bằng tuyến dự bị cùng station) và kiểm tra: với mọi gold non-binding, `P*.digest == P.digest` (spec 08 §2.1). Đọc tay 30 câu ngẫu nhiên: câu có tự nhiên không, gold có đúng ý không. Sửa template nếu sai.
+- [ ] **Step 6 [EXP]:** `kwd bench --config configs/bench.yaml --set pilot` → khoảng 300 câu trên 30 tuyến, tỷ lệ mức 1/2/3 là 20/40/40, mức 3 một nửa là lệnh ghép. Ghi số tuyến bị loại vì không phải fixed point (thay bằng tuyến dự bị cùng station) và kiểm tra: với mọi gold non-binding, `P*.digest == P.digest` (spec 08 §2.1). Đọc tay 30 câu ngẫu nhiên: câu có tự nhiên không, gold có đúng ý không. Sửa template nếu sai.
 
 ### Task 2.4: Toàn bộ tín hiệu solver (S1–S5) và hai tín hiệu LLM rẻ (L1, L3) · **[A]**
 

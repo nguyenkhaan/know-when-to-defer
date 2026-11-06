@@ -11,7 +11,6 @@ from kwd.dsl.models import (
     ParseError,
     Precedence,
     RemoveStop,
-    ServiceTime,
     SetTimeWindow,
 )
 from kwd.dsl.parse import parse_editset
@@ -28,7 +27,6 @@ __all__ = [
     "ParseError",
     "Precedence",
     "RemoveStop",
-    "ServiceTime",
     "SetTimeWindow",
     "canonical",
     "dump_editset",

@@ -20,7 +20,6 @@ OPS = {
     "precedence",
     "driver_end_time",
     "avoid_zone_until",
-    "service_time",
     "deadline",
 }
 
@@ -76,7 +75,6 @@ def test_parse_every_op(hospital):
     result = parse_editset(
         raw(
             {"op": "avoid_zone_until", "zone": "B", "time": "14:30"},
-            {"op": "service_time", "stop": "Minh Chau Pharmacy", "minutes": 12},
             {"op": "deadline", "stop": "Nguyen Du School", "time": "14:00"},
         ),
         hospital,
@@ -84,8 +82,7 @@ def test_parse_every_op(hospital):
     assert isinstance(result, EditSet)
     assert result.edits[0].zone == "B"
     assert result.edits[0].time == 5400
-    assert result.edits[1].minutes == 12
-    assert result.edits[2] == Deadline(stop="SC", time=3600)
+    assert result.edits[1] == Deadline(stop="SC", time=3600)
 
 
 def test_parse_keeps_deadline_and_open_bounds(hospital):
@@ -158,8 +155,8 @@ def test_parse_error_invalid_json(hospital, text):
                 {"op": "precedence", "before": "An Binh Hospital", "after": "an binh hospital"}
             ]
         },
-        {"edits": [{"op": "service_time", "stop": "An Binh Hospital", "minutes": -5}]},
-        {"edits": [{"op": "service_time", "stop": "An Binh Hospital", "minutes": 7.5}]},
+        {"edits": [{"op": "service_time", "stop": "An Binh Hospital", "minutes": 10}]},
+        {"edits": [{"op": "remove_stop", "stop": "Thanh Cong Shop"}], "confidence": 85.5},
         {"edits": [{"op": "remove_stop", "stop": "Thanh Cong Shop"}], "confidence": "high"},
     ],
     ids=[
@@ -175,8 +172,8 @@ def test_parse_error_invalid_json(hospital, text):
         "bad_clock",
         "window_without_bounds",
         "self_precedence",
-        "negative_minutes",
-        "fractional_minutes",
+        "dropped_op_service_time",
+        "fractional_confidence",
         "bad_confidence",
     ],
 )

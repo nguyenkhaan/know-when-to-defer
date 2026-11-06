@@ -54,7 +54,7 @@ Request: "<q>"
 
 | Lever | Setting |
 |---|---|
-| Main benchmark size | **~3,000 items** (not 6,000), ~300 routes × ~10 items |
+| Main benchmark size | **~3,000 items**, ~300 routes × ~10 items |
 | Samples | `k = 4` |
 | Prompt order | system + DSL schema + **snapshot first**, request last ⇒ items on the same route share a long prefix ⇒ provider prompt caching applies |
 | Snapshot rendering | compact table (≤ ~2.5k tokens for 150 stops): order, name, category, zone, ETA, window; no coordinates |

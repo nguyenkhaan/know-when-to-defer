@@ -76,7 +76,6 @@ Tổng cộng dùng khoảng **300 tuyến** cho bộ chính, **40 tuyến khác
 | `precedence(A, B)`                    | Giao A trước B                  |
 | `driver_end_time(giờ)`               | Về kho trước giờ              |
 | `avoid_zone_until(khu, giờ)`         | Không vào khu trước giờ      |
-| `service_time(điểm, phút)`         | Đổi thời gian giao tại điểm |
 | `deadline(điểm, giờ)`              | Tới điểm trước giờ          |
 
 **Vì sao tự quy định:**
@@ -154,7 +153,7 @@ Cùng đáp án `precedence(Hoa Sen Clinic, Nguyen Du School)`:
 
 Sau khi máy điền câu mẫu, LLM M3 **viết lại** cho tự nhiên hơn, ví dụ: *"Can you make sure the clinic gets its drop before the school does?"*
 
-Tỷ lệ mức 1/2/3 là 20/40/40, vì ở mức 1 LLM gần như không sai.
+Tỷ lệ mức 1/2/3 là 20/40/40, vì ở mức 1 LLM gần như không sai. Mức 1–2 chỉ có câu một lệnh; mức 3 một nửa là câu ghép 2–3 lệnh, một nửa là câu một lệnh nêu qua lý do. Bộ chính ~3.000 câu có ~600 câu ghép, và mỗi loại lệnh có ít nhất 250 câu một lệnh, đủ cho CRC theo nhóm.
 
 **Kiểm duyệt:** A và B **mỗi người đọc riêng 300 câu** ngẫu nhiên và trả lời: *"câu này có nói đúng đáp án không?"*. Đạt khi ≥ 90% đúng và hai người đồng ý với nhau cao (κ ≥ 0,6).
 
@@ -223,8 +222,8 @@ Lệnh sai vẫn **đúng cú pháp** và LLM còn **tự tin 95%**.
 
 **Hai mô hình dịch** được thử, và mọi kết quả báo riêng cho từng mô hình:
 
-- **M1:** mô hình mở nhỏ (Qwen 7B). Rẻ, dễ sai hơn.
-- **M2:** mô hình mạnh. Ít sai, đắt hơn.
+- **M1:** mô hình mở nhỏ (`qwen/qwen3.5-9b`). Rẻ, dễ sai hơn.
+- **M2:** mô hình mạnh chi phí thấp (`deepseek/deepseek-v4-flash`). Ít sai hơn.
 
 Các mô hình khác trong dự án **không** phải đối tượng kiểm tra: M3 viết lại câu ở bước ④, M4 làm giám khảo cho một số tín hiệu so sánh ở bước ⑦, M5 dùng cho bộ chấm học G1.
 
@@ -412,7 +411,7 @@ A đọc tay **100 lỗi gây hại thật**, xếp loại; B xếp lại 30 l�
 
 "Bị bắt" nghĩa là lệnh đó nằm trong 20% lệnh có điểm rủi ro cao nhất.
 
-### 12.5 Bảng T3 và Hình F3: Cam kết an toàn có giữ được không? (RQ3)
+### 12.5 Bảng T3: Cam kết an toàn có giữ được không? (RQ3)
 
 Ví dụ với α = 5%, chạy 100 lần chia dữ liệu:
 
@@ -428,22 +427,14 @@ Cách đọc:
 
 - **Tự động hóa tăng 61% → 79%** ở cùng mức an toàn: con số thực tế quan trọng nhất.
 - Rủi ro trung bình ≤ 5%: phương pháp chọn ngưỡng giữ đúng cam kết.
-- Ngưỡng chung có thể để một loại lệnh vượt 5%; chọn ngưỡng riêng từng loại sửa được, đổi lại mất vài điểm tự động hóa (Hình F3).
+- Ngưỡng chung có thể để một loại lệnh vượt 5%; chọn ngưỡng riêng từng loại sửa được, đổi lại mất vài điểm tự động hóa (dòng theo nhóm trong T3).
 - Trên bộ human, rủi ro có thể vượt nhẹ. Paper báo cáo trung thực.
 
 **Giá trị vận hành** (1 câu trong paper): *"Trên 1.000 yêu cầu, ở α = 5%, hệ thống tránh được 95 lần thực thi gây hại, khoảng 2.400 phút giao trễ và 60 lần vi phạm khung giờ, trong khi chỉ hỏi lại người 21% yêu cầu."*
 
 ### 12.6 Khi điều kiện thay đổi (dòng "shift" trong T3)
 
-Chọn ngưỡng trên một nhóm, kiểm tra trên nhóm khác, xem cam kết có còn giữ không:
-
-| Chọn ngưỡng trên           | Kiểm tra trên         |
-| ------------------------------ | ----------------------- |
-| Câu mức 1–2                 | Câu mức 3 (khó hơn) |
-| Tất cả loại lệnh trừ một | Loại lệnh bị bỏ ra  |
-| Câu mẫu thô                 | Câu đã viết lại    |
-| Một số thành phố           | Thành phố khác       |
-| Bộ chính                     | Bộ human               |
+Chọn ngưỡng trên tuyến của một số trạm, kiểm tra trên trạm khác (giống triển khai ở kho mới). Bộ human là phép thử thứ hai: chọn ngưỡng trên bộ chính, kiểm tra trên câu người viết. Các kiểu shift khác (theo mức mơ hồ, bỏ một loại lệnh, câu mẫu → câu viết lại) đã bỏ ngày 07/11 để paper gọn.
 
 Chỉ mô tả kết quả, không claim sửa được.
 

@@ -22,7 +22,7 @@ Việc của người (kiểm duyệt, viết câu) chạy song song với việ
 ### Task 3.1: Sinh benchmark chính · **[A — B không xem tới 13/11]**
 
 **Files:**
-- Modify: `configs/bench.yaml` (thêm `set: main`, ~300 tuyến, ~10 câu/tuyến, mỗi ô op × mức ≥ 100 câu)
+- Modify: `configs/bench.yaml` (thêm `set: main`, ~300 tuyến, ~10 câu/tuyến, cân bằng op theo spec 08 §3: mỗi op ≥ 250 câu một op, ~600 lệnh ghép)
 - Create: `src/kwd/bench/stats.py`, `tests/bench/test_build_reproducible.py`
 
 **Interfaces:**
@@ -30,7 +30,7 @@ Việc của người (kiểm duyệt, viết câu) chạy song song với việ
 
 - [ ] **Step 1 [CODE]:** `test_build_reproducible`: chạy `build_items` 2 lần trên 3 snapshot (paraphrase qua `StubClient`) → hai file giống hệt từng byte.
 - [ ] **Step 2 [CODE]:** Cài `bench_stats` (số câu theo op × mức, % binding, độ dài câu trung bình). PASS. Commit `feat(bench): stats and reproducibility test`.
-- [ ] **Step 3 [EXP]:** `kwd snapshot` cho ~300 tuyến (không trùng tuyến pilot và tuyến của tập người viết) → `kwd bench --set main`. Kiểm tra `README.md`: mỗi ô ≥ 100 câu, binding ≈ 70%, tổng ~3.000; số tuyến bị loại vì không phải fixed point (spec 08 §2.1) và bao nhiêu trong đó đang trễ khung giờ gốc. Nếu > 20% thì báo A trước khi chạy dịch.
+- [ ] **Step 3 [EXP]:** `kwd snapshot` cho ~300 tuyến (không trùng tuyến pilot và tuyến của tập người viết) → `kwd bench --set main`. Kiểm tra `README.md`: mỗi op ≥ 250 câu một op (cộng ba mức), mỗi ô op × mức có câu và ≥ 3 template, lệnh ghép ≈ 600 câu, binding ≈ 70%, tổng ~3.000; số tuyến bị loại vì không phải fixed point (spec 08 §2.1) và bao nhiêu trong đó đang trễ khung giờ gốc. Nếu > 20% thì báo A trước khi chạy dịch.
 
 ### Task 3.2: Tập câu do người viết (E6) · **[A soạn thẻ + kiểm tra; B, C viết]**
 
@@ -92,7 +92,7 @@ Việc của người (kiểm duyệt, viết câu) chạy song song với việ
 - Produces:
   - `Splits(fit_routes: list[str], cal_test: list[tuple[list[str], list[str]]])`
   - `make_splits(route_ids: list[str], n_splits: int = 100, fit_frac: float = 0.3, seed: int = 0) -> Splits`
-  - `FEATURE_SETS: dict[str, list[str]]` (`LLM`, `LEARNED`, `L6`, `SOLVER`, `ALL`, `ALL+`, và các biến thể bỏ-một, spec 11 §4)
+  - `FEATURE_SETS: dict[str, list[str]]` (`LLM`, `LEARNED`, `L6`, `SOLVER`, `ALL` và các biến thể bỏ-một, spec 11 §4)
   - `fit_score(df: pd.DataFrame, features: list[str]) -> ScoreModel`; `ScoreModel.predict(df) -> np.ndarray`
 
 - [ ] **Step 1 [CODE]:** `test_splits_by_route`: không tuyến nào vừa ở `fit` vừa ở `cal_test`, không tuyến nào vừa ở cal vừa ở test của cùng split; cùng seed → cùng kết quả.

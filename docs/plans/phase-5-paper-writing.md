@@ -36,19 +36,19 @@ Mỗi đoạn mở đầu bằng câu kết luận, sau đó mới đến số l
 - [ ] **E1 · LLM sai bao nhiêu (RQ1):** `μ` theo mức mơ hồ (T1); tỷ lệ lỗi vô hại (lý do cần nhãn mức kế hoạch); tỷ lệ lỗi không binding (lý do kiểm tra khả thi là không đủ).
 - [ ] **E2 + E4 · Tín hiệu nào hiệu quả (RQ2, đóng góp chính):** T2 + F2. Thêm tín hiệu solver làm AURC/coverage cải thiện bao nhiêu so với `LLM`; so với bộ chấm học `LEARNED` và judge xem thay đổi kế hoạch `L6`; mức cải thiện trên nhóm không binding.
 - [ ] **E7 · Lỗi thật nào được bắt:** T4 + 1 ví dụ ngắn. Loại lỗi nào tín hiệu solver bắt tốt, loại nào không.
-- [ ] **E3 · CRC và giá trị vận hành (RQ3):** T3 + F3. Giữ α trên split ngẫu nhiên; ngưỡng chung vi phạm ở loại nào; hiệu chỉnh theo loại mất bao nhiêu coverage; **tác hại được tránh** trên 1.000 yêu cầu ở `α_main`.
-- [ ] **E5 + E6 · Shift và câu người viết:** 3–4 câu cùng các dòng shift/human trong T2, T3. Nói thẳng khi bảo đảm bị vỡ.
+- [ ] **E3 · CRC và giá trị vận hành (RQ3):** T3. Giữ α trên split ngẫu nhiên; ngưỡng chung vi phạm ở loại nào; hiệu chỉnh theo loại mất bao nhiêu coverage; **tác hại được tránh** trên 1.000 yêu cầu ở `α_main`.
+- [ ] **E5 + E6 · Shift và câu người viết:** 2–3 câu cùng dòng shift theo trạm và dòng human trong T2, T3; theo từng người viết một câu. Nói thẳng khi bảo đảm bị vỡ.
 - [ ] Mỗi claim phải có trong doc 02 §2 và trỏ đúng bảng hoặc hình. Claim đánh dấu "sửa/bỏ" trong `paper/NOTES.md` thì viết lại cho đúng mức.
 - [ ] Commit `paper: results`.
 
 ### Step 5.2 [PAPER] — Limitations và Conclusion (23/11, ~0,3 trang) · **[A; B góp Limitations]**
 
-- [ ] Limitations (5 ý, mỗi ý một câu):
-  1. benchmark chính là câu tổng hợp; tập người viết nhỏ (~200 câu, 2 người viết);
-  2. chỉ một xe;
-  3. giả định exchangeable và kết quả shift;
-  4. kết quả phụ thuộc mô hình và nhà cung cấp API cụ thể;
-  5. tín hiệu S3 dựa trên các quy tắc counter-reading viết tay.
+- [ ] Limitations (4 câu):
+  1. giả định exchangeable (các câu cùng tuyến phụ thuộc nhau) và kết quả shift theo trạm;
+  2. benchmark chính là câu tổng hợp; tập người viết nhỏ (~200 câu, 2 người viết);
+  3. chỉ một xe;
+  4. kết quả phụ thuộc mô hình, nhà cung cấp API và quy tắc counter-reading viết tay của S3.
+  (Tuyến đang trễ bị loại bởi bộ lọc fixed point đã nằm trong câu ở §V, không nhắc lại.)
 - [ ] Conclusion (3–4 câu): bài toán; đóng góp chính; một hướng tiếp theo (cập nhật ngưỡng online khi người chỉ kiểm tra ngẫu nhiên).
 - [ ] Commit `paper: limitations and conclusion`.
 
@@ -82,11 +82,10 @@ Năm đoạn:
 
 - [ ] `make pages`. Nếu quá 8 trang, cắt theo thứ tự sau và dừng ngay khi đủ:
   1. rút câu thừa ở Related Work và Method;
-  2. bỏ F3, giữ số theo loại trong T3;
-  3. rút T1 chỉ còn các dòng tổng;
-  4. đưa T4 thành 2 câu trong Results;
-  5. rút danh mục tham khảo còn khoảng 25 mục;
-  6. thu nhỏ F1.
+  2. rút T1 chỉ còn các dòng tổng;
+  3. đưa T4 thành 2 câu trong Results;
+  4. rút danh mục tham khảo còn khoảng 25 mục;
+  5. thu nhỏ F1.
 - [ ] Không chỉnh margin, cỡ chữ hay khoảng cách dòng của template.
 - [ ] Commit `paper: fit to 8 pages`.
 

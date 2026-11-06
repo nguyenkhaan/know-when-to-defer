@@ -5,7 +5,7 @@
 % Paragraphs: (1) setting and notation, (2) harm, (3) decision rule and risk, (4) coverage bound.
 \section{Problem Formulation}\label{sec:problem}
 
-% --- Paragraph 1: setting and notation (v2, reviewed 2026-11-06) ---
+% --- Paragraph 1: setting and notation (v3, 2026-11-07: gold type c removed, paper uses only \hat{c}) ---
 % Note: "LLM" must be spelled out as "large language model (LLM)" at first use in the Introduction.
 \textit{Setting.} A single vehicle is executing a route. At the current time $t_{\mathrm{now}}$, its plan $P$
 consists of the fixed, already-served stops and the remaining stops in their planned order, each with a scheduled arrival time.
@@ -15,10 +15,10 @@ such as a time window, a stop removal, or a precedence constraint (Section~\ref{
 write $\hat{c}$ for its operation type, with multi-operation edits forming one compound type. A
 solver then re-optimizes the remaining stops under the edit and returns
 $\hat{P} = \mathrm{Solve}(P, \hat{e})$. For evaluation, each request also has a gold edit $e^\star$
-of operation type $c$ and the gold plan $P^\star = \mathrm{Solve}(P, e^\star)$, computed with the
-same solver configuration. Neither $e^\star$ nor $P^\star$ is available at deployment.
+and the gold plan $P^\star = \mathrm{Solve}(P, e^\star)$, computed with the same solver
+configuration. Neither $e^\star$ nor $P^\star$ is available at deployment.
 
-% --- Paragraph 2: plan-level harm (v2, reviewed 2026-11-06; spec 09) ---
+% --- Paragraph 2: plan-level harm (v3, 2026-11-07: pointer to the fixed-point filter; spec 09, spec 08 §2.1) ---
 \textit{Harm.} We judge an edit by the plan it produces instead of its text.
 Let $V(\hat{P}, e^\star)$ be the largest violation, in minutes, of any constraint of $e^\star$ in $\hat{P}$, such as how early a stop is served before its new window opens.
 Let $S(\cdot)$ be the set of stops a plan visits and $\mathrm{cost}(\cdot)$ the travel time plus a penalty on minutes late
@@ -35,9 +35,10 @@ If $\hat{e}$ cannot be parsed or the solver finds it infeasible,
 it is \emph{non-executable} and is never executed. We mark this with $x = 0$ ($x = 1$ otherwise);
 its harm $h$ is then undefined, and we take $x\,h = 0$. A harmful edit with
 $\hat{P} = P$ is a \emph{non-binding} error: the wrong constraint already holds on the current plan,
-so the solver changes nothing and reports success.
+so the solver changes nothing and reports success. (Section~\ref{sec:benchmark} keeps only plans
+with $\mathrm{Solve}(P, \emptyset) = P$.)
 
-% --- Paragraph 3: decision rule and risk (v3, 2026-11-06; spec 12 §2) ---
+% --- Paragraph 3: decision rule and risk (v4, 2026-11-07: conditional-risk sentence cut with LTT; spec 12 §2) ---
 % The calibration algorithm (formula for \hat\lambda, threshold grid) goes in Section IV, not here.
 \textit{Decision rule and risk.} A risk score $s$ is computed from $P$, $q$, the LLM outputs, and
 solver feedback, without $e^\star$ (Section~\ref{sec:method}); a higher $s$ means a more suspicious edit. Given a
@@ -57,9 +58,7 @@ valid threshold always exists.
 A single threshold can still hide violations
 concentrated in rare operation types~\cite{rahman2026rolestratified}, so we also calibrate one
 threshold $\lambda_{\hat{c}}$ per LLM-edit type $\hat{c}$ of executable edits (both known at deployment) and require
-$\mathbb{E}[L(\lambda_{\hat{c}}) \mid x = 1, \hat{c}] \le \alpha$ for every $\hat{c}$. The conditional risk
-$\Pr(h = 1 \mid \text{executed})$ is not monotone in $\lambda$, so the guarantee of CRC does not
-extend to it~\cite[Prop.~1]{angelopoulos2024crc}.
+$\mathbb{E}[L(\lambda_{\hat{c}}) \mid x = 1, \hat{c}] \le \alpha$ for every $\hat{c}$.
 
 % --- Paragraph 4: maximum-coverage bound (v2, 2026-11-06; spec 12 §2.4, spec 13 §14) ---
 \textit{Coverage bound.} Coverage is the share of requests executed,

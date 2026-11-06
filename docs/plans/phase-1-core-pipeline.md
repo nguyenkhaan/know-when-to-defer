@@ -66,7 +66,7 @@
 **Interfaces:**
 
 - Produces:
-  - `Edit` (union theo `op`, 7 op ở spec 06 §3), `EditSet(edits: list[Edit], confidence: int | None)`
+  - `Edit` (union theo `op`, 6 op ở spec 06 §3; `service_time` bỏ ngày 07/11), `EditSet(edits: list[Edit], confidence: int | None)`
   - `ParseError(code: str, detail: str)` với `code ∈ {invalid_json, schema, unknown_stop, unknown_zone, done_stop, bad_interval}`
   - `parse_editset(raw: str, p: RouteSnapshot) -> EditSet | ParseError` (trả `EditSet` đã đổi tên → `stop_id`, giờ → giây tính từ lúc xuất phát)
   - `canonical(e: EditSet, p: RouteSnapshot) -> tuple`

@@ -72,7 +72,7 @@ Hiện chỉ có tài liệu. Chưa có git, môi trường Python, dữ liệu,
 
 ### Task 0.5: Chốt các quyết định mở · **[A]**
 
-- [ ] **Step 1 [DECIDE]:** Xác nhận luật R2 ("bỏ nhầm điểm dừng là gây hại", spec 09). Nếu giữ: sửa `MoTaDeTai.md` §2.2 và `DienGiaiYTuong.md` cho khớp.
+- [x] **Step 1 [DECIDE]:** Xác nhận luật R2 ("bỏ nhầm điểm dừng là gây hại", spec 09). Nếu giữ: sửa `MoTaDeTai.md` §2.2 và `DienGiaiYTuong.md` cho khớp.
 - [X] **Step 2 [DECIDE]:** Xác nhận câu yêu cầu bằng tiếng Anh (spec 08 §5). *Đã xác nhận 05/11/2026.*
 - [ ] **Step 3:** Ghi các quyết định vào `docs/CONTENT.md` §6; commit `docs: record phase-0 decisions`.
 

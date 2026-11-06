@@ -13,7 +13,6 @@ from kwd.dsl.models import (
     JsonEditSet,
     Precedence,
     RemoveStop,
-    ServiceTime,
     SetTimeWindow,
 )
 
@@ -75,8 +74,6 @@ def _sentence(edit: Edit, p: RouteSnapshot) -> str:
             return (
                 f"Do not arrive at any stop in zone {edit.zone} before {clock_str(p, edit.time)}."
             )
-        case ServiceTime():
-            return f"Set the service time at {name(edit.stop)} to {edit.minutes} minutes."
     raise AssertionError(f"unhandled op: {edit.op}")
 
 

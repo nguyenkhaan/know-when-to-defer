@@ -13,7 +13,7 @@
 - cài CRC đúng (code ngắn nhưng dễ sai hướng đơn điệu);
 - chạy đủ tổ hợp trên 100 split;
 - chứng minh kết quả không phải do "tự ra đề tự giải" (E6, E7, V3);
-- biến tất cả thành đúng T1–T4, F2, F3.
+- biến tất cả thành đúng T1–T4, F2.
 
 Thí nghiệm nào không phục vụ claim nào thì không chạy. Phase này ngắn hơn trước 2 ngày để dành thời gian cho paper.
 
@@ -30,14 +30,13 @@ Thí nghiệm nào không phục vụ claim nào thì không chạy. Phase này 
   - `min_n_for(alpha: float) -> int` = `max(20, ⌈1/α⌉ − 1)` (spec 12 §2.2; tính `ceil` có dung sai để `1/0.02` không thành 51).
   - `alpha_f3(group_counts_median: dict[str, int], alpha_main: float, grid: list[float]) -> float | None` (spec 13 §14.0): α nhỏ nhất trong `grid` với `α ≥ alpha_main` và mọi nhóm có `n ≥ min_n_for(α)`; không có → `None`. Chỉ nhận số mẫu, không nhận nhãn.
   - `per_type_lambda(s, h, executable, group_types: np.ndarray, alpha: float, min_n: int | None = None) -> dict[str, float]` (`min_n=None` → `min_n_for(alpha)`). **`group_types` = `op_type(ê)` (`ĉ`, Task 1.3), không phải loại của gold** (spec 12 §2.2, quyết định 06/11).
-  - `evaluate(s, h, executable, group_types, gold_types, lam: float | dict[str, float], alpha: float, harm_cost: pd.DataFrame | None = None) -> dict` (coverage, rủi ro kết hợp, rủi ro có điều kiện, `per_group_risk` theo `ĉ` (được bảo đảm), `per_type_risk_gold` theo `c = op_type(e*)` (chỉ phân tích), `deferred_groups`, `violated`; nếu có `harm_cost` thì thêm số lần gây hại, phút trễ, khung giờ bị vi phạm đã tránh trên 1.000 yêu cầu). `group_types` dùng để áp ngưỡng; `gold_types` chỉ dùng để báo cáo (spec 13 §14.3).
+  - `evaluate(s, h, executable, group_types, gold_types, lam: float | dict[str, float], alpha: float, harm_cost: pd.DataFrame | None = None) -> dict` (coverage, rủi ro kết hợp, rủi ro có điều kiện (chỉ ghi `runs/`), `per_group_risk` theo `ĉ` (được bảo đảm), `per_type_risk_gold` theo `c = op_type(e*)` (chỉ ghi `runs/`, không lên paper), `deferred_groups`, `violated`; nếu có `harm_cost` thì thêm số lần gây hại, phút trễ, khung giờ bị vi phạm đã tránh trên 1.000 yêu cầu). `group_types` dùng để áp ngưỡng; `gold_types` chỉ dùng để báo cáo (spec 13 §14.3).
 
 - [ ] **Step 1 [CODE]:** `test_crc_validity_synthetic`: dữ liệu giả hoán đổi được, `μ = 0,15`; 1.000 split 50/50, α = 0,05 → rủi ro thực tế trung bình ≤ 0,05 + 0,005. (CRC chỉ bảo đảm rủi ro **trung bình**; tần suất vi phạm chỉ báo cáo, không làm tiêu chí test.)
 - [ ] **Step 2 [CODE]:** `test_crc_defer_all_when_impossible`: mọi item có hại → `-inf`.
 - [ ] **Step 3 [CODE]:** Review Focus #5: `test_per_type_small_n_defers_all` (loại có 10 mẫu, `min_n=20` → `-inf` cho loại đó; loại khác bình thường; không ném lỗi). `test_min_n_depends_on_alpha`: `min_n_for` trả 99, 49, 20, 20 ở α = 0,01; 0,02; 0,05; 0,10; nhóm 60 mẫu không có hại → `-inf` ở α = 0,01, ngưỡng hữu hạn ở α = 0,02. `test_alpha_f3`: số mẫu `{a: 120, b: 30}`, `alpha_main = 0,02` → 0,05; `{a: 120, b: 60}` → 0,02; `{a: 5}` → `None`. `test_gold_types_never_affect_lambda`: hoán vị `gold_types` → `per_type_lambda` và coverage không đổi, chỉ `per_type_risk_gold` đổi.
 - [ ] **Step 4 [CODE]:** `test_non_executable_counts_in_denominator`; `test_harm_prevented`: luôn thực thi → 0 tác hại được tránh; chuyển duyệt hết → bằng tổng tác hại.
 - [ ] **Step 5:** FAIL → cài đặt theo spec 12 §2.1–§2.2 → PASS. Commit `feat(risk): global and per-type CRC`.
-- [ ] **Step 6 [DECIDE] (đã chốt 14/11):** LTT mặc định **cắt**. Chỉ thêm `ltt_lambda` nếu đã quyết định giữ vào 14/11.
 
 ### Task 4.2: Chạy E1–E6 (17–19/11) · **[B; A đọc kết quả]**
 
@@ -46,10 +45,10 @@ Thí nghiệm nào không phục vụ claim nào thì không chạy. Phase này 
 
 - [ ] **Step 1 [CODE]:** `test_experiments_smoke`: chạy E1–E6 trên benchmark mini 10 câu + human mini 5 câu với `StubClient` → mỗi file kết quả có đủ cột theo spec 12 §4 và spec 13; không có NaN ngoài cột được phép. Cài đặt → PASS. Commit `feat(eval): experiment runners`.
 - [ ] **Step 2 [EXP] E1:** `μ`, lỗi chuỗi, lỗi vô hại, lỗi không binding, luật R1/R2/R3 theo mô hình × mức × op.
-- [ ] **Step 3 [EXP] E2:** AUROC/AUPRC từng tín hiệu và từng bộ điểm, CI bootstrap theo tuyến; recall ở mức chuyển duyệt 20% trên nhóm lỗi không binding.
+- [ ] **Step 3 [EXP] E2:** AUROC từng tín hiệu và từng bộ điểm (AUPRC chỉ ghi `runs/`), CI bootstrap theo tuyến; recall ở mức chuyển duyệt 20% trên nhóm lỗi không binding.
 - [ ] **Step 4 [EXP] E3:** {`LLM`, `LEARNED`, `L6`, `SOLVER`, `ALL`} × {chung, theo loại} × α ∈ {0,01; 0,02; 0,05; 0,10} × 100 split; thêm **tác hại được tránh** ở `α_main`.
-- [ ] **Step 5 [EXP] E4:** Đường risk–coverage và AURC: `LLM`, `LEARNED`, `L6`, `SOLVER`, `ALL`, `ALL+`, các biến thể bỏ-một. Ba so sánh bắt buộc ở spec 13 §7.
-- [ ] **Step 6 [EXP] E5:** 4 kiểu shift (mức mơ hồ, bỏ một op, template → paraphrase, trạm).
+- [ ] **Step 5 [EXP] E4:** Đường risk–coverage và AURC: `LLM`, `LEARNED`, `L6`, `SOLVER`, `ALL`; các biến thể bỏ-một (paper chỉ một câu). Ba so sánh bắt buộc ở spec 13 §7.
+- [ ] **Step 6 [EXP] E5:** shift theo trạm: calibrate trên tuyến của một số trạm, test trên trạm còn lại (spec 13 §8).
 - [ ] **Step 7 [EXP] E6:** Điểm học trên fit main, CRC calibrate trên cal main, **test trên tập human**: AUROC từng tín hiệu (thứ hạng có giống main không), rủi ro thực tế so với α, coverage, `μ` trên câu người viết.
 
 ### Task 4.3: Phân loại lỗi (E7) và kiểm tra V2, V3 (19–20/11) · **[B; Step 3: A gán 100, B gán 30]**
@@ -71,9 +70,9 @@ Thí nghiệm nào không phục vụ claim nào thì không chạy. Phase này 
 - Modify: `src/kwd/cli.py` (`kwd report --run <id>`)
 
 **Interfaces:**
-- Produces: `paper/tables/t1_benchmark.tex`, `t2_signals.tex`, `t3_crc.tex`, `t4_taxonomy.tex`; `paper/figures/f2_risk_coverage.pdf`, `f3_per_type.pdf`; `paper/macros/results.tex` (vd. `\newcommand{\muMOneLevelThree}{12.4\%}`, `\newcommand{\lateAvoided}{…}`).
+- Produces: `paper/tables/t1_benchmark.tex`, `t2_signals.tex`, `t3_crc.tex`, `t4_taxonomy.tex`; `paper/figures/f2_risk_coverage.pdf`; `paper/macros/results.tex` (vd. `\newcommand{\muMOneLevelThree}{12.4\%}`, `\newcommand{\lateAvoided}{…}`).
 
-- [ ] **Step 1 [CODE]:** `test_report_outputs`: trên kết quả smoke → sinh đủ 6 file + `results.tex`; mỗi bảng biên dịch được trong một file LaTeX nhỏ (`booktabs`).
+- [ ] **Step 1 [CODE]:** `test_report_outputs`: trên kết quả smoke → sinh đủ 5 file + `results.tex`; mỗi bảng biên dịch được trong một file LaTeX nhỏ (`booktabs`).
 - [ ] **Step 2 [CODE]:** Cài đặt. F2 có đường "always execute" và oracle. Hình 1 cột (3,5 in), font ≥ 8 pt, đọc được khi in đen trắng (nét liền/đứt + marker). Bảng `booktabs`, tối đa 6 cột; T2 và T3 có dòng "human".
 - [ ] **Step 3:** PASS. Commit `feat(eval): paper tables, figures and macros`.
 - [ ] **Step 4 [EXP]:** `kwd report --run <final_id>`; ghi run ID của từng bảng và hình vào `paper/RUNS.md`.
@@ -85,7 +84,7 @@ Thí nghiệm nào không phục vụ claim nào thì không chạy. Phase này 
 
 ## Song song [PAPER] (17–22/11)
 
-- [ ] **[PAPER] [B]** `06-experiments.tex` phần **Setup** (~0,5 trang): 5 mô hình và vai trò; `k`; tham số solver; ε; chia dữ liệu (fit 30% tuyến, 100 split 50/50); `α_main`; α; baseline (spec 13 §12); chỉ số; V1–V3 (mỗi mục 1 câu). Viết được trước khi có kết quả.
+- [ ] **[PAPER] [B]** `06-experiments.tex` phần **Setup** (~0,5 trang): 5 mô hình và vai trò; `k`; tham số solver; ε; chia dữ liệu (fit 30% tuyến, 100 split 50/50); `α_main`; α; baseline (spec 13 §12); chỉ số; V1–V3 (mỗi mục một mệnh đề; ε gộp vào V2). Viết được trước khi có kết quả.
 - [ ] **[PAPER] [B]** Gắn `\input{tables/...}`, `\includegraphics{figures/...}` vào đúng chỗ; dùng macro trong `results.tex` thay vì gõ số.
 - [ ] **[PAPER] [A]** Viết nháp Results với số tạm (macro) ngay khi E1–E3 có kết quả (19–20/11), để ngày 23/11 chỉ còn chỉnh.
 - [ ] **[PAPER] [A]** Introduction v1: điền con số chính bằng macro (μ, mức cải thiện, tác hại được tránh).
@@ -94,6 +93,6 @@ Thí nghiệm nào không phục vụ claim nào thì không chạy. Phase này 
 ## Kết thúc Phase 4 khi (M3 · 22/11)
 
 - [ ] Có kết quả E1–E7, V1–V3 trong `runs/`; `paper/RUNS.md` đầy đủ.
-- [ ] `kwd report` sinh T1–T4, F2, F3 và `results.tex` không cần thao tác tay.
+- [ ] `kwd report` sinh T1–T4, F2 và `results.tex` không cần thao tác tay.
 - [ ] `paper/NOTES.md` có danh sách claim: giữ / sửa / bỏ.
 - [ ] Paper có nháp Results.

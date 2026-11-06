@@ -1,6 +1,6 @@
 # 09 · Harm Labeling (Plan-Level Loss)
 
-> Status: Draft v0.2 · Updated 2026-11-06 · v0.2: plan digest covers order and service-start times (spec 07 §5), so `nonbinding_error` means the plan is literally unchanged. · This is contribution C1 — keep it simple, precise and reproducible.
+> Status: Draft v0.3 · Updated 2026-11-07 · v0.3: ε sensitivity is one clause in the paper's Setup (no appendix in 8 pages). · v0.2: plan digest covers order and service-start times (spec 07 §5), so `nonbinding_error` means the plan is literally unchanged. · This is contribution C1 — keep it simple, precise and reproducible.
 
 ## 1. Purpose
 
@@ -19,7 +19,7 @@ Decide `h ∈ {0, 1}` for an **executed** LLM edit by looking at the resulting p
 Else `h = 0`.
 
 - `cost` = `travel_min + late_penalty · lateness_min` (spec 07 §3, **without** the deviation term).
-- `ε = max(eps_abs, eps_rel · cost(P*))`, default `eps_abs = 5 min`, `eps_rel = 2%`. Report sensitivity for `ε ∈ {0, 5, 10}` min in the appendix of results (not the paper body).
+- `ε = max(eps_abs, eps_rel · cost(P*))`, default `eps_abs = 5 min`, `eps_rel = 2%`. Sensitivity for `ε ∈ {0, 5, 10}` min (check V2, spec 13 §11) is one clause in the paper's Setup.
 - `tol_min = 1` (rounding).
 - R1 checks only constraints of the **gold**; extra constraints the LLM invented matter only through R2/R3.
 - If `cost(P̂) < cost(P*)` (heuristic noise), R3 does not fire.

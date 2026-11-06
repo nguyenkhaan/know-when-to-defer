@@ -1,6 +1,6 @@
 # 06 · Edit DSL
 
-> Status: Draft v0.2 · Updated 2026-11-06 · v0.2: `op_type` defined in §5.1 · Final op list frozen at end of week 1 (6–8 ops).
+> Status: Draft v0.5 · Updated 2026-11-07 · v0.5: `service_time` dropped, 6 ops; the DSL covers constraints on the plan only (§3, decided 07/11) · v0.4: parsing keeps ops as written; edge cases of `schema` / `invalid_json` / `unknown_stop` / `done_stop`; `tol_min` on times (§5) · v0.3: `bad_interval` covers every past time, compared by the minute (§4, decided 07/11) · v0.2: `op_type` defined in §5.1 · Final op list frozen at end of week 1 (6–8 ops).
 
 ## 1. Purpose
 
@@ -19,7 +19,7 @@ A request maps to an `EditSet` — one or more ops (compound requests → severa
 - Times are local `HH:MM` strings in the JSON; parsed to seconds since departure internally.
 - `confidence` (0–100) is the verbalized confidence; optional, ignored by the solver.
 
-## 3. Operations (v0.1 candidate list)
+## 3. Operations (6 ops since 2026-11-07; the pilot may drop more)
 
 | `op` | Arguments | Meaning (hard constraint on `P̂`) |
 |---|---|---|
@@ -28,13 +28,12 @@ A request maps to an `EditSet` — one or more ops (compound requests → severa
 | `precedence` | `before`, `after` | `before` is visited before `after`. |
 | `driver_end_time` | `time` | Vehicle returns to depot by `time`. |
 | `avoid_zone_until` | `zone`, `time` | No arrival at any stop in `zone` before `time`. |
-| `service_time` | `stop`, `minutes` | Service duration at `stop` becomes `minutes`. |
 | `deadline` | `stop`, `time` | Arrive at `stop` no later than `time`. |
 
 Notes:
 
 - `deadline(s, t)` overlaps with `set_time_window(s, null, t)`. Keep both in the pilot (dispatchers phrase them differently); **canonicalization maps `deadline` → `set_time_window`** so they compare equal.
-- Out of scope: inserting new stops, moving stops to another vehicle, changing travel times.
+- Out of scope: inserting new stops, moving stops to another vehicle, and edits that change problem data (travel times, service times). Every op is a **constraint on the plan**, so harm rule R1 checks it directly (spec 09 §2). `service_time` was dropped on 2026-11-07 for this reason: it changes data, and judging `P̂` would need gold service durations with the LLM's waits.
 - Week-1 decision: drop any op with near-zero LLM errors in the pilot, or one that is hard to generate realistically.
 
 ## 4. Validation (`kwd.dsl.parse`)
@@ -50,6 +49,13 @@ Returns `EditSet` or a `ParseError` with a reason code:
 | `bad_interval` | `start > end`, time before `t_now` |
 
 A parse error ⇒ the system **defers automatically** (no execution). Record it; it counts against coverage.
+
+**Past times (decided 2026-11-07).** `bad_interval` applies to **every** time in an edit: both window bounds, `deadline`, `driver_end_time` and `avoid_zone_until`. Times are compared by the minute: a time is past when its whole local minute is over (`clock_to_s(hhmm) + 60 ≤ t_now`). The current minute stays valid, because `t_now` usually falls inside a minute and the snapshot shows it as the current time. The past time is never repaired (e.g. `"03:00"` is not read as 15:00). Why: a past time is caught by any basic validator, so counting it as a harmful execution would inflate `μ` and flatter the solver signals; rejecting it keeps harm focused on errors that pass every syntactic and feasibility check. The rejected edit stays in every denominator (`π`). In the paper, the parser's checks are one clause in §IV; `bad_interval` gets no separate table entry (it is part of the parse-error rate in T1).
+
+**Edge cases (decided 2026-11-07; never repair the output):**
+- The parsed `EditSet` keeps ops as written: `deadline` stays `deadline`, `null` bounds stay open. Only `canonical` (§5) closes bounds and rewrites `deadline`.
+- `schema`: window with both bounds `null`; `precedence` of a stop with itself; `confidence` not a whole number in 0–100; a dropped op such as `service_time`.
+- `invalid_json`: output wrapped in a code fence. `unknown_stop`: the depot name. `done_stop`: the stop where the vehicle stands (`current_stop`).
 
 ## 5. Canonical form and equivalence (`kwd.dsl.canonical`)
 
@@ -75,7 +81,7 @@ Computing it on raw op names would split one meaning across two groups and shrin
 ```python
 class Edit(BaseModel):          # discriminated union on `op`
     op: Literal["set_time_window","remove_stop","precedence","driver_end_time",
-                "avoid_zone_until","service_time","deadline"]
+                "avoid_zone_until","deadline"]
     ...                          # op-specific fields
 
 class EditSet(BaseModel):

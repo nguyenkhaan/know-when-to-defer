@@ -1,6 +1,6 @@
 # 11 · Verification Signals & Risk Score
 
-> Status: Draft v0.3 · Updated 2026-11-06 · v0.3: "plan unchanged" / digest equality in S3–S4 uses the digest of spec 07 §5 (order + service-start times). · **Main contribution (C3).** Solver signals are the novelty; LLM signals and the learned guardian are baselines. v0.2 adds L6 and G1. Signal definitions are **frozen after the pilot** (spec 13 §3).
+> Status: Draft v0.5 · Updated 2026-11-07 · v0.5: no counter-reading for the dropped `service_time` op. v0.4: `ALL+` dropped; paper T2 shows the 5 score sets and S1–S5, leave-one-out in one sentence (lean paper scope). · v0.3: "plan unchanged" / digest equality in S3–S4 uses the digest of spec 07 §5 (order + service-start times). · **Main contribution (C3).** Solver signals are the novelty; LLM signals and the learned guardian are baselines. v0.2 adds L6 and G1. Signal definitions are **frozen after the pilot** (spec 13 §3).
 
 ## 1. Purpose
 
@@ -31,7 +31,7 @@ Derived from `ê` alone, per op:
 | `precedence(i, j)` | `precedence(j, i)` |
 | `remove_stop s` / any stop arg | same op on the 2 most similar stops (same category, then nearest name edit distance) |
 | `avoid_zone_until(z, t)` | adjacent zone; `t ± 60` |
-| `driver_end_time t`, `service_time` | `t ± 60`; `minutes × 2`, `÷ 2` |
+| `driver_end_time t` | `t ± 60` |
 
 Cap at 4 counter-readings per edit; deterministic order. All solves are cached (spec 07 §6).
 
@@ -67,9 +67,8 @@ CORA-style supervised risk model without solver feedback: embed `q` and `render_
 | `L6` | L6 alone | baseline / solver-aware judge |
 | `SOLVER` | S1–S5 | ours |
 | `ALL` | S1–S5 + L1–L5 | ours (main) |
-| `ALL+` | `ALL` + L6 + G1 | upper reference |
-| `ALL − Sx` / `ALL − Lx` | leave one out | ablation |
-| single signals | each alone, raw value | AUROC table |
+| `ALL − Sx` / `ALL − Lx` | leave one out | ablation; one sentence in the paper |
+| single signals | each alone, raw value | S1–S5 in T2; L1–L6, G1 in `runs/` |
 
 - Output `s = P(h = 1 | features)`. Parse errors / infeasible ⇒ deferred, no score needed.
 

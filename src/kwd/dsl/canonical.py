@@ -7,7 +7,6 @@ The canonical form is a sorted tuple of plain tuples, one per op, with ids and s
     ("precedence", before, after)
     ("driver_end_time", time)
     ("avoid_zone_until", zone, time)
-    ("service_time", stop, seconds)
 
 It is hashable, so it can key the solver cache (spec 07 §4).
 """
@@ -21,7 +20,6 @@ from kwd.dsl.models import (
     EditSet,
     Precedence,
     RemoveStop,
-    ServiceTime,
     SetTimeWindow,
 )
 
@@ -48,8 +46,6 @@ def _op_tuple(edit: Edit, p: RouteSnapshot) -> CanonicalOp:
             return ("driver_end_time", edit.time)
         case AvoidZoneUntil():
             return ("avoid_zone_until", edit.zone, edit.time)
-        case ServiceTime():
-            return ("service_time", edit.stop, edit.minutes * 60)
     raise AssertionError(f"unhandled op: {edit.op}")
 
 
@@ -91,8 +87,8 @@ def _close(a: CanonicalOp, b: CanonicalOp, tol_s: int) -> bool:
 def equivalent(a: EditSet, b: EditSet, p: RouteSnapshot, tol_min: int = 0) -> bool:
     """Canonical forms equal, with every time within ±`tol_min` minutes (spec 06 §5, step 5).
 
-    Ops are paired in canonical order. Ids and op names must match exactly; only times (and
-    service durations, also in seconds) get the tolerance.
+    Ops are paired in canonical order. Ids and op names must match exactly; only times get the
+    tolerance.
     """
     ca, cb = canonical(a, p), canonical(b, p)
     if len(ca) != len(cb):

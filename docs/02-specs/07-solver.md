@@ -1,6 +1,6 @@
 # 07 · Solver: Re-optimize a Snapshot Under Edits
 
-> Status: Draft v0.2 · Updated 2026-11-06 · v0.2: `Plan` times come from one shared walk `schedule()`; `digest()` hashes order **and** service-start times (§5, decided 06/11); `is_fixed_point` for the benchmark filter (spec 08 §2.1).
+> Status: Draft v0.3 · Updated 2026-11-07 · v0.3: `service_time` op dropped (spec 06 §3); service durations come only from the snapshot. · v0.2: `Plan` times come from one shared walk `schedule()`; `digest()` hashes order **and** service-start times (§5, decided 06/11); `is_fixed_point` for the benchmark filter (spec 08 §2.1).
 
 ## 1. Purpose
 
@@ -18,7 +18,6 @@ Single-vehicle TSPTW with OR-Tools routing:
   - `precedence(i, j)` → `CumulVar(i) + service(i) ≤ CumulVar(j)` and same-route.
   - `driver_end_time(t)` → end node cumul `≤ t`.
   - `avoid_zone_until(z, t)` → each stop in `z`: cumul `≥ t`.
-  - `service_time(s, m)` → change service at `s` before building transit callback.
 - **Original LMRC time windows**: the **end** is **soft**, penalty per minute late (`late_penalty`, default 10/min), since real data can be internally inconsistent. The **start** is a lower bound on service start (`CumulVar(stop).SetMin(tw_start)`): the vehicle waits, exactly as in the baseline walk of spec 05 §4 and in `schedule()` (§5). A lower bound alone never makes a route infeasible.
 - **Shift end** is soft (penalty) unless a `driver_end_time` edit makes it hard.
 
@@ -57,7 +56,7 @@ class Infeasible(BaseModel):
 
 **Times are never read from OR-Tools.** With slack allowed, cumul values are not unique, so two equal plans could get different times. All times in `Plan` come from one shared walk:
 
-`schedule(p, sequence, e) -> (arrival, service_start, end_time)`: leave `current_stop` at `t_now`, drive `sequence` with `travel(p)` (spec 05 §4); `service_start = max(arrival, original tw_start, hard lower bounds of e)` where the hard lower bounds are the `start` of `set_time_window` and the `time` of `avoid_zone_until`; service durations include `service_time` edits; `end_time` = return to depot. `solve` returns `schedule(p, best_sequence, e)`; `current_plan(p) = schedule(p, p.remaining, None)`. With no edit this reproduces `baseline_arrivals` (spec 05) exactly.
+`schedule(p, sequence, e) -> (arrival, service_start, end_time)`: leave `current_stop` at `t_now`, drive `sequence` with `travel(p)` (spec 05 §4); `service_start = max(arrival, original tw_start, hard lower bounds of e)` where the hard lower bounds are the `start` of `set_time_window` and the `time` of `avoid_zone_until`; service durations are the snapshot's `service_s`; `end_time` = return to depot. `solve` returns `schedule(p, best_sequence, e)`; `current_plan(p) = schedule(p, p.remaining, None)`. With no edit this reproduces `baseline_arrivals` (spec 05) exactly.
 
 The walk serves every stop as early as allowed, so for a fixed order it gives the earliest feasible times; if OR-Tools found the order feasible, this schedule meets every hard upper bound too.
 

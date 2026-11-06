@@ -45,7 +45,7 @@ paper/
 ├── IEEEtran.cls        # copy nguyên từ template (V1.8b)
 ├── refs.bib            # P1–P24 (docs/MoTaDeTai.md §9.2); mục ghi VERIFY cần kiểm trước khi nộp
 ├── sections/           # 00-abstract … 07-conclusion; đầu mỗi file ghi ngân sách trang + thông điệp
-├── figures/            # hình vector PDF (F1–F3)
+├── figures/            # hình vector PDF (F1–F2)
 ├── tables/             # bảng sinh bởi `kwd report` (T1–T4)
 ├── Makefile            # make | make pages | make check | make fonts | make clean
 └── build/              # đầu ra (gitignored)

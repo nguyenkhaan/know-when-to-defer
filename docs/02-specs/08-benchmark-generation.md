@@ -1,6 +1,6 @@
 # 08 · Benchmark Generation
 
-> Status: Draft v0.3 · Updated 2026-11-06 · v0.4: snapshots must be solver fixed points (§2.1, decided 06/11). v0.3: `gold_type = op_type(gold)` (spec 06 §5.1) is the only source of gold type `c`; `gold_binding` uses the digest of spec 07 §5 (order + service times). · v0.2: main set ~3,000 items; paraphraser = M3; new §10 human-written test set.
+> Status: Draft v0.6 · Updated 2026-11-07 · v0.6: fixed-point filter reported in one sentence of paper §V, no separate §VII limitation. · v0.5: op mix balanced per op and per level instead of per op × level cell; level 3 is half compound, half implicit single-op (§3, §4, decided 07/11). v0.4: snapshots must be solver fixed points (§2.1, decided 06/11). v0.3: `gold_type = op_type(gold)` (spec 06 §5.1) is the only source of gold type `c`; `gold_binding` uses the digest of spec 07 §5 (order + service times). · v0.2: main set ~3,000 items; paraphraser = M3; new §10 human-written test set.
 
 ## 1. Purpose
 
@@ -22,13 +22,14 @@ Keep a snapshot only if `solve(P, ∅).digest == P.digest` (`is_fixed_point`, sp
 - **Why:** a non-binding error is defined by `P̂ = P` (paper §III, spec 09 §4), and `gold_binding` by `P*.digest != P.digest`. Both are meaningful only if the solver does not rewrite `P` on its own. `P` is the real LMRC driver order, which the solver can sometimes improve.
 - **Measured** 2026-11-06 (throwaway probe of spec 07 §2–§4 on 20 eligible routes, default `dev_weight` = 2 min): 18/20 are fixed points. One failure fixes 9.9 min of lateness on original windows; one shortens travel by 6.8 min. Expect ~10% of routes to fail (95% CI roughly 3–30%).
 - **Replacement:** a failing route is replaced by the next route of the same station from the seeded reserve list (spec 05 §3); `ρ` is not redrawn.
-- **Report** in `README.md` and the paper (§V): number of routes dropped, and how many of them were late on original windows in `P`. Limitation (§VII): routes already running late are under-represented.
+- **Report** in `README.md` and in **one sentence** of paper §V: number of routes dropped and how many of them were late on original windows in `P`, so routes already running late are under-represented (no separate §VII limitation).
 - **Scope of the guarantee:** calibration and test both come from filtered snapshots, so exchangeability holds and the CRC bound applies to fixed-point snapshots. The filter needs no gold, so a deployed system can apply the same check at request time (if the current plan is not a fixed point, re-plan first or defer), which keeps the bound meaningful in deployment. State this in one clause next to the filter sentence (paper §V).
 - Non-binding behaviour **with** an edit is not implied by this filter; it is checked in the pilot (spec 13 E0): for non-binding gold, `P*.digest == P.digest` on every item.
 
 ## 3. Gold sampling rules
 
-- Ops are sampled to balance **op type × ambiguity level** (each cell ≥ 100 items in the main set).
+- **Op mix** (decided 2026-11-07): levels 1 and 2 hold single-op items; level 3 is **half compound** items (2–3 ops) and **half single-op items with an implied intent** (§4). Single-op items are spread evenly over the ops at every level, and compound items draw their ops evenly too. Main set (~3,000 items, levels 20/40/40): ~2,400 single-op items and ~600 compound items (20%).
+- **Balance check** (main set): every op has **≥ 250 single-op items** summed over the three levels, and every op × level cell is non-empty with ≥ 3 templates (spec 13 §14.7). Why 250: per-group CRC needs `min_n(0.02) = 49` calibration items per group `ĉ` (spec 12 §2.2), and calibration holds ~35% of the main set (70% × 50%), so ~140 items per op plus room for non-executable outputs. The check holds with 6, 7 or 8 ops (~400 / ~343 / ~300 single-op items per op), so it does not depend on the op list frozen after the pilot. Balance uses the sampled op names `ops` (§7); since `deadline` and `set_time_window` share one group `ĉ`, that group is about twice as large.
 - Arguments are realistic and relative to the snapshot:
   - time-window bounds: rounded to 15 min, within `[t_now + 15, shift_end − 30]`;
   - `set_time_window` targets: mostly stops **without** an existing window;
@@ -48,7 +49,7 @@ Generator constraints:
 
 - Level 2 references must **resolve to exactly one** remaining stop (e.g. use "the hospital" only if one hospital remains). Checked by a resolver; otherwise fall back to level 1 phrasing.
 - Relative times ("in two hours") are computed from `t_now` and rounded as in the gold.
-- Level 1 is the control condition; the pilot and main set put **most items in levels 2–3**: target split 20% / 40% / 40%.
+- Level 1 is the control condition; the pilot and main set put **most items in levels 2–3**: target split 20% / 40% / 40%. Level 3 is split half compound, half implicit single-op (§3).
 
 ## 5. Paraphrase
 
@@ -113,6 +114,6 @@ Card format: a **situation** (what happened in the world, may be in Vietnamese) 
 
 - [ ] Re-running the generator with the same config reproduces identical `items.jsonl` (template stage; paraphrase cached).
 - [ ] Every item: gold feasible, references resolve uniquely, level label consistent with the template used.
-- [ ] Stats table: items per op × level, % binding, mean request length.
+- [ ] Stats table: single-op items per op × level, compound items per level, % binding, mean request length; the balance check of §3 passes.
 - [ ] Human review done on 300 items with κ and % "yes" reported (target ≥ 90% yes).
 - [ ] Human-written set: ≥ 150 kept items (target 200) from 2 writers, keep rate reported per writer.

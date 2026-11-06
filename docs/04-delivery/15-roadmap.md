@@ -1,7 +1,8 @@
 # 15 · Roadmap & Milestones
 
-> Trạng thái: Draft v0.3 · Cập nhật 06/11/2026
-> v0.3: CRC theo nhóm `ĉ` chạy ở mọi α; F3/C5 dùng `α_F3` (spec 13 §14.0); mốc 14/11 chỉ còn quyết định gộp nhóm nhỏ.
+> Trạng thái: Draft v0.4 · Cập nhật 07/11/2026
+> v0.4: LTT đã cắt (07/11), mốc 14/11 chỉ còn quyết định gộp nhóm nhỏ; paper tinh gọn (không F3, shift theo trạm).
+> v0.3: CRC theo nhóm `ĉ` chạy ở mọi α; C5 dùng `α_F3` (spec 13 §14.0).
 > v0.2: khóa kết quả sớm hơn (**22/11**) để paper có trọn 6 ngày hoàn thiện; thêm tập câu người viết, phân loại lỗi, kiểm tra độ bền nhãn, 2 baseline mạnh; còn 5 mô hình, benchmark chính ~3.000 câu để giảm chi phí API.
 
 ## 1. Kế hoạch 4 tuần
@@ -22,8 +23,7 @@
 | 08/11 | Chốt 6–8 loại lệnh DSL | Chạy thử pilot |
 | 10/11 | **Go / No-go**; đóng băng định nghĩa tín hiệu; chốt `α_main` | E0 (spec 13 §3, §14.0) |
 | 10/11 | Kích thước benchmark chính và `k` | Chi phí thật mỗi câu từ E0 |
-| 14/11 | Giữ hay cắt LTT (mặc định: **cắt**) | Tiến độ tuần 2 |
-| 14/11 | Có gộp nhóm `ĉ` nhỏ thành `other` không (mặc định: **không**) | Chỉ xét nếu ở `α_main` có ≥ 3 nhóm dưới `min_n(α) = max(20, ⌈1/α⌉ − 1)` mẫu calibration (99 ở α = 0,01; 49 ở 0,02). Gộp quyết định trên split fit, không dùng calibration (spec 12 §2.2). Đã chốt 06/11: CRC theo nhóm chạy ở mọi α, T3 luôn có hàng này ở `α_main`, F3/C5 dùng `α_F3` (spec 13 §14.0); **không đổi `α_main`** |
+| 14/11 | Có gộp nhóm `ĉ` nhỏ thành `other` không (mặc định: **không**) | Chỉ xét nếu ở `α_main` có ≥ 3 nhóm dưới `min_n(α) = max(20, ⌈1/α⌉ − 1)` mẫu calibration (99 ở α = 0,01; 49 ở 0,02). Gộp quyết định trên split fit, không dùng calibration (spec 12 §2.2). Đã chốt 06/11: CRC theo nhóm chạy ở mọi α, T3 luôn có hàng này ở `α_main`, C5 dùng `α_F3` (spec 13 §14.0); **không đổi `α_main`** |
 | 22/11 | **Khóa kết quả**: không chạy thí nghiệm mới | — |
 
 ## 3. Rủi ro chính và cách xử lý

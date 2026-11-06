@@ -13,7 +13,6 @@ from kwd.dsl import (
     EditSet,
     Precedence,
     RemoveStop,
-    ServiceTime,
     SetTimeWindow,
     canonical,
     dump_editset,
@@ -119,11 +118,6 @@ def test_precedence_direction_matters(hospital):
     assert not equivalent(a, b, hospital)
 
 
-def test_service_time_in_seconds(hospital):
-    e = EditSet(edits=[ServiceTime(stop="PH", minutes=12)])
-    assert canonical(e, hospital) == (("service_time", "PH", 720),)
-
-
 def test_canonical_ignores_confidence(hospital):
     a = EditSet(edits=[RemoveStop(stop="SH")], confidence=10)
     b = EditSet(edits=[RemoveStop(stop="SH")], confidence=None)
@@ -192,7 +186,6 @@ def test_op_type_counts_canonical_ops(hospital):
         (Precedence(before="HO", after="SC"), "precedence"),
         (DriverEndTime(time=14400), "driver_end_time"),
         (AvoidZoneUntil(zone="A", time=7200), "avoid_zone_until"),
-        (ServiceTime(stop="HO", minutes=3), "service_time"),
         (Deadline(stop="HO", time=7200), "set_time_window"),
     ],
 )
@@ -224,10 +217,6 @@ def test_render_hospital_gold(hospital):
         (Precedence(before="SC", after="PH"), "Visit Nguyen Du School before Minh Chau Pharmacy."),
         (DriverEndTime(time=14400), "Return to the depot by 17:00."),
         (AvoidZoneUntil(zone="B", time=5400), "Do not arrive at any stop in zone B before 14:30."),
-        (
-            ServiceTime(stop="PH", minutes=12),
-            "Set the service time at Minh Chau Pharmacy to 12 minutes.",
-        ),
     ],
 )
 def test_render_every_op(hospital, edit, sentence):
@@ -262,7 +251,6 @@ def random_edit(rng: random.Random, p: RouteSnapshot) -> Edit:
             "precedence",
             "driver_end_time",
             "avoid_zone_until",
-            "service_time",
             "deadline",
         ]
     )
@@ -279,8 +267,6 @@ def random_edit(rng: random.Random, p: RouteSnapshot) -> Edit:
         return DriverEndTime(time=rng.choice(times))
     if op == "avoid_zone_until":
         return AvoidZoneUntil(zone=rng.choice(zones), time=rng.choice(times))
-    if op == "service_time":
-        return ServiceTime(stop=stop, minutes=rng.randint(0, 60))
     return Deadline(stop=stop, time=rng.choice(times))
 
 

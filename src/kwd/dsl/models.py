@@ -24,11 +24,9 @@ OPS = (
     "precedence",
     "driver_end_time",
     "avoid_zone_until",
-    "service_time",
     "deadline",
 )
 
-Minutes = Annotated[int, Field(ge=0, strict=True)]
 Confidence = Annotated[int, Field(ge=0, le=100, strict=True)]
 
 
@@ -88,12 +86,6 @@ class AvoidZoneUntil(_Op):
     time: int
 
 
-class ServiceTime(_Op):
-    op: Literal["service_time"] = "service_time"
-    stop: str
-    minutes: Minutes
-
-
 class Deadline(_Op):
     op: Literal["deadline"] = "deadline"
     stop: str
@@ -101,13 +93,7 @@ class Deadline(_Op):
 
 
 Edit = Annotated[
-    SetTimeWindow
-    | RemoveStop
-    | Precedence
-    | DriverEndTime
-    | AvoidZoneUntil
-    | ServiceTime
-    | Deadline,
+    SetTimeWindow | RemoveStop | Precedence | DriverEndTime | AvoidZoneUntil | Deadline,
     Field(discriminator="op"),
 ]
 
@@ -176,14 +162,6 @@ class JsonAvoidZoneUntil(_Op):
     time: Clock
 
 
-class JsonServiceTime(_Op):
-    """Service duration at `stop` becomes `minutes`."""
-
-    op: Literal["service_time"]
-    stop: StopName
-    minutes: Minutes
-
-
 class JsonDeadline(_Op):
     """Arrive at `stop` no later than `time`."""
 
@@ -198,7 +176,6 @@ JsonEdit = Annotated[
     | JsonPrecedence
     | JsonDriverEndTime
     | JsonAvoidZoneUntil
-    | JsonServiceTime
     | JsonDeadline,
     Field(discriminator="op"),
 ]

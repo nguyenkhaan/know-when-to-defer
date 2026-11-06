@@ -27,12 +27,10 @@ from kwd.dsl.models import (
     JsonEditSet,
     JsonPrecedence,
     JsonRemoveStop,
-    JsonServiceTime,
     JsonSetTimeWindow,
     ParseError,
     Precedence,
     RemoveStop,
-    ServiceTime,
     SetTimeWindow,
 )
 
@@ -146,8 +144,6 @@ class _Resolver:
                 return DriverEndTime(time=self.time(edit.time))
             case JsonAvoidZoneUntil():
                 return AvoidZoneUntil(zone=self.zone(edit.zone), time=self.time(edit.time))
-            case JsonServiceTime():
-                return ServiceTime(stop=self.stop(edit.stop), minutes=edit.minutes)
             case JsonDeadline():
                 return Deadline(stop=self.stop(edit.stop), time=self.time(edit.time))
         raise AssertionError(f"unhandled op: {edit.op}")
