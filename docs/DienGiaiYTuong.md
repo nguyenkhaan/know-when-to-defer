@@ -54,10 +54,11 @@ Câu hỏi trung tâm:
 
 **Tác hại được đánh giá ở mức kế hoạch**, không bằng cách so chuỗi văn bản hay JSON với đáp án. Một kế hoạch do lệnh của LLM tạo ra bị gán nhãn **gây hại** khi:
 
-- Vi phạm ràng buộc của lệnh chuẩn (gold edit), ví dụ khung giờ, thứ tự hoặc giờ về kho; hoặc
-- Tệ hơn kế hoạch tối ưu dưới gold edit quá ngưỡng `ε` (km tăng thêm, phút trễ).
+- **R1:** vi phạm ràng buộc của lệnh chuẩn (gold edit), ví dụ khung giờ, thứ tự hoặc giờ về kho;
+- **R2:** ghé sai tập điểm so với kế hoạch đúng, ví dụ bỏ nhầm điểm, hoặc bỏ một điểm trong khi yêu cầu chỉ là dời giờ; hoặc
+- **R3:** tệ hơn kế hoạch tối ưu dưới gold edit quá ngưỡng `ε` (phút đi thêm, phút trễ).
 
-Như vậy, một lệnh dịch sai nhưng không làm kế hoạch vi phạm ý định thật và không làm chi phí tăng quá `ε` được tính là **lỗi vô hại**. RQ1 tách riêng hai loại này.
+Như vậy, một lệnh dịch sai nhưng không vi phạm luật nào được tính là **lỗi vô hại**. Lệnh lỗi định dạng hoặc solver báo không giải được thì không được thực thi và luôn chuyển cho người duyệt. RQ1 tách riêng hai loại này.
 
 ## Ví dụ minh họa
 

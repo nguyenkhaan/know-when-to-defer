@@ -1,6 +1,6 @@
 # 12 · Risk Control (Threshold Selection)
 
-> Status: Draft v0.1 · Updated 2026-11-05 · CRC is a **tool**, not a contribution. Keep the implementation small and correct.
+> Status: Draft v0.2 · Updated 2026-11-06 (v0.2: Thm. 1 conditions spelled out in §2.1; oracle bound includes `π`) · CRC is a **tool**, not a contribution. Keep the implementation small and correct.
 
 ## 1. Purpose
 
@@ -18,6 +18,12 @@ Loss per calibration item: `L_i(λ) = 1{executable_i and s_i ≤ λ} · h_i` (no
 
 (CRC, Angelopoulos et al., Thm. 1, with the parametrization flipped so loss is monotone in the right direction.) Grid = sorted unique calibration scores plus `−∞` (defer all).
 
+Why this satisfies Thm. 1 (state these in the paper, §III):
+- Thm. 1 needs `L_i` **non-increasing**, right-continuous, bounded by `B`, and `L_i(λ_max) ≤ α`. Our `L_i` is non-decreasing in `λ`, so the theorem is applied to `θ = −λ` with `B = 1`.
+- The most conservative setting is `λ = −∞` (defer all), with loss 0 ≤ α. **The grid must always contain `−∞`.**
+- After the flip, `1{s ≤ −θ}` is left- rather than right-continuous. Restricting the grid to calibration scores gives a `λ̂` equal to or stricter than standard CRC run with the rule `s < t`, so the executed set is a subset and the bound still holds. The unit test in §5 is the empirical check of this argument.
+- Conditional risk is not monotone in `λ`; CRC Prop. 1 shows CRC can then fail arbitrarily, hence LTT in §2.3.
+
 ### 2.2 Per-op-type CRC (used if `μ` varies across ops)
 
 Run §2.1 separately on each op type `c` (compound items: type = riskiest op, or `compound` as its own type — decide after pilot). Gives `λ̂_c`. Rationale: a single global `λ` can hide violations concentrated in rare op types (Role-Stratified CRC, P22).
@@ -29,7 +35,7 @@ Target `P(h = 1 | executed) ≤ α` with prob. ≥ `1 − δ`. Fixed-sequence te
 ### 2.4 Reference lines
 
 - **Always execute**: risk = `μ`.
-- **Oracle**: defers exactly the harmful items; max coverage = `1 − max(0, μ − α)` for joint risk.
+- **Oracle**: defers all non-executable items plus the fewest harmful ones; max coverage = `1 − π − max(0, μ − α)` for joint risk, where `μ = Σ x_i h_i / N` and `π = 1 − Σ x_i / N` (non-executable share; spec 13 §14). Omitting `π` overstates the oracle line in F2.
 - **No-calibration threshold**: `s ≤ 0.5`.
 
 ## 3. Splits

@@ -131,7 +131,7 @@
 
 ## Song song [PAPER] (06–08/11)
 
-- [ ] **[PAPER] [A]** Viết nháp `03-problem.tex` (~0,75 trang) từ `MoTaDeTai.md` §2 và spec 09: ký hiệu `P, q, e*, ê, P̂, P*, h, s, λ, α, μ`; định nghĩa harm R1–R3; rủi ro kết hợp `E[1{s≤λ}h] ≤ α`; rủi ro theo loại; cận coverage oracle `1 − max(0, μ − α)`. Không có số liệu.
+- [ ] **[PAPER] [A]** Viết nháp `03-problem.tex` (~0,75 trang) từ `MoTaDeTai.md` §2 và spec 09: ký hiệu `P, q, e*, ê, P̂, P*, h, s, λ, α, μ`; định nghĩa harm R1–R3; rủi ro kết hợp `E[1{s≤λ}h] ≤ α`; rủi ro theo loại; điều kiện áp CRC Thm. 1 (đổi biến `θ = −λ`, `λ = −∞` có loss 0; spec 12 §2.1); cận coverage oracle `1 − π − max(0, μ − α)` với `π` là tỷ lệ lệnh không thực thi được. Không có số liệu.
 - [ ] **[READ] [A]** Đọc lại CRC (P11) Thm. 1 và Prop. 1 để viết đúng điều kiện đơn điệu; ghi trích dẫn vào section.
 - [ ] Commit `paper: draft problem formulation`.
 
