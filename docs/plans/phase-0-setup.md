@@ -35,10 +35,10 @@ Hiện chỉ có tài liệu. Chưa có git, môi trường Python, dữ liệu,
 
 - Create: `scripts/download_lmrc.sh`, `data/raw/lmrc/` (không commit)
 
-- [x] **Step 1 [CODE]:** Viết `scripts/download_lmrc.sh`: tải qua HTTPS công khai bằng `curl` (không cần AWS CLI), tải tiếp được khi bị ngắt, kiểm tra dung lượng đĩa và kích thước từng file. Tổng ~2,3 GB (`travel_times.json` 1,8 GB). Viết thêm `scripts/inspect_lmrc.py` để đọc dần dữ liệu và in các thông tin spec 05 cần.
-- [x] **Step 2 [EXP]:** Chạy `bash scripts/download_lmrc.sh`. Kiểm tra có đủ file `route_data.json`, `package_data.json`, `travel_times.json`, `actual_sequences.json`.
-- [x] **Step 3 [READ]:** Chạy `uv run python scripts/inspect_lmrc.py`. Đối chiếu kết quả với spec 05 (tên trường đã kiểm trước một phần ngày 05/11): danh sách `station_code` (để làm bảng múi giờ), vị trí 0 của thứ tự thực tế có phải kho không, % điểm có khung giờ, số tuyến đủ điều kiện, ma trận thời gian có đầy đủ không.
-- [ ] **Step 4:** Commit `chore: add LMRC download script` (+ sửa spec 05 nếu có).
+- [X] **Step 1 [CODE]:** Viết `scripts/download_lmrc.sh`: tải qua HTTPS công khai bằng `curl` (không cần AWS CLI), tải tiếp được khi bị ngắt, kiểm tra dung lượng đĩa và kích thước từng file. Tổng ~2,3 GB (`travel_times.json` 1,8 GB). Viết thêm `scripts/inspect_lmrc.py` để đọc dần dữ liệu và in các thông tin spec 05 cần.
+- [X] **Step 2 [EXP]:** Chạy `bash scripts/download_lmrc.sh`. Kiểm tra có đủ file `route_data.json`, `package_data.json`, `travel_times.json`, `actual_sequences.json`.
+- [X] **Step 3 [READ]:** Chạy `uv run python scripts/inspect_lmrc.py`. Đối chiếu kết quả với spec 05 (tên trường đã kiểm trước một phần ngày 05/11): danh sách `station_code` (để làm bảng múi giờ), vị trí 0 của thứ tự thực tế có phải kho không, % điểm có khung giờ, số tuyến đủ điều kiện, ma trận thời gian có đầy đủ không.
+- [X] **Step 4:** Commit `chore: add LMRC download script` (+ sửa spec 05 nếu có).
 
 ### Task 0.3: Chốt 5 mô hình và ngân sách API · **[A]**
 
@@ -46,11 +46,11 @@ Hiện chỉ có tài liệu. Chưa có git, môi trường Python, dữ liệu,
 
 - Create: `configs/llm.yaml`, `.env` (không commit), `scripts/ping_models.py`
 
-- [x] **Step 1 [DECIDE]:** Chọn nhà cung cấp và mô hình cụ thể cho M1–M4 (bảng ở `00-README.md`). Tiêu chí: endpoint tương thích OpenAI, có `seed`; M1 có `logprobs`; M3 và M4 khác họ với M1, M2 và khác nhau. Ghi giá input/output mỗi triệu token.
-- [x] **Step 2 [DECIDE]:** Đặt `max_usd` cho từng mô hình trong `configs/llm.yaml`. Ước lượng ban đầu cho bản chính (~3.000 câu, `k = 4`, prompt ~2,5k token, có prompt caching): M1 và M2 mỗi mô hình ~3.000 × 5 lời gọi; M4 ~3 lời gọi cho mỗi câu được thực thi, mỗi mô hình dịch; M3 ~3.000 lời gọi ngắn. Con số chính xác chốt lại sau pilot (Phase 2).
-- [x] **Step 3 [CODE]:** `scripts/ping_models.py`: gọi 1 prompt ngắn tới M1–M4, in latency, số token, có/không có logprobs; tải `bge-small-en-v1.5` (M5) và encode thử 2 câu trên CPU.
-- [x] **Step 4 [EXP]:** Chạy script; mọi mô hình trả lời được.
-- [ ] **Step 5:** Ghi mô hình đã chọn vào spec 10 §2 và `docs/CONTENT.md` §6. API key nằm trong `.env` (đã gitignore). Commit `chore: model roster and budget`.
+- [X] **Step 1 [DECIDE]:** Chọn nhà cung cấp và mô hình cụ thể cho M1–M4 (bảng ở `00-README.md`). Tiêu chí: endpoint tương thích OpenAI, có `seed`; M1 có `logprobs`; M3 và M4 khác họ với M1, M2 và khác nhau. Ghi giá input/output mỗi triệu token.
+- [X] **Step 2 [DECIDE]:** Đặt `max_usd` cho từng mô hình trong `configs/llm.yaml`. Ước lượng ban đầu cho bản chính (~3.000 câu, `k = 4`, prompt ~2,5k token, có prompt caching): M1 và M2 mỗi mô hình ~3.000 × 5 lời gọi; M4 ~3 lời gọi cho mỗi câu được thực thi, mỗi mô hình dịch; M3 ~3.000 lời gọi ngắn. Con số chính xác chốt lại sau pilot (Phase 2).
+- [X] **Step 3 [CODE]:** `scripts/ping_models.py`: gọi 1 prompt ngắn tới M1–M4, in latency, số token, có/không có logprobs; tải `bge-small-en-v1.5` (M5) và encode thử 2 câu trên CPU.
+- [X] **Step 4 [EXP]:** Chạy script; mọi mô hình trả lời được.
+- [X] **Step 5:** Ghi mô hình đã chọn vào spec 10 §2 và `docs/CONTENT.md` §6. API key nằm trong `.env` (đã gitignore). Commit `chore: model roster and budget`.
 
 > **Ngay sau Task 0.3:** làm kiểm tra nhanh `phase-0b-smoke-test.md` (A, ~2–3 giờ) trước khi bắt đầu Phase 1.
 
@@ -60,25 +60,25 @@ Hiện chỉ có tài liệu. Chưa có git, môi trường Python, dữ liệu,
 
 - Create: `paper/main.tex`, `paper/sections/{00-abstract,01-introduction,02-related-work,03-problem,04-method,05-benchmark,06-experiments,07-conclusion}.tex`, `paper/refs.bib`, `paper/figures/`, `paper/tables/`, `paper/Makefile`, `paper/NOTES.md`
 
-- [ ] **Step 1 [READ]:** Mở https://www.ieeemobility.org/submission.html và CFP PDF. Ghi các điểm bắt buộc vào `paper/NOTES.md`: 8 trang tính cả references, double-blind, PDF nhúng font, HotCRP, ngày. Nếu có thay đổi so với spec 16 thì sửa spec 16.
-- [ ] **Step 2 [PAPER]:** Cài TeX ở thư mục người dùng (không sudo, không pacman): `curl -sL "https://yihui.org/tinytex/install-bin-unix.sh" | sh`, sau đó `tlmgr install IEEEtran latexmk booktabs cite xcolor`. Kiểm tra `latexmk -v`.
-- [ ] **Step 2b [PAPER]:** VS Code: cài extension **LaTeX Workshop**. Thêm vào `.vscode/settings.json` (giữ các thiết lập cũ): recipe `latexmk (pdf)`, `"latex-workshop.latex.outDir": "%DIR%/build"`, build khi lưu. Mở `paper/main.tex`, nhấn lưu → PDF hiện trong tab xem trước.
-- [ ] **Step 3 [PAPER]:** Tải template chính thức từ https://www.ieee.org/conferences/publishing/templates.html (gói LaTeX conference) hoặc CTAN `IEEEtran`. Tạo `main.tex` với `\documentclass[conference]{IEEEtran}`, gói `amsmath, amssymb, graphicx, booktabs, cite, xcolor`; khối tác giả là `\author{\IEEEauthorblockN{Anonymous Authors}}`; `\input` 8 file section; `\bibliographystyle{IEEEtran}`.
-- [ ] **Step 4 [PAPER]:** Mỗi file section có tiêu đề và một comment ghi **ngân sách trang** và **thông điệp một câu** (copy từ doc 03 §1, §3). Ví dụ đầu `01-introduction.tex`: `% Budget: 1.0 page incl. abstract. Message: an LLM mistranslation can be feasible and invisible; you must look at the plan.`
-- [ ] **Step 5 [PAPER]:** Tạo `refs.bib` với 24 mục P1–P24 từ `MoTaDeTai.md` §9.2 (key dạng `li2023optiguide`, `ye2026reoptllm`…). ReOpt-LLM dùng bản NeurIPS 2026; CORA, Role-Stratified CRC, When-Can-CRC, ConformalNL2LTL dùng arXiv.
-- [ ] **Step 6 [PAPER]:** `Makefile` (dùng khi build ngoài VS Code và để kiểm tra số trang): `make` = `latexmk -pdf -outdir=build main.tex`; `make pages` = in số trang của `build/main.pdf` (dùng `pdfinfo`, hoặc `python -c` với `pypdf` nếu máy không có poppler); `make check` = báo lỗi nếu số trang > 8.
-- [ ] **Step 7:** Chạy `make` (hoặc lưu file trong VS Code) → `build/main.pdf` biên dịch, có 8 tiêu đề section và danh sách tham khảo khi `\nocite{*}` tạm bật. Tắt `\nocite{*}` sau khi kiểm tra.
-- [ ] **Step 8:** Commit `paper: add IEEEtran skeleton and bibliography`.
+- [X] **Step 1 [READ]:** Mở https://www.ieeemobility.org/submission.html và CFP PDF. Ghi các điểm bắt buộc vào `paper/NOTES.md`: 8 trang tính cả references, double-blind, PDF nhúng font, HotCRP, ngày. Nếu có thay đổi so với spec 16 thì sửa spec 16.
+- [X] **Step 2 [PAPER]:** Cài TeX ở thư mục người dùng (không sudo, không pacman): `curl -sL "https://yihui.org/tinytex/install-bin-unix.sh" | sh`, sau đó `tlmgr install ieeetran latexmk booktabs cite xcolor algorithms amsfonts psnfss times` (tên gói tlmgr viết thường; `algorithms` chứa `algorithmic.sty` mà template dùng). Kiểm tra `latexmk -v`.
+- [X] **Step 2b [PAPER]:** VS Code: cài extension **LaTeX Workshop**. Thêm vào `.vscode/settings.json` (giữ các thiết lập cũ): recipe `latexmk (pdf)`, `"latex-workshop.latex.outDir": "%DIR%/build"`, build khi lưu. Mở `paper/main.tex`, nhấn lưu → PDF hiện trong tab xem trước.
+- [X] **Step 3 [PAPER]:** Tải template chính thức từ https://www.ieee.org/conferences/publishing/templates.html (gói LaTeX conference) hoặc CTAN `IEEEtran`. Tạo `main.tex` với `\documentclass[conference]{IEEEtran}`, gói `amsmath, amssymb, graphicx, booktabs, cite, xcolor`; khối tác giả là `\author{\IEEEauthorblockN{Anonymous Authors}}`; `\input` 8 file section; `\bibliographystyle{IEEEtran}`.
+- [X] **Step 4 [PAPER]:** Mỗi file section có tiêu đề và một comment ghi **ngân sách trang** và **thông điệp một câu** (copy từ doc 03 §1, §3). Ví dụ đầu `01-introduction.tex`: `% Budget: 1.0 page incl. abstract. Message: an LLM mistranslation can be feasible and invisible; you must look at the plan.`
+- [X] **Step 5 [PAPER]:** Tạo `refs.bib` với 24 mục P1–P24 từ `MoTaDeTai.md` §9.2 (key dạng `li2023optiguide`, `ye2026reoptllm`…). ReOpt-LLM dùng bản NeurIPS 2026; CORA, Role-Stratified CRC, When-Can-CRC, ConformalNL2LTL dùng arXiv.
+- [X] **Step 6 [PAPER]:** `Makefile` (dùng khi build ngoài VS Code và để kiểm tra số trang): `make` = `latexmk -pdf -outdir=build main.tex`; `make pages` = in số trang của `build/main.pdf` (dùng `pdfinfo`, hoặc `python -c` với `pypdf` nếu máy không có poppler); `make check` = báo lỗi nếu số trang > 8.
+- [X] **Step 7:** Chạy `make` (hoặc lưu file trong VS Code) → `build/main.pdf` biên dịch, có 8 tiêu đề section và danh sách tham khảo khi `\nocite{*}` tạm bật. Giữ `\nocite{*}` tới khi có `\cite` thật đầu tiên (bài chưa có `\cite` nào thì BibTeX báo lỗi "missing \item"), sau đó mới tắt.
+- [X] **Step 8:** Commit `paper: add IEEEtran skeleton and bibliography`.
 
 ### Task 0.5: Chốt các quyết định mở · **[A]**
 
 - [ ] **Step 1 [DECIDE]:** Xác nhận luật R2 ("bỏ nhầm điểm dừng là gây hại", spec 09). Nếu giữ: sửa `MoTaDeTai.md` §2.2 và `DienGiaiYTuong.md` cho khớp.
-- [x] **Step 2 [DECIDE]:** Xác nhận câu yêu cầu bằng tiếng Anh (spec 08 §5). *Đã xác nhận 05/11/2026.*
+- [X] **Step 2 [DECIDE]:** Xác nhận câu yêu cầu bằng tiếng Anh (spec 08 §5). *Đã xác nhận 05/11/2026.*
 - [ ] **Step 3:** Ghi các quyết định vào `docs/CONTENT.md` §6; commit `docs: record phase-0 decisions`.
 
 ## Kết thúc Phase 0 khi
 
-- [ ] `uv run pytest -q` pass; `uv run kwd --help` chạy.
-- [ ] 4 file LMRC có trên máy.
-- [x] Gọi được M1–M4 qua API, M5 chạy trên CPU; `max_usd` đã đặt.
-- [ ] `paper/build/main.pdf` biên dịch trong VS Code, `make check` pass.
+- [X] `uv run pytest -q` pass; `uv run kwd --help` chạy.
+- [X] 4 file LMRC có trên máy.
+- [X] Gọi được M1–M4 qua API, M5 chạy trên CPU; `max_usd` đã đặt.
+- [X] `paper/build/main.pdf` biên dịch trong VS Code, `make check` pass.

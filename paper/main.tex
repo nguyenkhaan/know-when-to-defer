@@ -1,0 +1,59 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+% The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
+%Template version as of 6/27/2024
+% Source: IEEE-conference-template-062824 (IEEEtran.cls V1.8b, copied unchanged into paper/).
+% Do not change margins, fonts, column widths or line spacing (template, Sec. "Maintaining the Integrity of the Specifications").
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+% --- Project additions (do not alter the IEEE layout) ---
+\usepackage{booktabs}   % tables: \toprule \midrule \bottomrule
+\graphicspath{{figures/}}
+% ---------------------------------------------------------
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+\begin{document}
+
+% Template rule: no symbols, special characters, footnotes or math in the title.
+% Template rule: sub-titles are not captured by IEEE Xplore, so no sub-title line.
+% Double-blind: no \thanks{} (funding goes back in only for camera-ready).
+\title{Know When to Defer: Risk-Controlled Execution of LLM-Translated Dispatcher Edits for Last-Mile Route Re-Planning}
+
+% Double-blind submission (IEEE MOST 2027): no names, affiliations, emails or ORCIDs.
+% Camera-ready: restore one \IEEEauthorblockN / \IEEEauthorblockA pair per author, as in the template.
+\author{\IEEEauthorblockN{Anonymous Authors}}
+
+\maketitle
+% IEEE MOST 2027 submission rule: "Number all pages." IEEEtran conference mode prints no page
+% numbers by default; these two lines add a centered folio only (layout unchanged).
+% Remove them for camera-ready if the publisher asks for un-numbered pages.
+\thispagestyle{plain}
+\pagestyle{plain}
+
+\input{sections/00-abstract}
+\input{sections/01-introduction}
+\input{sections/02-related-work}
+\input{sections/03-problem}
+\input{sections/04-method}
+\input{sections/05-benchmark}
+\input{sections/06-experiments}
+\input{sections/07-conclusion}
+
+% Double-blind: no Acknowledgment section in the submission.
+% Camera-ready only (template form):
+% \section*{Acknowledgment}
+
+% Template uses numbered citations in brackets; BibTeX with the IEEEtran style produces the same format.
+% TEMPORARY (Task 0.4 Step 7): \nocite{*} lists every entry of refs.bib so the bibliography can be checked.
+% Keep it ON until the sections contain at least one real \cite: with zero citations the
+% bibliography is empty and BibTeX output fails ("missing \item"). Then comment it out.
+\nocite{*}
+\bibliographystyle{IEEEtran}
+\bibliography{refs}
+
+\end{document}

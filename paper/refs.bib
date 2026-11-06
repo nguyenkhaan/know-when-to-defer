@@ -1,0 +1,230 @@
+% refs.bib -- IEEE MOST 2027 paper (P1--P24 from docs/MoTaDeTai.md Sec. 9.2)
+% Author lists: first page of each PDF in reference-documents/ (P1--P20);
+% arXiv abstract pages, checked 2026-11-06 (P21--P24).
+% Key style: <firstauthor><year><shortname>. Style: IEEEtran.bst (numbered, IEEE format).
+% Entries marked VERIFY need a check before submission (spec 16).
+
+% ---------------- LLMs for optimization / routing ----------------
+
+% P1
+@misc{li2023optiguide,
+  author       = {Beibin Li and Konstantina Mellou and Bo Zhang and Jeevan Pathuri and Ishai Menache},
+  title        = {Large Language Models for Supply Chain Optimization},
+  howpublished = {arXiv:2307.03875},
+  year         = {2023},
+  url          = {https://arxiv.org/abs/2307.03875}
+}
+
+% P2 -- preprint v1 ("work in progress"); check for v2 before submission (VERIFY)
+@misc{xiu2026vrpllm,
+  author       = {Xianchao Xiu and Chong Shen and Yanjiao Zhu and Wanquan Liu},
+  title        = {Vehicle Routing Problem Meets Large Language Models: An Overview and Perspectives},
+  howpublished = {arXiv:2607.00604},
+  year         = {2026},
+  url          = {https://arxiv.org/abs/2607.00604}
+}
+
+% P3 -- Findings of EMNLP 2026; page numbers not yet known (VERIFY)
+@inproceedings{luo2026constraintinjection,
+  author    = {Xizi Luo and Changhong He and Dongdong Geng and Chenggong Shi and Yu Mei},
+  title     = {Beyond Objective Equivalence: Constraint Injection for {LLM}-Based Optimization Modeling on Vehicle Routing Problems},
+  booktitle = {Findings of the Association for Computational Linguistics: EMNLP 2026},
+  year      = {2026}
+}
+
+% P4 -- cite the NeurIPS 2026 version; title/pages from arXiv v2, check against camera-ready (VERIFY)
+@inproceedings{ye2026reoptllm,
+  author    = {Tinghan Ye and Arnaud Deza and Ved Mohan and El Mehdi {Er Raqabi} and Pascal {Van Hentenryck}},
+  title     = {Democratizing Large-Scale Re-Optimization with {LLM}-Guided Model Patches},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2026}
+}
+
+% P5
+@inproceedings{jiang2025droc,
+  author    = {Xia Jiang and Yaoxin Wu and Chenhao Zhang and Yingqian Zhang},
+  title     = {{DRoC}: Elevating Large Language Models for Complex Vehicle Routing via Decomposed Retrieval of Constraints},
+  booktitle = {Proc. Int. Conf. Learning Representations (ICLR)},
+  year      = {2025}
+}
+
+% P6 -- venue not verified
+@misc{li2025ars,
+  author       = {Kai Li and Fei Liu and Zhenkun Wang and Xialiang Tong and Xiongwei Han and Mingxuan Yuan and Qingfu Zhang},
+  title        = {{ARS}: Automatic Routing Solver with Large Language Models},
+  howpublished = {arXiv:2502.15359},
+  year         = {2025},
+  url          = {https://arxiv.org/abs/2502.15359}
+}
+
+% P7 -- journal version; volume/pages not yet recorded (VERIFY)
+@article{chen2025optichat,
+  author  = {Hao Chen and Gonzalo Esteban Constante-Flores and Krishna Sri Ipsit Mantri and Sai Madhukiran Kompalli and Akshdeep Singh Ahluwalia and Can Li},
+  title   = {{OptiChat}: Bridging Optimization Models and Practitioners with Large Language Models},
+  journal = {INFORMS Journal on Data Science},
+  year    = {2025},
+  doi     = {10.1287/ijds.2025.0074}
+}
+
+% P8
+@article{lawless2024meetmate,
+  author  = {Connor Lawless and Jakob Schoeffer and Lindy Le and Kael Rowan and Shilad Sen and Cristina {St. Hill} and Jina Suh and Bahareh Sarrafzadeh},
+  title   = {`{I} Want It That Way': Enabling Interactive Decision Support Using Large Language Models and Constraint Programming},
+  journal = {ACM Transactions on Interactive Intelligent Systems},
+  volume  = {14},
+  number  = {3},
+  note    = {Art. 22},
+  year    = {2024}
+}
+
+% P9
+@misc{drossman2026conversation,
+  author       = {Joshua Drossman and Alexandre Jacquillat and S{\'e}bastien Martin},
+  title        = {Let's Have a Conversation: Designing and Evaluating {LLM} Agents for Interactive Optimization},
+  howpublished = {arXiv:2604.02666},
+  year         = {2026},
+  url          = {https://arxiv.org/abs/2604.02666}
+}
+
+% P10
+@misc{yuan2026replan,
+  author       = {Xiaofei Yuan and Yan Zhang and Shaobo Qiao and Huangleshuai He and Leyan Ni and Mingchen Ju and Lujia Yang and Sijia Xu and Yifu Tang and Zhengyi Yang},
+  title        = {Replan, Repair, or Edit? {A} Unified Empirical Evaluation of Travel Agents for Itinerary Revision under Resource Disruptions},
+  howpublished = {arXiv:2609.19654},
+  year         = {2026},
+  url          = {https://arxiv.org/abs/2609.19654}
+}
+
+% ---------------- Conformal / risk control / selective prediction ----------------
+
+% P11
+@inproceedings{angelopoulos2024crc,
+  author    = {Anastasios N. Angelopoulos and Stephen Bates and Adam Fisch and Lihua Lei and Tal Schuster},
+  title     = {Conformal Risk Control},
+  booktitle = {Proc. Int. Conf. Learning Representations (ICLR)},
+  year      = {2024}
+}
+
+% P12 -- venue not verified; cited as arXiv
+@misc{angelopoulos2021ltt,
+  author       = {Anastasios N. Angelopoulos and Stephen Bates and Emmanuel J. Cand{\`e}s and Michael I. Jordan and Lihua Lei},
+  title        = {Learn then Test: Calibrating Predictive Algorithms to Achieve Risk Control},
+  howpublished = {arXiv:2110.01052},
+  year         = {2021},
+  url          = {https://arxiv.org/abs/2110.01052}
+}
+
+% P13 -- CoRL 2023 (PMLR vol. 229)
+@inproceedings{ren2023knowno,
+  author    = {Allen Z. Ren and Anushri Dixit and Alexandra Bodrova and Sumeet Singh and Stephen Tu and Noah Brown and Peng Xu and Leila Takayama and Fei Xia and Jake Varley and Zhenjia Xu and Dorsa Sadigh and Andy Zeng and Anirudha Majumdar},
+  title     = {Robots That Ask For Help: Uncertainty Alignment for Large Language Model Planners},
+  booktitle = {Proc. Conf. Robot Learning (CoRL)},
+  series    = {PMLR},
+  volume    = {229},
+  year      = {2023}
+}
+
+% P14
+@misc{abbasiyadkori2024conformalabstention,
+  author       = {Yasin Abbasi-Yadkori and Ilja Kuzborskij and David Stutz and Andr{\'a}s Gy{\"o}rgy and Adam Fisch and Arnaud Doucet and Iuliya Beloshapka and Wei-Hung Weng and Yao-Yuan Yang and Csaba Szepesv{\'a}ri and Ali Taylan Cemgil and Nenad Tomasev},
+  title        = {Mitigating {LLM} Hallucinations via Conformal Abstention},
+  howpublished = {arXiv:2405.01563},
+  year         = {2024},
+  url          = {https://arxiv.org/abs/2405.01563}
+}
+
+% P15 -- ICML 2024 (PMLR vol. 235)
+@inproceedings{mohri2024conformalfactuality,
+  author    = {Christopher Mohri and Tatsunori Hashimoto},
+  title     = {Language Models with Conformal Factuality Guarantees},
+  booktitle = {Proc. Int. Conf. Machine Learning (ICML)},
+  series    = {PMLR},
+  volume    = {235},
+  year      = {2024}
+}
+
+% P16
+@inproceedings{geifman2017selective,
+  author    = {Yonatan Geifman and Ran El-Yaniv},
+  title     = {Selective Classification for Deep Neural Networks},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  volume    = {30},
+  year      = {2017}
+}
+
+% P17
+@inproceedings{gibbs2021aci,
+  author    = {Isaac Gibbs and Emmanuel J. Cand{\`e}s},
+  title     = {Adaptive Conformal Inference Under Distribution Shift},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  volume    = {34},
+  year      = {2021}
+}
+
+% P18
+@inproceedings{wang2023selfconsistency,
+  author    = {Xuezhi Wang and Jason Wei and Dale Schuurmans and Quoc Le and Ed H. Chi and Sharan Narang and Aakanksha Chowdhery and Denny Zhou},
+  title     = {Self-Consistency Improves Chain of Thought Reasoning in Language Models},
+  booktitle = {Proc. Int. Conf. Learning Representations (ICLR)},
+  year      = {2023}
+}
+
+% P19
+@inproceedings{xiong2024uncertainty,
+  author    = {Miao Xiong and Zhiyuan Hu and Xinyang Lu and Yifei Li and Jie Fu and Junxian He and Bryan Hooi},
+  title     = {Can {LLMs} Express Their Uncertainty? {A}n Empirical Evaluation of Confidence Elicitation in {LLMs}},
+  booktitle = {Proc. Int. Conf. Learning Representations (ICLR)},
+  year      = {2024}
+}
+
+% ---------------- Data ----------------
+
+% P20 -- Transportation Science 58(1):8--11 (published 2024; DOI dated 2022)
+@article{merchan2024lmrc,
+  author  = {Daniel Merch{\'a}n and Jatin Arora and Julian Pachon and Karthik Konduri and Matthias Winkenbach and Steven Parks and Joseph Noszek},
+  title   = {2021 {Amazon} Last Mile Routing Research Challenge: Data Set},
+  journal = {Transportation Science},
+  volume  = {58},
+  number  = {1},
+  pages   = {8--11},
+  year    = {2024},
+  doi     = {10.1287/trsc.2022.1173}
+}
+
+% ---------------- Closest work on risk-controlled LLM actions ----------------
+
+% P21
+@misc{feng2026cora,
+  author       = {Yushi Feng and Junye Du and Qifan Wang and Zizhan Ma and Qian Niu and Yutaka Matsuo and Long Feng and Lequan Yu},
+  title        = {{CORA}: Conformal Risk-Controlled Agents for Safeguarded Mobile {GUI} Automation},
+  howpublished = {arXiv:2604.09155},
+  year         = {2026},
+  url          = {https://arxiv.org/abs/2604.09155}
+}
+
+% P22
+@misc{rahman2026rolestratified,
+  author       = {Md Ashikur Rahman and Md Arifur Rahman and Niamul Hassan Samin and Khandaker Rifah Tasnia and Md Hasibul Amin and Sifat Rahman Ahona and Juena Ahmed Noshin},
+  title        = {Beyond Aggregate Risk: Role-Stratified Conformal Risk Control for {LLM} Tool Calls},
+  howpublished = {arXiv:2607.24343},
+  year         = {2026},
+  url          = {https://arxiv.org/abs/2607.24343}
+}
+
+% P23
+@misc{kotte2026whencancrc,
+  author       = {Varun Kotte},
+  title        = {When Can Conformal Risk Control Certify {LLM} Outputs? {B}ounds, Impossibility, and Adaptation for Structured Generation},
+  howpublished = {arXiv:2606.29054},
+  year         = {2026},
+  url          = {https://arxiv.org/abs/2606.29054}
+}
+
+% P24 -- only the abstract has been read so far (MoTaDeTai.md Sec. 9.2)
+@misc{sundarsingh2025conformalnl2ltl,
+  author       = {David Smith Sundarsingh and Jun Wang and Jyotirmoy V. Deshmukh and Yiannis Kantaros},
+  title        = {{ConformalNL2LTL}: Translating Natural Language Instructions into Temporal Logic Formulas with Conformal Correctness Guarantees},
+  howpublished = {arXiv:2504.21022},
+  year         = {2025},
+  url          = {https://arxiv.org/abs/2504.21022}
+}

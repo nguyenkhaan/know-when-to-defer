@@ -18,6 +18,7 @@
 - [ ] IEEE conference template (LaTeX `IEEEtran`, tùy chọn `conference`).
 - [ ] **≤ 8 trang, tính cả references, hình, bảng, appendix.** Trang 9–10 được phép nhưng phải trả phí: không dùng.
 - [ ] PDF nhúng đủ font, mở và in được.
+- [ ] **Đánh số mọi trang** ("Number all pages", trang Submission, tra 06/11/2026). IEEEtran conference mặc định không in số trang; `paper/main.tex` thêm `\pagestyle{plain}`.
 - [ ] Hình dạng vector (PDF), đọc được khi in đen trắng.
 
 ## 3. Double-blind
