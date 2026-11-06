@@ -30,6 +30,7 @@
 - [ ] **P2** · Mục IV hoặc VI phải có một câu về nhóm nhỏ: CRC theo nhóm `ĉ` cần tối thiểu `n ≥ 1/α − 1` mẫu calibration (99 ở α = 0,01; 49 ở 0,02), nhóm dưới ngưỡng bị chuyển duyệt hết (bảo đảm vẫn giữ, coverage của nhóm = 0). Báo số nhóm bị chuyển duyệt hết trong T3. Caption F3 và câu về C5 phải ghi rõ `α_F3` và quy tắc chọn (chỉ dựa vào số mẫu, spec 13 §14.0); nếu `α_F3 ≠ α_main` thì giải thích một câu (spec 12 §2.2, spec 13 §14.5; thêm 06/11).
 
 - [ ] **P2** · Mục V (Benchmark) phải có một câu: chỉ giữ snapshot mà kế hoạch hiện tại là fixed point của solver (`solve(P, ∅)` trả lại đúng `P`), kèm số tuyến bị loại và bao nhiêu tuyến trong đó đang trễ khung giờ gốc (spec 08 §2.1). Không có câu này thì định nghĩa non-binding `P̂ = P` ở Mục III không đứng vững. Kèm nửa câu về phạm vi: bảo đảm CRC áp cho snapshot đã lọc, và hệ thống triển khai kiểm tra được điều kiện này lúc nhận yêu cầu vì không cần gold.
+- [ ] **P2** · Mục III, đoạn Harm (câu non-binding "the solver changes nothing"): thêm một chỗ trỏ ~10 từ tới bộ lọc fixed point, ví dụ "(Section V keeps only snapshots with $\mathrm{Solve}(P,\emptyset)=P$)". Không có nó, reviewer đọc §III sẽ hỏi vì sao solver không tối ưu lại tuyến tài xế thật. Bổ sung cho nợ Mục V ở trên (câu chính vẫn ở §V). Thêm 06/11.
 - [ ] **P3** · Mục VII (Limitations): tuyến thật đang trễ khung giờ bị loại bớt do bộ lọc fixed point (thiên lệch chọn mẫu nhỏ, ~10% tuyến; spec 08 §2.1).
 
 ### 4. Tham số phải khớp với code của B
@@ -42,6 +43,8 @@
 
 - [ ] **P1** · **Báo B trước khi làm Task 1.4:** `Plan` có thêm `service_start`, hàm `schedule()`, digest mới (thứ tự + giờ phục vụ), `check_constraints` dùng `service_start`, OR-Tools thêm cận dưới `tw_start` của khung giờ gốc, hàm `is_fixed_point` (spec 07 §2, §5); `build_items` bỏ snapshot không phải fixed point (spec 08 §2.1, Task 2.3 Step 1b).
 - [ ] **P1** · Hỏi GVHD 10/11: dữ liệu chia **theo tuyến** nhưng CRC tính rủi ro **theo yêu cầu**. Các yêu cầu cùng tuyến phụ thuộc nhau, nên giả định "exchangeable" mà mục III nêu có thể không đúng hẳn. Tùy câu trả lời: thêm 1 câu giới hạn ở Mục VII, hoặc đổi đơn vị calibration.
+
+- [ ] **P1** · Chốt trong spec 09 trước Task 1.4: khi gold có `service_time` (hoặc LLM bỏ sót/đặt sai nó), R1 và `cost(P̂)` tính trên lịch của `P̂` với thời gian phục vụ của `ê` hay của `e*`? Nếu dùng của `ê`, lệnh bỏ qua `service_time` có thể bị chấm vô hại dù giờ thực tế lệch. Nếu chốt dùng `e*` (lập lịch lại `P̂` bằng `schedule(p, P̂.sequence, e*)`), đoạn Harm ở Mục III có thể cần nửa câu. Thêm 06/11.
 
 ### 6. Nhất quán thuật ngữ và ký hiệu (rà khi các mục khác đã viết)
 
