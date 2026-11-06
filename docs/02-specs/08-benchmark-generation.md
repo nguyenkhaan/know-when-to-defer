@@ -1,6 +1,6 @@
 # 08 · Benchmark Generation
 
-> Status: Draft v0.2 · Updated 2026-11-05 · v0.2: main set ~3,000 items; paraphraser = M3; new §10 human-written test set.
+> Status: Draft v0.3 · Updated 2026-11-06 · v0.3: `gold_type = op_type(gold)` (spec 06 §5.1) is the only source of gold type `c`. · v0.2: main set ~3,000 items; paraphraser = M3; new §10 human-written test set.
 
 ## 1. Purpose
 
@@ -62,7 +62,8 @@ class BenchmarkItem(BaseModel):
     snapshot_id: str
     gold: EditSet               # evaluation-only
     gold_binding: bool          # evaluation-only
-    ops: list[str]              # op types in gold
+    ops: list[str]              # raw op names sampled for gold; generation balance only (§3), never used as c
+    gold_type: str              # c = op_type(gold, P), spec 06 §5.1; the only gold type used in analysis
     level: Literal[1, 2, 3]
     q_template: str
     q: str
@@ -70,6 +71,8 @@ class BenchmarkItem(BaseModel):
     paraphraser: str
     seed: int
 ```
+
+`gold_type` is written by the generator by calling `kwd.dsl.op_type`; no code may derive `c` from `ops` (e.g. a `deadline` item has `ops = ["deadline"]` but `gold_type = "set_time_window"`).
 
 Files: `data/benchmark/{pilot,main}/items.jsonl` + `README.md` (stats, generator config hash).
 

@@ -1,6 +1,6 @@
 # 06 · Edit DSL
 
-> Status: Draft v0.1 · Updated 2026-11-05 · Final op list frozen at end of week 1 (6–8 ops).
+> Status: Draft v0.2 · Updated 2026-11-06 · v0.2: `op_type` defined in §5.1 · Final op list frozen at end of week 1 (6–8 ops).
 
 ## 1. Purpose
 
@@ -61,6 +61,15 @@ Needed for self-consistency (spec 11) and string-level error rate (spec 13 E1).
 4. Sort ops by `(op, args)`; drop exact duplicates.
 5. Two EditSets are **equivalent** iff canonical forms are equal, with time tolerance `±tol_min` (default 0; configurable).
 
+### 5.1 Operation type `op_type(e)`
+
+One shared function gives both the group `ĉ = op_type(ê)` used by per-group CRC (spec 12 §2.2) and the gold type `c = op_type(e*)` (spec 08, error analysis). It is computed on the **canonical** form (steps 1–4 above):
+
+- exactly one op → that op's name (so `deadline` → `set_time_window`);
+- two or more ops, even of the same type (e.g. two `set_time_window` on different stops) → `compound`.
+
+Computing it on raw op names would split one meaning across two groups and shrink them (spec 12 §2.2, sample floor).
+
 ## 6. Data model
 
 ```python
@@ -81,4 +90,5 @@ Expose `EditSet.json_schema()` — it is pasted into the LLM prompt (spec 10).
 - [ ] Round-trip: `parse(render(e)) == e` for 1,000 random valid EditSets.
 - [ ] Each reason code in §4 has a unit test.
 - [ ] `canonical` makes `deadline(X, 15:00)` ≡ `set_time_window(X, null, 15:00)`.
+- [ ] `op_type` returns `set_time_window` for a single `deadline`, and `compound` for two ops of the same type.
 - [ ] The hospital wrong edit `[00:00, 15:00]` is **not** equivalent to gold `[15:00, null]`.

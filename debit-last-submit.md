@@ -26,6 +26,7 @@
 - [ ] **P2** · Mục IV (Method) phải có: công thức chọn `λ̂` và lưới ngưỡng **có `−∞`**; lập luận lưới điểm calibration (vấn đề liên tục phải sau khi đổi biến `θ = −λ`, spec 12 §2.1); danh sách loại thao tác DSL; nhóm `compound`; nguồn của điểm rủi ro `s` (LLM outputs + solver feedback). Mục III trỏ tới Section IV hai lần.
 - [ ] **P2** · Mục VI (Experiments) phải báo: tần suất vi phạm qua 100 split (vì CRC chỉ bảo đảm trung bình); rủi ro theo nhóm `ĉ` (được bảo đảm) **và** theo loại gold `c` (phân tích); `cov_max` (3) làm đường tham chiếu trong F2/T3; độ nhạy `ε ∈ {0, 5, 10}` (spec 09, check V2).
 - [ ] **P3** · Intro: viết "large language model (LLM)" ở lần dùng đầu; Abstract không dùng viết tắt.
+- [ ] **P2** · Mục IV hoặc VI phải có một câu về nhóm nhỏ: CRC theo nhóm `ĉ` cần tối thiểu `n ≥ 1/α − 1` mẫu calibration (99 ở α = 0,01; 49 ở 0,02), nhóm dưới ngưỡng bị chuyển duyệt hết (bảo đảm vẫn giữ, coverage của nhóm = 0). Báo số nhóm bị chuyển duyệt hết trong T3. Caption F3 và câu về C5 phải ghi rõ `α_F3` và quy tắc chọn (chỉ dựa vào số mẫu, spec 13 §14.0); nếu `α_F3 ≠ α_main` thì giải thích một câu (spec 12 §2.2, spec 13 §14.5; thêm 06/11).
 
 ### 4. Tham số phải khớp với code của B
 

@@ -67,11 +67,12 @@
   - `equivalent(a: EditSet, b: EditSet, p: RouteSnapshot, tol_min: int = 0) -> bool`
   - `render_editset_en(e: EditSet, p: RouteSnapshot) -> str` (vd. `"Deliver to An Binh Hospital no earlier than 15:00."`)
   - `editset_json_schema() -> dict`
+  - `op_type(e: EditSet, p: RouteSnapshot) -> str` (spec 06 §5.1): tính trên dạng chuẩn hóa; một thao tác → tên thao tác (`deadline` → `"set_time_window"`); từ hai thao tác trở lên (kể cả cùng loại) → `"compound"`. Hàm dùng chung cho `ĉ = op_type(ê)` (Phase 4, CRC theo nhóm) và `c = op_type(e*)` (gold, spec 08, phân tích lỗi).
 
 - [ ] **Step 1 [CODE]:** Một test cho mỗi mã lỗi ở spec 06 §4 (`test_parse_error_<code>`).
 - [ ] **Step 2 [CODE]:** Review Focus #1: `test_stop_name_normalized` — `" an binh HOSPITAL "` khớp `An Binh Hospital`; `"Binh Hospital"` → `unknown_stop`.
 - [ ] **Step 3 [CODE]:** Review Focus #2: `test_time_formats` — `"15:00"`, `"3:00 PM"`, `"3 pm"`, `"3pm"` đều thành cùng một số phút; `"15h"` và `"afternoon"` → `schema`.
-- [ ] **Step 4 [CODE]:** `test_deadline_equals_window_end` (spec 06 §7); `test_hospital_wrong_not_equivalent`.
+- [ ] **Step 4 [CODE]:** `test_deadline_equals_window_end` (spec 06 §7); `test_hospital_wrong_not_equivalent`; `test_op_type_deadline_canonical` (`deadline(X, 15:00)` → `"set_time_window"`); `test_op_type_compound` (hai `set_time_window` cho hai điểm → `"compound"`; một `remove_stop` → `"remove_stop"`).
 - [ ] **Step 5 [CODE]:** `test_roundtrip`: sinh ngẫu nhiên 1.000 `EditSet` hợp lệ trên fixture, `parse_editset(json.dumps(...)) ` rồi `equivalent(...)` với bản gốc → luôn True.
 - [ ] **Step 6:** FAIL → cài đặt. Giờ: `null` start → `t_now`, `null` end → `shift_end`.
 - [ ] **Step 7:** PASS. Commit `feat(dsl): edit language, parsing, canonical form`.

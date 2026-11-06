@@ -1,6 +1,6 @@
 # 13 · Experiment Protocol
 
-> Status: Draft v0.3 · Updated 2026-11-06 · v0.3: per-type risk split into per-group risk by the LLM edit's op type `ĉ` (controlled) and per-type risk by gold `c` (analysis); C5 restated on `ĉ`. · v0.2 adds a human-written test set (E6), error taxonomy (E7), label-robustness checks (V1–V3), two stronger baselines (G1, L6), harm-prevented metric and station shift. Every experiment maps to a claim in `01-research/02-research-questions-and-claims.md`.
+> Status: Draft v0.5 · Updated 2026-11-06 · v0.5: per-group CRC runs at every α; F3 and C5 use `α_F3` (§14.0, decided 06/11). · v0.4: T3/F3/E3 name groups `ĉ` explicitly; report fully deferred groups (spec 12 §2.2). · v0.3: per-type risk split into per-group risk by the LLM edit's op type `ĉ` (controlled) and per-type risk by gold `c` (analysis); C5 restated on `ĉ`. · v0.2 adds a human-written test set (E6), error taxonomy (E7), label-robustness checks (V1–V3), two stronger baselines (G1, L6), harm-prevented metric and station shift. Every experiment maps to a claim in `01-research/02-research-questions-and-claims.md`.
 
 ## 1. Overview
 
@@ -9,7 +9,7 @@
 | E0 | **Pilot / go-no-go** | pilot (~300 items) | go/no-go report | H1, H2 (early) |
 | E1 | How often and how badly do LLMs err? | main | T1 | C1, C1', C2 |
 | E2 | Which signals predict harm? | main (eval routes) | T2 | C3 |
-| E3 | Does CRC hold α? Global vs per-type; how much harm is prevented? | main, 100 splits | T3, F3 | C4, C5 |
+| E3 | Does CRC hold α? Global vs per-type (groups by `ĉ`); how much harm is prevented? | main, 100 splits | T3, F3 | C4, C5 |
 | E4 | Ablation: solver vs LLM signals vs stronger baselines | main | T2, F2 | **C3** |
 | E5 | Distribution shift (level, op, paraphrase, station) | main | T3 (shift rows) | C6 |
 | **E6** | **Do results hold on human-written requests?** | human set (~200) | T2/T3 extra rows | **C7** |
@@ -43,7 +43,7 @@ On executed items of eval routes (not the fit split): AUROC and AUPRC of each si
 
 ## 6. E3 — Risk control and operational value
 
-- {`LLM`, `LEARNED`, `SOLVER`, `ALL`} × {global CRC, per-type CRC} × α ∈ {0.01, 0.02, 0.05, 0.10} × 100 splits: coverage, realized joint risk, violation frequency, per-type realized risk.
+- {`LLM`, `LEARNED`, `SOLVER`, `ALL`} × {global CRC, per-type CRC} × α ∈ {0.01, 0.02, 0.05, 0.10} × 100 splits: coverage, realized joint risk, violation frequency, per-group realized risk (`ĉ`), gold-type risk (`c`, analysis), fully deferred groups (`λ̂_ĉ = −∞`, spec 12 §2.2).
 - **Harm prevented** at `α_main` vs "always execute": number of harmful executions avoided, total late minutes avoided, time-window violations avoided, per 1,000 requests; and the **human workload** = defer rate.
 - Main text: `α_main` (see §14.0), `ALL` vs `LLM` vs `LEARNED`.
 
@@ -105,6 +105,7 @@ All results go to `runs/<run_id>/` (spec 14). `kwd report --run <id>` regenerate
 | Decision | Why |
 |---|---|
 | **Main α is set from the pilot, not fixed at 0.05.** Grid `{0.01, 0.02, 0.05, 0.10}`; `α_main` = largest grid value ≤ `μ_pilot / 2`, with `μ_pilot` = μ of M1 at levels 2–3 in E0 (default 0.02). Frozen on 10/11. | If `μ ≤ α`, CRC executes everything and the comparison is empty. Choosing α from the pilot (not the main set) keeps it pre-registered. |
+| **Per-group CRC at every α; F3 and C5 at `α_F3`.** Per-group CRC (spec 12 §2.2) runs on the whole α grid and T3 always has its row at `α_main` (coverage + # fully deferred groups). `α_F3` = smallest grid α with `α ≥ α_main` such that, in the median split, every group `ĉ` has `n_cal ≥ min_n(α)`; `α_F3 = α_main` when `α_main` qualifies. `α_main` is **never** changed for per-group CRC. Decided 06/11. | Below `min_n(α)` a group is fully deferred, so "every group ≤ α" holds trivially and proves nothing. The rule uses only group **counts** (`ĉ` from `ê`), never harm labels, so it does not peek at results. |
 | **Operational metric first.** C3 is judged by CRC coverage at `α_main` (what an operator gains) plus a significance test on AUROC; AURC and AUPRC are supporting. | A fixed "AUROC + 0.05" threshold is arbitrary; reviewers care whether automation goes up at the same risk. |
 | **Only three primary comparisons**: `ALL` vs `LLM`, `SOLVER` vs `LEARNED`, `SOLVER` vs `L6`. Everything else is descriptive. | Avoids a multiple-comparisons fishing trip across ~15 score sets. |
 | **Fit split = 30% of routes** (was 20%). | G1 (learned guardian) needs enough positives (~60–90) to be a fair baseline; with 20% it would be under-trained and look like a straw man. |
@@ -159,10 +160,10 @@ Notation per translator model, on a set of `N` items: `x_i = 1` if the LLM outpu
 |---|---|---|
 | T1 | μ by model × level | non-binding share, harmless share, parse/infeasible |
 | T2 | AUROC per signal; AURC per score set | AUPRC; recall@20% non-binding; human-set column |
-| T3 | coverage at `α_main` | mean realized joint risk, violation frequency, max per-type risk; shift and human rows |
+| T3 | coverage at `α_main` | mean realized joint risk, violation frequency, max per-group risk (`ĉ`), # fully deferred groups (per-group CRC row always present); shift and human rows |
 | T4 | share of each error type | % caught (top-20% risk) by SOLVER / LLM / ALL |
 | F2 | risk–coverage curves | — |
-| F3 | per-type realized risk, global vs per-type CRC | — |
+| F3 | per-group realized risk by `ĉ`, global vs per-type CRC, at `α_F3` (§14.0; caption states `α_F3`) | gold-type risk `c` as second panel or one sentence in Results |
 
 ### 14.6 Success criteria per claim (decided before seeing main results)
 
@@ -174,7 +175,7 @@ Notation per translator model, on a set of `N` items: `x_i = 1` if the LLM outpu
 | **C3** | paired bootstrap CI of `AUROC_ALL − AUROC_LLM` excludes 0 **and** CRC coverage at `α_main` is ≥ 5 percentage points higher for `ALL` than `LLM` (mean over splits), for both translators; `AURC_ALL ≤ AURC_LEARNED` | claim only for the translator(s) where it holds; if L6 beats SOLVER, rephrase as "plan-level feedback" |
 | C3' | for ≥ 3 of 5 named error types, SOLVER catches more than LLM | report table without the claim |
 | C4 | mean realized joint risk over 100 splits ≤ α + 0.005 (Monte-Carlo slack) | report as a bug; investigate before 22/11 |
-| C5 | with global λ, ≥ 1 group `ĉ` has mean per-group risk > α; with per-type CRC all groups ≤ α + 0.005 | state that a single λ was sufficient |
+| C5 | at `α_F3` (§14.0): with global λ, ≥ 1 group `ĉ` has mean per-group risk > α; with per-type CRC all groups ≤ α + 0.005 | state that a single λ was sufficient; if no grid α qualifies for `α_F3`, report C5 as not testable at this data size |
 | C6 | descriptive (no threshold) | — |
 | C7 | on the human set, `AUROC_ALL > AUROC_LLM` for both translators (point estimate), CI reported; results shown per writer (B, C) | phrase as "direction consistent / inconclusive" |
 | C8 | descriptive: harm prevented at `α_main` | — |
