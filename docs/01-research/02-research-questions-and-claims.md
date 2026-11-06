@@ -21,7 +21,7 @@
 | **C3. Tín hiệu solver tốt hơn tín hiệu LLM và bộ chấm học** | AUROC từng tín hiệu; AURC của các tổ hợp; so với G1 (học có giám sát) và L6 (LLM xem thay đổi kế hoạch); tách riêng nhóm không binding | E2, E4 | Bảng T2, Hình F2 |
 | C3'. Tín hiệu bắt được lỗi **tự nhiên** của LLM, không chỉ khớp với template | Phân loại ~100 lỗi thật, mỗi loại do tín hiệu nào bắt; tín hiệu được đóng băng sau pilot | E7, V3 | Bảng T4 |
 | C4. CRC giữ `α` trên split ngẫu nhiên | Rủi ro thực tế và tần suất vi phạm qua 100 split | E3 | Bảng T3 |
-| C5. Ngưỡng chung che giấu vi phạm theo loại; hiệu chỉnh theo loại sửa được | Rủi ro theo loại: ngưỡng chung vs theo loại | E3 | Hình F3 / Bảng T3 |
+| C5. Ngưỡng chung che giấu vi phạm theo loại; hiệu chỉnh theo loại sửa được | Rủi ro theo nhóm `ĉ` (loại lệnh LLM sinh), ngưỡng chung vs theo nhóm, ở `α_F3` (spec 13 §14.0) | E3 | Hình F3 / Bảng T3 |
 | C6. Dưới dịch chuyển phân phối, bảo đảm có thể vỡ | Rủi ro thực tế trên split theo loại / mức mơ hồ / trạm | E5 | Bảng T3 (dòng shift) |
 | **C7. Kết quả giữ được trên câu do người thật viết** | Thứ hạng AUROC và rủi ro thực tế trên ~200 câu do 2 người viết (B, C), báo riêng từng người | E6 | Bảng T2/T3 (dòng "human") |
 | C8. Hệ thống ngăn được tác hại vận hành cụ thể | Số lần thực thi gây hại, phút trễ, khung giờ bị vi phạm được tránh trên 1.000 yêu cầu ở `α_main` | E3 | 1 câu trong Results + Intro |

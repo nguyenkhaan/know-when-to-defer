@@ -23,13 +23,13 @@
 |---|---|---|---|
 | F1 | Hình (1 cột) | Pipeline + ví dụ bệnh viện (lệnh sai, tuyến không đổi) | Vẽ tay |
 | F2 | Hình (1 cột) | Đường risk–coverage: chỉ LLM, chỉ solver, gộp; đường tham chiếu oracle | E2/E4 |
-| F3 | Hình (1 cột) | Rủi ro theo loại lệnh: ngưỡng chung vs theo loại, vạch `α` | E3 |
+| F3 | Hình (1 cột) | Rủi ro theo nhóm `ĉ` (loại lệnh LLM sinh): ngưỡng chung vs theo nhóm, vạch `α`, ở `α_F3` (spec 13 §14.0) | E3 |
 | T1 | Bảng | Benchmark: số mẫu, `μ` theo LLM × mức mơ hồ; % vô hại; % không binding | E1 |
 | T2 | Bảng | AUROC từng tín hiệu + AURC các tổ hợp (ablation, G1, L6), tách nhóm không binding; cột thêm cho tập người viết | E2/E4/E6 |
 | T3 | Bảng | CRC: coverage, rủi ro thực tế, tần suất vi phạm; dòng random / theo loại / shift / human | E3/E5/E6 |
 | T4 | Bảng nhỏ (1 cột, ~6 dòng) | Loại lỗi thật × tỷ lệ × % bị bắt bởi SOLVER / LLM / ALL | E7 |
 
-Nếu thiếu chỗ (theo thứ tự): bỏ F3 và giữ số theo loại trong T3; rút T1 còn các dòng tổng; đưa T4 thành 2 câu trong Results.
+Nếu thiếu chỗ (theo thứ tự): bỏ F3 và giữ số theo nhóm `ĉ` ở `α_F3` trong T3 (thêm một dòng nếu `α_F3 ≠ α_main`); rút T1 còn các dòng tổng; đưa T4 thành 2 câu trong Results.
 
 ## 3. Thông điệp từng mục (một câu)
 
