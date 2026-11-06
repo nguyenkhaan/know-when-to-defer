@@ -15,48 +15,7 @@ from pathlib import Path
 
 import ijson
 
-
-class NanToNullReader:
-    """File wrapper that rewrites the bare token `NaN` to `null`, chunk by chunk.
-
-    Holds back a trailing "N"/"Na" so a `NaN` split across chunks is still caught, and never
-    returns more than `size` bytes (ijson's C backend drops anything beyond the requested
-    size, and the rewrite makes the text longer). Safe here because LMRC never contains the
-    text `NaN` inside a JSON string.
-    """
-
-    def __init__(self, raw, chunk_size: int = 1 << 20):
-        self._raw = raw
-        self._chunk = chunk_size
-        self._tail = b""  # unconverted bytes that may start a split NaN
-        self._out = b""  # converted bytes not yet handed to the caller
-        self._eof = False
-
-    def _fill(self, want: int) -> None:
-        while not self._out and not self._eof:
-            data = self._raw.read(want)
-            buf = self._tail + data
-            if not data:
-                self._eof, self._tail = True, b""
-            else:
-                if buf.endswith(b"NaN"):
-                    keep = 0
-                elif buf.endswith(b"Na"):
-                    keep = 2
-                elif buf.endswith(b"N"):
-                    keep = 1
-                else:
-                    keep = 0
-                self._tail, buf = buf[len(buf) - keep :], buf[: len(buf) - keep]
-            self._out += buf.replace(b"NaN", b"null")
-
-    def read(self, size: int = -1) -> bytes:
-        if size == 0:  # ijson probes with read(0) to detect bytes vs str: consume nothing
-            return b""
-        want = self._chunk if size is None or size < 0 else size
-        self._fill(want)
-        out, self._out = self._out[:want], self._out[want:]
-        return out
+from kwd.data.jsonstream import NanToNullReader
 
 
 def first_routes(path: Path, n: int, nan_safe: bool = False):
@@ -87,7 +46,7 @@ def main() -> None:
     raw = Path(args.raw_dir)
 
     print("== route_data.json (full pass)")
-    with (raw / "route_data.json").open() as f:
+    with (raw / "route_data.json").open(encoding="utf-8") as f:
         routes = json.load(f)
     print(f"routes: {len(routes)}")
     rid0, r0 = next(iter(routes.items()))
@@ -109,7 +68,7 @@ def main() -> None:
     print(f"eligible (High score, 80-200 stops): {len(eligible)}")
 
     print("\n== actual_sequences.json (full pass)")
-    with (raw / "actual_sequences.json").open() as f:
+    with (raw / "actual_sequences.json").open(encoding="utf-8") as f:
         seqs = json.load(f)
     s0 = seqs[rid0]
     print(f"keys per route: {sorted(s0)}")

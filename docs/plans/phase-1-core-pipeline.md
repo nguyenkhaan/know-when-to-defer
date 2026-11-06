@@ -26,11 +26,11 @@
   - `load_route(raw_dir: Path, route_id: str) -> RawRoute`
   - `select_routes(raw_dir: Path, n: int, seed: int) -> list[str]`
 
-- [ ] **Step 1 [CODE]:** Test `test_load_route_mini`: `r = load_route(FIX, "<id>")`; assert `len(r.actual_order) == 12`, `r.actual_order[0]` là depot (type `Station`), `r.travel_s[a][b] > 0`.
-- [ ] **Step 2 [CODE]:** Test `test_select_routes_filters_and_is_deterministic`: trên fixture có 3 tuyến (1 Low score, 1 thiếu ma trận, 1 hợp lệ, với ngưỡng số điểm hạ trong test) → trả đúng 1 tuyến; gọi 2 lần cùng seed → kết quả bằng nhau.
-- [ ] **Step 3:** Chạy `uv run pytest tests/data -q` → FAIL.
-- [ ] **Step 4 [CODE]:** Cài `models.py`, `load_route`, `select_routes` (lọc theo spec 05 §3, lấy mẫu phân tầng theo `station_code`). Chuyển `NanToNullReader` từ `scripts/inspect_lmrc.py` vào `src/kwd/data/jsonstream.py` (kèm test). Đọc `travel_times.json` **một lần** bằng `ijson` và ghi riêng file cho từng tuyến được chọn; không bao giờ nạp nguyên file vào RAM (spec 05 §2).
-- [ ] **Step 5:** Test PASS. Commit `feat(data): load and select LMRC routes`.
+- [x] **Step 1 [CODE]:** Test `test_load_route_mini`: `r = load_route(FIX, "<id>")`; assert `len(r.actual_order) == 12`, `r.actual_order[0]` là depot (type `Station`), `r.travel_s[a][b] > 0`.
+- [x] **Step 2 [CODE]:** Test `test_select_routes_filters_and_is_deterministic`: trên fixture có 3 tuyến (1 Low score, 1 thiếu ma trận, 1 hợp lệ, với ngưỡng số điểm hạ trong test) → trả đúng 1 tuyến; gọi 2 lần cùng seed → kết quả bằng nhau.
+- [x] **Step 3:** Chạy `uv run pytest tests/data -q` → FAIL.
+- [x] **Step 4 [CODE]:** Cài `models.py`, `load_route`, `select_routes` (lọc theo spec 05 §3, lấy mẫu phân tầng theo `station_code`). Chuyển `NanToNullReader` từ `scripts/inspect_lmrc.py` vào `src/kwd/data/jsonstream.py` (kèm test). Đọc `travel_times.json` **một lần** bằng `ijson` và ghi riêng file cho từng tuyến được chọn; không bao giờ nạp nguyên file vào RAM (spec 05 §2).
+- [x] **Step 5:** Test PASS. Commit `feat(data): load and select LMRC routes`.
 
 ### Task 1.2: Snapshot tuyến đang chạy và bản hiển thị · **[B]**
 

@@ -1,6 +1,6 @@
 # 05 · Data: LMRC → Route Snapshots
 
-> Status: Draft v0.1 · Updated 2026-11-05
+> Status: Draft v0.1 · Updated 2026-11-06
 > Source: Amazon Last Mile Routing Research Challenge 2021 (Merchán et al., 2022, ref P20). License CC BY-NC 4.0.
 > File and field names below were **checked against the live files on 2026-11-05** (first bytes of each file). Remaining checks after the full download: `scripts/inspect_lmrc.py`.
 
@@ -26,13 +26,15 @@ Verified formats and gotchas:
 
 - Route keys look like `RouteID_<uuid>`; stop keys are 2-letter codes (`"AD"`); one stop per route has `type = "Station"` (depot), the rest `"Dropoff"`.
 - `departure_time_utc` is `"HH:MM:SS"`, the date is in `date_YYYY_MM_DD`. Time windows are strings `"YYYY-MM-DD HH:MM:SS"` (UTC) or **`NaN`** when absent.
-- **`package_data.json` contains bare `NaN` tokens (invalid JSON).** Python's `json` accepts them; streaming parsers (`ijson`) do not. Use a `NaN → null` stream wrapper (see `NanToNullReader` in `scripts/inspect_lmrc.py`, to be moved into `kwd.data` in Phase 1).
-- Travel times are in **seconds**, intra-route only.
+- **`package_data.json` and `route_data.json` contain bare `NaN` tokens (invalid JSON).** In `route_data.json` the token is `zone_id`: on every depot and on 6,515 drop-offs. Python's `json` accepts the token but returns `float('nan')`, not `None`, so read with `json.load(f, parse_constant=lambda _: None)`. Streaming parsers (`ijson`) reject it: use `NanToNullReader` from `kwd.data.jsonstream`. Checked 2026-11-06 on the full files: every `NaN` is a bare value (never inside a string), none of the four files contains `null`, and `travel_times.json` and `actual_sequences.json` contain no `NaN`.
+- Travel times are in **seconds**, intra-route only, floats with one decimal. The diagonal is `0.0`, and `0.0` also occurs off the diagonal (7,722 cells over all routes, including consecutive stops of the actual sequence), so a zero is a valid travel time, not a missing value.
+- The depot is present in `package_data.json` with an empty dict (`"VE": {}`). One stop can hold both packages with a real time window and packages with `NaN`.
+- `scan_status` takes the values `DELIVERED`, `DELIVERY_ATTEMPTED` and `REJECTED`. It is not used and routes are not filtered on it.
 - **Memory:** never `json.load` `travel_times.json` (1.8 GB ⇒ > 10 GB RAM; the machine has ~15 GB total). Stream it once with `ijson.kvitems` and write one compact file per selected route.
 
 ## 3. Route selection
 
-Verified facts (2026-11-05, `scripts/inspect_lmrc.py`): 6,112 routes; `route_score` High 2,718 / Medium 3,292 / Low 102; 148 stops per route on average (p10 105, p90 186); exactly one `Station` per route, at position 0 of the actual sequence; ~6% of stops have a time window (median 4% per route), and many windows are wide (e.g. 16:00–00:00 UTC, the whole shift), so they rarely bind; service ≈ 107 s per stop; legs ≈ 6 min; travel matrices complete in the 30 routes sampled. **2,571 routes pass the filter below**, far more than the ~370 needed (main + human + pilot).
+Verified facts (2026-11-05, `scripts/inspect_lmrc.py`): 6,112 routes; `route_score` High 2,718 / Medium 3,292 / Low 102; 148 stops per route on average (p10 105, p90 186); exactly one `Station` per route, at position 0 of the actual sequence; ~6% of stops have a time window (median 4% per route), and many windows are wide (e.g. 16:00–00:00 UTC, the whole shift), so they rarely bind; service ≈ 107 s per stop; legs ≈ 6 min. Checked 2026-11-06 on the full files: the travel matrices of all 6,112 routes are complete, and all actual sequences are consistent with their stops. **2,571 routes pass the filter below** (the matrix condition removes none), far more than the ~370 needed (main + human + pilot). Largest station DLA7 (444), smallest DBO1 (20).
 
 
 Keep routes that satisfy all of:
