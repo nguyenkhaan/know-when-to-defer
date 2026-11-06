@@ -1,6 +1,6 @@
 # 12 · Risk Control (Threshold Selection)
 
-> Status: Draft v0.2 · Updated 2026-11-06 (v0.2: Thm. 1 conditions spelled out in §2.1; oracle bound includes `π`) · CRC is a **tool**, not a contribution. Keep the implementation small and correct.
+> Status: Draft v0.3 · Updated 2026-11-06 (v0.2: Thm. 1 conditions spelled out in §2.1; oracle bound includes `π`. v0.3: per-type CRC groups by the LLM edit's op type `ĉ`, §2.2) · CRC is a **tool**, not a contribution. Keep the implementation small and correct.
 
 ## 1. Purpose
 
@@ -26,7 +26,13 @@ Why this satisfies Thm. 1 (state these in the paper, §III):
 
 ### 2.2 Per-op-type CRC (used if `μ` varies across ops)
 
-Run §2.1 separately on each op type `c` (compound items: type = riskiest op, or `compound` as its own type — decide after pilot). Gives `λ̂_c`. Rationale: a single global `λ` can hide violations concentrated in rare op types (Role-Stratified CRC, P22).
+Run §2.1 separately on each group `ĉ` = **op type of the LLM edit `ê`** (decided 2026-11-06). Gives `λ̂_ĉ`. Rationale: a single global `λ` can hide violations concentrated in rare op types (Role-Stratified CRC, P22).
+
+- **Why `ĉ`, not the gold type `c`:** the threshold must be chosen at deployment, where `e*` is unknown. `ĉ` is read from `ê`, so per-group CRC keeps its guarantee `E[L(λ̂_ĉ) | ĉ] ≤ α`. Grouping by gold `c` would need the answer to pick the threshold.
+- Groups exist only for executable items (`x = 1`); non-executable items are always deferred and are not in any group.
+- Compound `ê` (more than one op): group `compound`. (The "riskiest op" option is dropped: it needs per-type risk before grouping.)
+- A group with fewer than `min_n = 20` calibration items gets `λ̂_ĉ = −∞` (defer all).
+- Per-type risk by **gold** `c` is still reported, as analysis only (spec 13 §14.3).
 
 ### 2.3 Conditional risk with LTT (optional — cut if short on time)
 

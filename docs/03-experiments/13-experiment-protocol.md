@@ -1,6 +1,6 @@
 # 13 · Experiment Protocol
 
-> Status: Draft v0.2 · Updated 2026-11-05 · v0.2 adds a human-written test set (E6), error taxonomy (E7), label-robustness checks (V1–V3), two stronger baselines (G1, L6), harm-prevented metric and station shift. Every experiment maps to a claim in `01-research/02-research-questions-and-claims.md`.
+> Status: Draft v0.3 · Updated 2026-11-06 · v0.3: per-type risk split into per-group risk by the LLM edit's op type `ĉ` (controlled) and per-type risk by gold `c` (analysis); C5 restated on `ĉ`. · v0.2 adds a human-written test set (E6), error taxonomy (E7), label-robustness checks (V1–V3), two stronger baselines (G1, L6), harm-prevented metric and station shift. Every experiment maps to a claim in `01-research/02-research-questions-and-claims.md`.
 
 ## 1. Overview
 
@@ -142,7 +142,8 @@ Notation per translator model, on a set of `N` items: `x_i = 1` if the LLM outpu
 | **Realized joint risk** | `Σ x_i(1−d_i)h_i / N_test` | must be ≤ α **on average** over splits |
 | Realized conditional risk | `Σ x(1−d)h / Σ x(1−d)` | reported, not controlled (LTT cut by default) |
 | Violation frequency | share of the 100 splits with realized joint risk > α | descriptive: CRC bounds the **mean**, not this frequency |
-| Per-type risk | realized joint risk within op type `c` (denominator `N_c`) | F3; max over types in T3 |
+| **Per-group risk** | realized joint risk within group `ĉ` = op type of the LLM edit (denominator: executable items with that `ĉ`) | **controlled** by per-type CRC (spec 12 §2.2); F3; max over groups in T3 |
+| Per-type risk (gold) | realized joint risk within gold op type `c` (denominator `N_c`, all items) | analysis only, not guaranteed; one sentence or second panel of F3 |
 | Harm prevented /1k | `1000 · (H_always − H_policy) / N_test`, `H` = # harmful executions; same for late minutes and window violations | C8; one sentence in text |
 | Workload | `1 − coverage` | |
 
@@ -173,7 +174,7 @@ Notation per translator model, on a set of `N` items: `x_i = 1` if the LLM outpu
 | **C3** | paired bootstrap CI of `AUROC_ALL − AUROC_LLM` excludes 0 **and** CRC coverage at `α_main` is ≥ 5 percentage points higher for `ALL` than `LLM` (mean over splits), for both translators; `AURC_ALL ≤ AURC_LEARNED` | claim only for the translator(s) where it holds; if L6 beats SOLVER, rephrase as "plan-level feedback" |
 | C3' | for ≥ 3 of 5 named error types, SOLVER catches more than LLM | report table without the claim |
 | C4 | mean realized joint risk over 100 splits ≤ α + 0.005 (Monte-Carlo slack) | report as a bug; investigate before 22/11 |
-| C5 | with global λ, ≥ 1 op type has mean per-type risk > α; with per-type CRC all types ≤ α + 0.005 | state that a single λ was sufficient |
+| C5 | with global λ, ≥ 1 group `ĉ` has mean per-group risk > α; with per-type CRC all groups ≤ α + 0.005 | state that a single λ was sufficient |
 | C6 | descriptive (no threshold) | — |
 | C7 | on the human set, `AUROC_ALL > AUROC_LLM` for both translators (point estimate), CI reported; results shown per writer (B, C) | phrase as "direction consistent / inconclusive" |
 | C8 | descriptive: harm prevented at `α_main` | — |
