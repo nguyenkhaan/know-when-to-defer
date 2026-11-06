@@ -24,11 +24,11 @@
 | F1 | Hình (1 cột) | Pipeline + ví dụ bệnh viện (lệnh sai, tuyến không đổi) | Vẽ tay |
 | F2 | Hình (1 cột) | Đường risk–coverage: chỉ LLM, chỉ solver, gộp; đường tham chiếu oracle | E2/E4 |
 | T1 | Bảng | Benchmark: số mẫu, `μ` theo LLM × mức mơ hồ; % vô hại; % không binding | E1 |
-| T2 | Bảng | AUROC và AURC của 5 bộ điểm (`LLM`, `LEARNED`, `L6`, `SOLVER`, `ALL`) + AUROC từng tín hiệu S1–S5; cột tập người viết. Bỏ-một và nhóm không binding: mỗi thứ một câu | E2/E4/E6 |
+| T2 | Bảng | AUROC và AURC của 5 bộ điểm (`LLM`, `LEARNED`, `L6`, `SOLVER`, `ALL`) + AUROC từng tín hiệu S1–S5; cột tập người viết. Bỏ-một và AUROC trong nhóm kế hoạch không đổi (`P̂ = P`): mỗi thứ một câu | E2/E4/E6 |
 | T3 | Bảng | CRC: coverage, rủi ro thực tế, tần suất vi phạm; dòng random / theo nhóm `ĉ` (ở `α_main`; thêm dòng `α_F3` nếu khác) / shift theo trạm / human | E3/E5/E6 |
 | T4 | Bảng nhỏ (1 cột, ~6 dòng) | Loại lỗi thật × tỷ lệ × % bị bắt bởi SOLVER / LLM / ALL | E7 |
 
-Nếu thiếu chỗ (theo thứ tự): rút T1 còn các dòng tổng; đưa T4 thành 2 câu trong Results. Chi tiết không phục vụ claim nào để ở `runs/`, không đưa lên paper.
+Nếu thiếu chỗ (theo thứ tự): rút T1 còn các dòng tổng; đưa T4 thành 2 câu trong Results (phương án dự phòng được `CONTRACT.md` §4 cho phép). Chi tiết không phục vụ claim nào để ở `runs/`, không đưa lên paper.
 
 ## 3. Thông điệp từng mục (một câu)
 

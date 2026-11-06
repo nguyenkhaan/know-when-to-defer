@@ -1,7 +1,9 @@
 # MÔ TẢ CỤ THỂ THỰC NGHIỆM
 
 **Đề tài:** *Know When to Defer: Risk-Controlled Execution of LLM-Translated Dispatcher Edits for Last-Mile Route Re-planning*
-**Cập nhật:** 05/11/2026
+**Cập nhật:** 07/11/2026
+
+> Bản diễn giải để đọc hiểu. Khi lệch với spec (`02-specs/`, `03-experiments/`) hoặc `CONTRACT.md`, spec thắng. Các con số trong ví dụ là minh họa.
 
 Tài liệu này giúp người đọc nắm thực nghiệm **làm gì, đo gì, để làm gì và làm thế nào**. Mỗi bước có ví dụ đi kèm. Chi tiết kỹ thuật cho người viết code nằm trong `02-specs/` và `03-experiments/` (spec 05–14); kế hoạch theo ngày nằm trong `plans/`. Mục lục chung: `CONTENT.md`.
 
@@ -51,10 +53,10 @@ Bước ⑤–⑧ mô phỏng **đúng những gì xảy ra ngoài đời**: kh�
 
 | #  | Điểm giao        | Loại         | Khu | Giờ dự kiến |
 | -- | ------------------ | ------------- | --- | -------------- |
-| 1  | Minh Chau Pharmacy | nhà thuốc   | A   | 13:20          |
-| 2  | An Binh Hospital   | bệnh viện   | A   | 14:10          |
-| 3  | Nguyen Du School   | trường học | B   | 14:45          |
-| 4  | Thanh Cong Shop    | cửa hàng    | B   | 15:25          |
+| 1  | Cedar Pharmacy | nhà thuốc   | A   | 13:20          |
+| 2  | Green Valley Hospital   | bệnh viện   | A   | 14:10          |
+| 3  | Lincoln School   | trường học | B   | 14:45          |
+| 4  | Harbor Shop    | cửa hàng    | B   | 15:25          |
 | 5  | Lotus Office       | văn phòng   | C   | 15:50          |
 | 6  | Hoa Sen Clinic     | phòng khám  | C   | 16:15          |
 | 7  | 12 Maple St        | nhà dân     | C   | 16:35          |
@@ -75,15 +77,15 @@ Tổng cộng dùng khoảng **300 tuyến** cho bộ chính, **40 tuyến khác
 | `remove_stop(điểm)`                 | Bỏ điểm                        |
 | `precedence(A, B)`                    | Giao A trước B                  |
 | `driver_end_time(giờ)`               | Về kho trước giờ              |
-| `avoid_zone_until(khu, giờ)`         | Không vào khu trước giờ      |
-| `deadline(điểm, giờ)`              | Tới điểm trước giờ          |
+| `avoid_zone_until(khu, giờ)`         | Không giao điểm nào trong khu trước giờ |
+| `deadline(điểm, giờ)`              | Giao điểm trước giờ          |
 
 **Vì sao tự quy định:**
 
 - Máy bốc đáp án bằng chính các lệnh này, nên so được lệnh LLM với đáp án.
 - LLM không thể viết code lỗi; lỗi còn lại chủ yếu là **hiểu sai ý**, đúng loại lỗi đề tài nghiên cứu.
 
-Danh sách sẽ chốt **6–8 lệnh** ngày 08/11 sau khi chạy thử.
+Danh sách hiện có **6 lệnh** (bỏ `service_time` ngày 07/11); sau pilot chỉ có thể bỏ bớt, không thêm.
 
 ---
 
@@ -102,23 +104,23 @@ Bộ dữ liệu Amazon **không có** yêu cầu nào của điều phối viê
 
 | # | Đáp án                                                     | Nghĩa                                                           | Tuyến có phải đổi không?            |
 | - | ------------------------------------------------------------- | ---------------------------------------------------------------- | ----------------------------------------- |
-| 1 | `set_time_window(An Binh Hospital, 15:00, —)`              | Bệnh viện chỉ nhận từ 15:00                                 | Có: đang giao 14:10                     |
+| 1 | `set_time_window(Green Valley Hospital, 15:00, —)`              | Bệnh viện chỉ nhận từ 15:00                                 | Có: đang giao 14:10                     |
 | 2 | `set_time_window(12 Maple St, —, 17:00)`                   | Giao Maple trước 17:00                                         | Không: đang giao 16:35, đã thỏa sẵn |
-| 3 | `remove_stop(Thanh Cong Shop)`                              | Hủy giao Thanh Cong                                             | Có                                       |
-| 4 | `precedence(Hoa Sen Clinic, Nguyen Du School)`              | Phòng khám trước trường học                               | Có                                       |
+| 3 | `remove_stop(Harbor Shop)`                              | Hủy giao Harbor                                             | Có                                       |
+| 4 | `precedence(Hoa Sen Clinic, Lincoln School)`              | Phòng khám trước trường học                               | Có                                       |
 | 5 | `driver_end_time(16:45)`                                    | Về kho trước 16:45                                            | Có                                       |
-| 6 | `remove_stop(Thanh Cong Shop)` + `driver_end_time(16:45)` | **Lệnh ghép**: hủy Thanh Cong và về kho trước 16:45 | Có                                       |
+| 6 | `remove_stop(Harbor Shop)` + `driver_end_time(16:45)` | **Lệnh ghép**: hủy Harbor và về kho trước 16:45 | Có                                       |
 
 **Ví dụ đáp án bị loại** (máy bốc lại):
 
 | Đáp án                                         | Lý do loại                                                             |
 | ------------------------------------------------- | ------------------------------------------------------------------------ |
-| Gym "trước 13:15"                               | Sát giờ hiện tại quá, vi phạm quy tắc                             |
+| Gym "trước 13:10"                               | Sát giờ hiện tại quá: mốc giờ phải từ 15 phút sau hiện tại trở đi |
 | Bỏ "Golden Bakery"                               | Điểm đã giao xong buổi sáng                                        |
 | Gym "trước 13:30"                               | Không kịp: đi thẳng cũng mất 40 phút, solver không giải được |
 | Bệnh viện "từ 16:30" + "về kho trước 16:45" | Hai lệnh mâu thuẫn                                                    |
 
-**"Tuyến có phải đổi không"** (gọi là *binding*) được ghi lại cho mỗi đáp án. Máy giữ khoảng **70% đáp án làm tuyến phải đổi, 30% không**, vì ngoài đời điều phối viên đôi khi chỉ nhắc lại một điều đã đúng sẵn.
+**"Tuyến có phải đổi không"** (gọi là *binding*) được ghi lại cho mỗi đáp án. Máy giữ khoảng **70% đáp án làm tuyến phải đổi, 30% không** (tính trên các loại lệnh có thể không làm tuyến đổi; `remove_stop` luôn làm tuyến đổi), vì ngoài đời điều phối viên đôi khi chỉ nhắc lại một điều đã đúng sẵn.
 
 **Số lượng:** khoảng 10 đáp án mỗi tuyến, tổng **~3.000** cho bộ chính và **~200** cho bộ human.
 
@@ -143,13 +145,13 @@ Mỗi đáp án được biến thành **một câu tiếng Anh**, giống cách
 
 ### 6.2 Bộ chính: 3 mức mơ hồ
 
-Cùng đáp án `precedence(Hoa Sen Clinic, Nguyen Du School)`:
+Cùng đáp án `precedence(Hoa Sen Clinic, Lincoln School)`:
 
 | Mức                    | Đặc điểm                                                             | Câu                                                                                   |
 | ----------------------- | ------------------------------------------------------------------------ | -------------------------------------------------------------------------------------- |
-| 1 · Rõ ràng          | Đúng tên, rõ thứ tự                                                | "Deliver to Hoa Sen Clinic before Nguyen Du School."                                   |
+| 1 · Rõ ràng          | Đúng tên, rõ thứ tự                                                | "Deliver to Hoa Sen Clinic before Lincoln School."                                   |
 | 2 · Gián tiếp        | Gọi theo loại hoặc vị trí, giờ tương đối                       | "The clinic needs to come before the school today."                                    |
-| 3 · Ghép hoặc ẩn ý | Nhiều yêu cầu trong một câu, hoặc nêu lý do thay vì nói thẳng | "Clinic's waiting on vaccines so do them before the school, and Thanh Cong cancelled." |
+| 3 · Ghép hoặc ẩn ý | Nhiều yêu cầu trong một câu, hoặc nêu lý do thay vì nói thẳng | "Clinic's waiting on vaccines so do them before the school, and Harbor cancelled." |
 
 Sau khi máy điền câu mẫu, LLM M3 **viết lại** cho tự nhiên hơn, ví dụ: *"Can you make sure the clinic gets its drop before the school does?"*
 
@@ -166,11 +168,11 @@ Người viết nhận một **thẻ** gồm tuyến (có đánh dấu điểm l
 > **Tình huống:** Bệnh viện gọi: hôm nay 15:00 bàn nhận hàng mới mở.
 > **Nhiệm vụ:** Gõ tin nhắn bạn sẽ gửi cho trợ lý điều phối.
 
-Đáp án ẩn `set_time_window(An Binh Hospital, 15:00, —)` nằm ở file riêng, người viết không thấy.
+Đáp án ẩn `set_time_window(Green Valley Hospital, 15:00, —)` nằm ở file riêng, người viết không thấy.
 
 **Câu người viết có thể gõ:**
 
-- *"An Binh Hospital can't receive anything before 3pm today."*
+- *"Green Valley Hospital can't receive anything before 3pm today."*
 - *"hospital receiving opens at 3, move them later"*
 - *"anbinh hosp after 15h pls"*
 
@@ -198,19 +200,19 @@ LLM đóng vai **trợ lý điều phối**: đọc câu và chuyển thành l�
 [Hướng dẫn] Chuyển yêu cầu thành lệnh sửa tuyến. Chỉ trả JSON theo các lệnh cho phép.
             Ghi thêm "confidence": 0–100 = bạn chắc đến mức nào.
 [Tuyến]     Current time: 13:00
-            1. Minh Chau Pharmacy  pharmacy  ETA 13:20
-            2. An Binh Hospital    hospital  ETA 14:10
+            1. Cedar Pharmacy  pharmacy  ETA 13:20
+            2. Green Valley Hospital    hospital  ETA 14:10
             ...
-[Yêu cầu]   "Heads up: An Binh Hospital won't take deliveries until 3."
+[Yêu cầu]   "Heads up: Green Valley Hospital won't take deliveries until 3."
 ```
 
 **LLM trả**, có thể đúng hoặc sai:
 
 ```json
 // Đúng
-{"edits": [{"op": "set_time_window", "stop": "An Binh Hospital", "start": "15:00", "end": null}], "confidence": 90}
+{"edits": [{"op": "set_time_window", "stop": "Green Valley Hospital", "start": "15:00", "end": null}], "confidence": 90}
 // Sai: hiểu "until 3" thành "giao trước 3 giờ"
-{"edits": [{"op": "set_time_window", "stop": "An Binh Hospital", "start": null, "end": "15:00"}], "confidence": 95}
+{"edits": [{"op": "set_time_window", "stop": "Green Valley Hospital", "start": null, "end": "15:00"}], "confidence": 95}
 ```
 
 Lệnh sai vẫn **đúng cú pháp** và LLM còn **tự tin 95%**.
@@ -270,14 +272,14 @@ Lúc này đã có tuyến mới, nhưng **chưa gửi cho tài xế**. Bước 
 | **S1** · Lệnh có tác dụng không         | Tuyến hiện tại đã thỏa lệnh sẵn chưa                                                           | Đã thỏa sẵn (14:10 < 15:00) → **lệnh không làm gì** ⚠️               |
 | **S2** · Tuyến đổi bao nhiêu             | Số điểm đổi chỗ, giờ giao điểm được nhắc đổi bao nhiêu                                  | 0 điểm đổi ⚠️                                                                   |
 | **S3** · Thử cách hiểu ngược            | Tạo cách hiểu khác (đảo trước/sau, điểm tương tự), giải thử, xem tuyến có đổi không | Cách hiểu "từ 15:00" làm tuyến đổi → **có thể đã hiểu nhầm** ⚠️ |
-| **S4** · 5 lần dịch ra cùng tuyến không | Giải tuyến cho cả 5 lệnh, đếm bao nhiêu lệnh ra tuyến khác                                    | 2/5 khác → phân vân ⚠️                                                          |
+| **S4** · 4 lần dịch thêm có ra cùng tuyến với lần chính không | Giải tuyến cho 4 lệnh dịch thêm, đếm bao nhiêu lệnh ra tuyến khác tuyến của lần chính | 2/4 khác → phân vân ⚠️ |
 | **S5** · Lệnh nhắm đúng chỗ không      | Điểm nhắc trong câu và điểm trong lệnh có khớp không                                         | Khớp (cùng là bệnh viện) ✓                                                      |
 
 ### 9.3 Tín hiệu so sánh (các cách cũ)
 
 | Tín hiệu | Kiểm tra gì                                                              |
 | ---------- | -------------------------------------------------------------------------- |
-| L1         | 5 lệnh JSON có giống nhau về **chữ** không                     |
+| L1         | 4 lệnh dịch thêm có trùng lệnh chính về **chữ** (sau chuẩn hóa) không |
 | L2         | Đổi lệnh về câu, nhờ LLM khác xem có cùng nghĩa câu gốc không |
 | L3         | LLM tự khai "tôi chắc X%"                                               |
 | L4         | Độ chắc chắn nội bộ khi LLM sinh từng chữ                          |
@@ -291,9 +293,9 @@ Mỗi câu, mỗi mô hình dịch cho ra **một hàng số**. Ví dụ 3 câu 
 
 | Câu | Yêu cầu                    | Lệnh LLM (lần chính)                               | S1 lệnh không làm gì? | S2 số điểm đổi chỗ | S3 cách hiểu ngược làm tuyến đổi? | S4 % lần dịch ra tuyến khác | S5 câu và lệnh lệch nhau | L1 % JSON khác | L3 LLM tự tin | **Điểm rủi ro s** |
 | ---- | ---------------------------- | ----------------------------------------------------- | ------------------------- | ------------------------ | ----------------------------------------- | ------------------------------- | ---------------------------- | --------------- | -------------- | -------------------------- |
-| #101 | "Hospital only from 3pm"     | Bệnh viện **trước** 15:00                   | 1                         | 0                        | 1                                         | 0,4                             | 0,0                          | 0,4             | 0,95           | **0,82**             |
-| #102 | "Drop Thanh Cong today"      | Bỏ Thanh Cong Shop                                   | 0                         | 3                        | 0                                         | 0,0                             | 0,0                          | 0,0             | 0,90           | **0,05**             |
-| #103 | "Pharmacy before the school" | **Nguyen Du School** trước Minh Chau Pharmacy | 0                         | 2                        | 0                                         | 0,6                             | 0,0                          | 0,6             | 0,80           | **0,64**             |
+| #101 | "Hospital only from 3pm"     | Bệnh viện **trước** 15:00                   | 1                         | 0                        | 1                                         | 0,5                             | 0,0                          | 0,5             | 0,95           | **0,82**             |
+| #102 | "Drop Harbor today"      | Bỏ Harbor Shop                                   | 0                         | 3                        | 0                                         | 0,0                             | 0,0                          | 0,0             | 0,90           | **0,05**             |
+| #103 | "Pharmacy before the school" | **Lincoln School** trước Cedar Pharmacy | 0                         | 2                        | 0                                         | 0,75                            | 0,0                          | 0,75            | 0,80           | **0,64**             |
 
 Với ~3.000 câu × 2 mô hình, có khoảng **6.000 hàng**.
 
@@ -309,10 +311,10 @@ Các tín hiệu được gộp bằng một mô hình đơn giản (hồi quy l
 
 | Lệnh                            | s    | So với λ = 0,30 | Quyết định                                                                           |
 | -------------------------------- | ---- | ----------------- | --------------------------------------------------------------------------------------- |
-| #102 bỏ Thanh Cong              | 0,05 | ≤ λ             | ✅ Tự thực thi: gửi tuyến cho tài xế                                              |
+| #102 bỏ Harbor              | 0,05 | ≤ λ             | ✅ Tự thực thi: gửi tuyến cho tài xế                                              |
 | #101 bệnh viện "trước 15:00" | 0,82 | > λ              | ❓ Hỏi lại: *"Bạn muốn bệnh viện chỉ giao từ 15:00 trở đi, đúng không?"* |
 
-**α được chọn thế nào:** sau khi chạy thử, lấy giá trị lớn nhất trong {1%, 2%, 5%, 10%} mà không quá **một nửa** tỷ lệ gây hại của LLM. Ví dụ LLM gây hại 12% thì α = 5%. Nếu chọn α bằng hoặc lớn hơn tỷ lệ gây hại, hệ thống được phép thực thi hết, và thí nghiệm không còn gì để so.
+**α được chọn thế nào:** sau khi chạy thử, lấy giá trị lớn nhất trong {1%, 2%, 5%, 10%} mà không quá **một nửa tỷ lệ gây hại của mô hình ít sai hơn** trong hai mô hình, tính trên toàn bộ câu pilot. Ví dụ M1 gây hại 38%, M2 gây hại 10% → lấy 10% → α = 5%. Nếu không giá trị nào đạt thì dùng 1%, và kết luận cho mô hình gây hại ≤ 2% chỉ mang tính mô tả. Nếu chọn α bằng hoặc lớn hơn tỷ lệ gây hại, hệ thống được phép thực thi hết, và thí nghiệm không còn gì để so.
 
 ---
 
@@ -382,7 +384,7 @@ Báo theo **mô hình × mức mơ hồ**. μ nên tăng từ mức 1 lên mức
 
 | Cách chấm                      | AUROC bộ chính | AUROC bộ human |
 | -------------------------------- | ---------------- | --------------- |
-| LLM tự khai độ tự tin (L3)   | 0,58             | 0,55            |
+| Tín hiệu đơn S3 (thử cách hiểu ngược) | 0,71 | 0,67 |
 | `LLM`: gộp L1–L5             | 0,76             | 0,72            |
 | `LEARNED`: bộ chấm học (G1) | 0,74             | 0,66            |
 | `L6`: giám khảo xem tuyến   | 0,79             | 0,75            |
@@ -394,8 +396,8 @@ Báo theo **mô hình × mức mơ hồ**. μ nên tăng từ mức 1 lên mức
 **Ba phép so sánh chính** (các so sánh khác chỉ để tham khảo):
 
 1. `ALL` so với `LLM`: thêm tín hiệu solver có giúp không?
-2. `SOLVER` so với `LEARNED`: tín hiệu solver (không cần huấn luyện) có hơn bộ chấm học không?
-3. `SOLVER` so với `L6`: tín hiệu có cấu trúc có hơn việc chỉ cho LLM xem kết quả solver không?
+2. `ALL` so với `LEARNED`: điểm rủi ro của ta có hơn bộ chấm học có giám sát không?
+3. `SOLVER` so với `L6`: tín hiệu có cấu trúc có hơn việc chỉ cho LLM xem kết quả solver không? Nếu không hơn rõ, paper chỉ nói "phản hồi mức kế hoạch có ích".
 
 ### 12.4 Bảng T4: Bắt được loại lỗi thật nào?
 
@@ -434,7 +436,7 @@ Cách đọc:
 
 ### 12.6 Khi điều kiện thay đổi (dòng "shift" trong T3)
 
-Chọn ngưỡng trên tuyến của một số trạm, kiểm tra trên trạm khác (giống triển khai ở kho mới). Bộ human là phép thử thứ hai: chọn ngưỡng trên bộ chính, kiểm tra trên câu người viết. Các kiểu shift khác (theo mức mơ hồ, bỏ một loại lệnh, câu mẫu → câu viết lại) đã bỏ ngày 07/11 để paper gọn.
+Lần lượt giữ lại một trong 5 thành phố: học và chọn ngưỡng trên 4 thành phố còn lại, kiểm tra trên thành phố bị giữ lại (giống triển khai ở kho mới); báo trung bình 5 lần. Bộ human là phép thử thứ hai: chọn ngưỡng trên bộ chính, kiểm tra trên câu người viết. Các kiểu shift khác (theo mức mơ hồ, bỏ một loại lệnh, câu mẫu → câu viết lại) đã bỏ ngày 07/11 để paper gọn.
 
 Chỉ mô tả kết quả, không claim sửa được.
 
@@ -449,7 +451,7 @@ Chỉ mô tả kết quả, không claim sửa được.
 | Lỗi gây hại là có thật và tăng theo độ mơ hồ                    | μ mức 3 > μ mức 1, khác biệt có ý nghĩa thống kê, ở cả 2 mô hình                                                                 | Báo riêng từng mô hình                                                                                               |
 | Chấm theo kế hoạch khác chấm theo chuỗi                               | ≥ 10% lỗi chuỗi là vô hại                                                                                                                 | Bỏ câu này khỏi paper                                                                                                 |
 | Lỗi "tuyến không đổi" chiếm phần đáng kể                          | ≥ 20% lỗi gây hại                                                                                                                           | Báo con số, bỏ chữ "đáng kể"                                                                                       |
-| **Tín hiệu solver giúp phát hiện tốt hơn** (kết luận chính) | AUROC của `ALL` cao hơn `LLM` có ý nghĩa thống kê, **và** tự động hóa tăng ≥ 5 điểm % ở cùng α, ở cả 2 mô hình | Chỉ claim cho mô hình đạt; nếu `L6` thắng thì đổi cách nói thành "phản hồi từ kế hoạch có giá trị" |
+| **Tín hiệu solver giúp phát hiện tốt hơn** (kết luận chính) | AUROC của `ALL` cao hơn `LLM` có ý nghĩa thống kê, **và** tự động hóa tăng ≥ 5 điểm % ở cùng α, ở cả 2 mô hình, **và** AURC của `ALL` không tệ hơn `LEARNED`; `SOLVER` hơn `L6` có ý nghĩa thống kê thì mới nói "tín hiệu có cấu trúc hơn việc cho LLM xem kế hoạch" | Chỉ claim cho mô hình đạt; nếu `SOLVER` không hơn rõ `L6` thì chỉ nói "phản hồi từ kế hoạch có giá trị" |
 | Tín hiệu bắt được lỗi tự nhiên                                     | Ở ≥ 3/5 loại lỗi, `SOLVER` bắt nhiều hơn `LLM`                                                                                       | Báo bảng, bỏ kết luận                                                                                                |
 | Cam kết an toàn giữ được                                              | Rủi ro trung bình qua 100 lần ≤ α (+0,5% sai số)                                                                                          | Coi là lỗi code, kiểm tra trước 22/11                                                                                |
 | Kết quả giữ trên câu người viết                                     | `ALL` > `LLM` trên bộ human ở cả 2 mô hình                                                                                            | Viết "cùng xu hướng, chưa đủ chắc"                                                                                |

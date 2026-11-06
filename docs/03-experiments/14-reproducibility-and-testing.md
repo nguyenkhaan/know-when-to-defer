@@ -1,6 +1,6 @@
 # 14 · Reproducibility, Engineering Conventions & Testing
 
-> Status: Draft v0.1 · Updated 2026-11-06
+> Status: Draft v0.3 · Updated 2026-11-07 · v0.3: hospital fixture uses neutral names and a US time zone; release by allowlist (§6); fixture table compares solver objective. · v0.2: experiment configs e0–e6.
 
 ## 1. Runs
 
@@ -10,7 +10,7 @@
 
 ## 2. Configuration
 
-- YAML in `configs/`: `data.yaml`, `bench.yaml`, `solver.yaml`, `llm.yaml`, `harm.yaml`, `signals.yaml`, `risk.yaml`, `exp/e0.yaml … e5.yaml`.
+- YAML in `configs/`: `data.yaml`, `bench.yaml`, `solver.yaml`, `llm.yaml`, `harm.yaml`, `signals.yaml`, `risk.yaml`, `exp/e0.yaml … e6.yaml` (E7 uses `scripts/sample_errors.py`).
 - Every random choice takes a seed from config. No hidden defaults in code: defaults live in the YAML.
 - Config hash (`sha256` of the resolved YAML) is stored with every output file.
 
@@ -37,20 +37,20 @@ Golden fixture (local clock; departure 13:00, `t_now` = 13:00; service 5 min at 
 
 | Order | Stop | Category | Zone | ETA | Original window |
 |---|---|---|---|---|---|
-| 1 | Minh Chau Pharmacy | pharmacy | A | 13:20 | until 14:00 |
-| 2 | An Binh Hospital | hospital | A | 14:10 | none |
-| 3 | Nguyen Du School | school | B | 14:45 | until 15:00 |
-| 4 | Thanh Cong Shop | shop | B | 15:25 | none |
+| 1 | Cedar Pharmacy | pharmacy | A | 13:20 | until 14:00 |
+| 2 | Green Valley Hospital | hospital | A | 14:10 | none |
+| 3 | Lincoln School | school | B | 14:45 | until 15:00 |
+| 4 | Harbor Shop | shop | B | 15:25 | none |
 
 The two original windows are required. Without them the gold edit only makes the vehicle wait at the hospital until 15:00, because waiting costs nothing in the objective (spec 07 §3), and the order stays the same. Since 06/11 the digest also hashes service times (spec 07 §5), so that wait would already count as binding; the windows are kept so the gold also changes the **order**, which makes the golden example unambiguous. With them, an exhaustive check of the 24 orders (`test_hospital_fixture_design`) gives:
 
-| Case | Best order | Cost | Next best |
+| Case | Best order | Solver objective (spec 07 §3) | Next best |
 |---|---|---|---|
 | No edit | Pharmacy, Hospital, School, Shop | 180 | 196 |
 | Gold: Hospital from 15:00 | Pharmacy, School, Hospital (15:10), Shop | 196 | 206 |
 | Wrong: Hospital until 15:00 | unchanged | 180 | 351 |
 
-Request: "An Binh Hospital only accepts deliveries from 3 pm." Gold `set_time_window(An Binh Hospital, 15:00, null)`; wrong `set_time_window(An Binh Hospital, null, 15:00)`.
+Request: "Green Valley Hospital only accepts deliveries from 3 pm." Gold `set_time_window(Green Valley Hospital, 15:00, null)`; wrong `set_time_window(Green Valley Hospital, null, 15:00)`.
 
 ## 5. Code conventions
 
@@ -60,7 +60,7 @@ Request: "An Binh Hospital only accepts deliveries from 3 pm." Gold `set_time_wi
 
 ## 6. Anonymized release
 
-- Before submission: copy code + benchmark to a clean repo without author names, emails, institution, or git history; host via an anonymous service (e.g. anonymous.4open.science). See `04-delivery/16-submission-checklist.md`.
+- Before submission: copy an **allowlist** (code, tests, configs, scripts without the smoke script, `pyproject.toml` without authors, lockfile, README, benchmark; Phase 6 Step 6.2) to a clean repo without author names, emails, institution, or git history; host via an anonymous service (e.g. anonymous.4open.science). See `04-delivery/16-submission-checklist.md`.
 - Benchmark release includes: items (with gold), snapshots, generator config, license note (LMRC CC BY-NC 4.0 ⇒ non-commercial).
 
 ## 7. Paper toolchain

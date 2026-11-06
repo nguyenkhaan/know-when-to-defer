@@ -99,3 +99,4 @@ Các tình huống spec không nói rõ nhưng dễ làm hỏng kết quả. M�
 - Commit sau mỗi task: `git commit -m "<type>: <mô tả>"` (`feat`, `test`, `paper`, `exp`, `docs`, `fix`).
 - Cuối mỗi ngày: thêm một dòng trạng thái vào `docs/CONTENT.md` §6.
 - Kết quả thí nghiệm nằm trong `runs/<run_id>/`; không chép tay con số vào paper.
+- Trước khi sửa `docs/` hoặc `paper/`: đọc `docs/CONTRACT.md`. Trước và sau khi viết một section: đọc `debit-last-submit.md` (quy tắc trong `CLAUDE.md`).

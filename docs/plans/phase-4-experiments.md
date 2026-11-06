@@ -45,10 +45,10 @@ Thí nghiệm nào không phục vụ claim nào thì không chạy. Phase này 
 
 - [ ] **Step 1 [CODE]:** `test_experiments_smoke`: chạy E1–E6 trên benchmark mini 10 câu + human mini 5 câu với `StubClient` → mỗi file kết quả có đủ cột theo spec 12 §4 và spec 13; không có NaN ngoài cột được phép. Cài đặt → PASS. Commit `feat(eval): experiment runners`.
 - [ ] **Step 2 [EXP] E1:** `μ`, lỗi chuỗi, lỗi vô hại, lỗi không binding, luật R1/R2/R3 theo mô hình × mức × op.
-- [ ] **Step 3 [EXP] E2:** AUROC từng tín hiệu và từng bộ điểm (AUPRC chỉ ghi `runs/`), CI bootstrap theo tuyến; recall ở mức chuyển duyệt 20% trên nhóm lỗi không binding.
+- [ ] **Step 3 [EXP] E2:** AUROC từng tín hiệu và từng bộ điểm (AUPRC chỉ ghi `runs/`), CI bootstrap theo tuyến; AUROC trong nhóm kế hoạch không đổi (`P̂ = P`), nơi S1 là hằng số (spec 13 §5).
 - [ ] **Step 4 [EXP] E3:** {`LLM`, `LEARNED`, `L6`, `SOLVER`, `ALL`} × {chung, theo loại} × α ∈ {0,01; 0,02; 0,05; 0,10} × 100 split; thêm **tác hại được tránh** ở `α_main`.
 - [ ] **Step 5 [EXP] E4:** Đường risk–coverage và AURC: `LLM`, `LEARNED`, `L6`, `SOLVER`, `ALL`; các biến thể bỏ-một (paper chỉ một câu). Ba so sánh bắt buộc ở spec 13 §7.
-- [ ] **Step 6 [EXP] E5:** shift theo trạm: calibrate trên tuyến của một số trạm, test trên trạm còn lại (spec 13 §8).
+- [ ] **Step 6 [EXP] E5:** shift theo trạm, leave-one-city-out: với mỗi thành phố (5 thành phố), học mô hình điểm và calibrate trên 4 thành phố còn lại, test trên thành phố bị giữ lại; T3 báo trung bình 5 fold (spec 13 §8).
 - [ ] **Step 7 [EXP] E6:** Điểm học trên fit main, CRC calibrate trên cal main, **test trên tập human**: AUROC từng tín hiệu (thứ hạng có giống main không), rủi ro thực tế so với α, coverage, `μ` trên câu người viết.
 
 ### Task 4.3: Phân loại lỗi (E7) và kiểm tra V2, V3 (19–20/11) · **[B; Step 3: A gán 100, B gán 30]**

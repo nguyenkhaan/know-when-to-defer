@@ -329,8 +329,8 @@ def test_names_unique_after_normalization(seed):
 
 
 def test_normalize_name():
-    assert normalize_name("  an   binh\tHOSPITAL ") == normalize_name("An Binh Hospital")
-    assert normalize_name("Binh Hospital") != normalize_name("An Binh Hospital")
+    assert normalize_name("  green   valley\tHOSPITAL ") == normalize_name("Green Valley Hospital")
+    assert normalize_name("Valley Hospital") != normalize_name("Green Valley Hospital")
 
 
 def test_names_share_prefixes_across_categories():
@@ -361,7 +361,7 @@ def test_hospital_fixture_fields():
     assert p.t_now == 0
     assert p.done == []
     assert p.current_stop == p.depot_id
-    assert p.tz == "Asia/Ho_Chi_Minh"
+    assert p.tz == "America/Chicago"
     assert p.shift_end == 16200
     assert p.node_ids == sorted(p.stops)
     assert Path(p.travel_path).is_absolute()
@@ -387,15 +387,15 @@ def test_hospital_etas():
     arrivals = baseline_arrivals(p)
     etas = {p.stops[stop].name: clock_str(p, t) for stop, t in arrivals.items()}
     assert etas == {
-        "Minh Chau Pharmacy": "13:20",
-        "An Binh Hospital": "14:10",
-        "Nguyen Du School": "14:45",
-        "Thanh Cong Shop": "15:25",
+        "Cedar Pharmacy": "13:20",
+        "Green Valley Hospital": "14:10",
+        "Lincoln School": "14:45",
+        "Harbor Shop": "15:25",
     }
 
 
 def fixture_cost(p: RouteSnapshot, order: tuple[str, ...], hard: dict) -> float | None:
-    """Cost of spec 07 §3 for one visiting order, or None if a hard window is missed."""
+    """Solver objective of spec 07 §3 for one visiting order, or None if a hard window is missed."""
     matrix = travel(p)
     index = {stop: i for i, stop in enumerate(p.node_ids)}
     path = [p.depot_id, *order, p.depot_id]
@@ -456,10 +456,10 @@ def test_render_hospital():
         "Vehicle at: Depot",
         "Shift ends: 17:30",
         "#|Stop|Category|Zone|ETA|Window",
-        "1|Minh Chau Pharmacy|pharmacy|A|13:20|13:00-14:00",
-        "2|An Binh Hospital|hospital|A|14:10|-",
-        "3|Nguyen Du School|school|B|14:45|13:00-15:00",
-        "4|Thanh Cong Shop|shop|B|15:25|-",
+        "1|Cedar Pharmacy|pharmacy|A|13:20|13:00-14:00",
+        "2|Green Valley Hospital|hospital|A|14:10|-",
+        "3|Lincoln School|school|B|14:45|13:00-15:00",
+        "4|Harbor Shop|shop|B|15:25|-",
     ]
 
 
@@ -467,7 +467,7 @@ def test_render_none_zone_and_window():
     p = load_fixture_snapshot("hospital")
     shop = p.remaining[-1]
     p.stops[shop].zone_id = None
-    assert render_snapshot(p).splitlines()[-1] == "4|Thanh Cong Shop|shop|-|15:25|-"
+    assert render_snapshot(p).splitlines()[-1] == "4|Harbor Shop|shop|-|15:25|-"
 
 
 def test_render_only_lists_remaining_stops(raw, tmp_path):

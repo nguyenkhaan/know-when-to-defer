@@ -4,7 +4,7 @@
 
 **Goal:** Chạy pilot khoảng 300 câu × 2 mô hình dịch (M1, M2) để trả lời 2 câu hỏi sống còn: LLM có sai đủ nhiều không (H1), và tín hiệu solver có hơn tín hiệu LLM không (H2). Đo chi phí thật mỗi câu. Kết thúc bằng quyết định **Go / No-go** và **đóng băng tín hiệu** ngày 10/11.
 
-**Spec:** `docs/02-specs/08-benchmark-generation.md`, `10-llm-translation.md`, `11-verification-signals.md`, `docs/03-experiments/13-experiment-protocol.md` §2
+**Spec:** `docs/02-specs/08-benchmark-generation.md`, `10-llm-translation.md`, `11-verification-signals.md`, `docs/03-experiments/13-experiment-protocol.md` §2–§3
 
 ## Vấn đề cần giải quyết
 
@@ -26,7 +26,7 @@ Rủi ro lớn nhất của đề tài: LLM gần như không sai khi câu rõ r
 
 - [ ] **Step 1 [CODE]:** `test_cache_hit_no_second_call`: bọc một client đếm số lần gọi; gọi 2 lần cùng tham số → đếm = 1, kết quả giống hệt.
 - [ ] **Step 2 [CODE]:** `test_cache_key_includes_temperature_and_seed`: đổi `seed` → gọi lại.
-- [ ] **Step 3:** FAIL → cài đặt (khóa `sha256` theo spec 10 §5, lưu file JSON trong `data/cache/llm/`). Có retry khi lỗi mạng (3 lần, chờ tăng dần).
+- [ ] **Step 3:** FAIL → cài đặt (khóa `sha256` theo spec 10 §6, lưu file JSON trong `data/cache/llm/`). Có retry khi lỗi mạng (3 lần, chờ tăng dần).
 - [ ] **Step 4:** PASS. Commit `feat(llm): cached OpenAI-compatible client`.
 
 ### Task 2.2: Dịch yêu cầu thành lệnh · **[A]**
@@ -38,7 +38,7 @@ Rủi ro lớn nhất của đề tài: LLM gần như không sai khi câu rõ r
 **Interfaces:**
 - Consumes: `LLMClient`, `render_snapshot`, `parse_editset`, `editset_json_schema`.
 - Produces:
-  - `Prediction` (spec 10 §6)
+  - `Prediction` (spec 10 §7)
   - `translate(p: RouteSnapshot, q: str, client: LLMClient, k: int = 4, seed: int = 0) -> Prediction`
   - `translate_items(items: list[BenchmarkItem], snapshots: dict[str, RouteSnapshot], client: LLMClient, k: int, out_path: Path, max_usd: float) -> RunSummary` với `RunSummary(n_done: int, n_skipped: int, usd: float, stopped_by_budget: bool)`
 
@@ -62,7 +62,7 @@ Rủi ro lớn nhất của đề tài: LLM gần như không sai khi câu rõ r
   - `paraphrase(q: str, client: LLMClient, seed: int) -> str`
   - `build_items(snapshots, cfg, paraphraser: LLMClient, judge: LLMClient) -> list[BenchmarkItem]`
 
-- [ ] **Step 1 [CODE]:** `test_gold_feasible_and_binding_flag`: 200 lần `sample_gold` → mọi gold giải được; với `want_binding=True` thì `solve` làm đổi digest, với `False` thì không đổi.
+- [ ] **Step 1 [CODE]:** `test_gold_feasible_and_binding_flag`: 200 lần `sample_gold` → mọi gold giải được; với `want_binding=True` thì `solve` làm đổi digest, với `False` thì không đổi; `remove_stop` với `want_binding=False` → `None` (luôn binding, spec 08 §3).
 - [ ] **Step 1b [CODE]:** `test_build_items_skips_non_fixed_point`: snapshot có `is_fixed_point == False` (vd. fixture có một điểm đang trễ khung giờ gốc) → `build_items` bỏ qua, không sinh câu nào, và ghi số snapshot bị loại (spec 08 §2.1).
 - [ ] **Step 2 [CODE]:** `test_level2_reference_unique`: khi có 2 bệnh viện, `unique_reference` không trả `"the hospital"`.
 - [ ] **Step 3 [CODE]:** `test_templates_cover_all_ops_levels`: mỗi cặp (op, level) có ≥ 3 template; câu sinh ra chứa đúng giờ (dạng `3 pm` hoặc `15:00`) hoặc cụm thời gian tương đối đúng.
@@ -84,7 +84,7 @@ Rủi ro lớn nhất của đề tài: LLM gần như không sai khi câu rõ r
   - `llm_signals(pred, p) -> dict[str, float | None]` (pilot: `L1`, `L3`)
 
 - [ ] **Step 1 [CODE]:** `test_hospital_signals`: lệnh sai → `S1 == 1`, `S3_flag == 1`, `S2_changed == 0`. `test_s5_scope_mismatch`: câu nói "pharmacy", lệnh nhắm "school" → `S5_jaccard == 1.0`.
-- [ ] **Step 2 [CODE]:** `test_counter_readings_flip_window`: `[a, b]` sinh ra `[t_now, a]` hoặc `[b, shift_end]`; tối đa 4; thứ tự cố định.
+- [ ] **Step 2 [CODE]:** `test_counter_readings_flip_window`: `[a, b]` sinh ra `[t_now, a]` hoặc `[b, shift_end]`; tối đa 4; thứ tự cố định; giờ luôn nằm trong `[t_now, shift_end]`; lệnh ghép có ứng viên cho từng op (spec 11 §2.1).
 - [ ] **Step 3 [CODE]:** Review Focus #4: `test_all_samples_failed` → `L1 == 0.0`, `S4_disagree == 1.0`, không lỗi chia 0.
 - [ ] **Step 4 [CODE]:** `test_signals_do_not_import_harm`: dùng `ast` duyệt mọi file trong `src/kwd/signals/`, không có `import kwd.harm`; schema đầu vào không có trường `gold`.
 - [ ] **Step 5:** FAIL → cài đặt → PASS. Commit `feat(signals): solver signals S1-S5 and L1, L3`.
@@ -97,10 +97,10 @@ Rủi ro lớn nhất của đề tài: LLM gần như không sai khi câu rõ r
 
 - [ ] **Step 1 [CODE]:** `test_auroc_ci_perfect` (điểm tách hoàn hảo → AUROC = 1); `test_auroc_ci_random` (≈ 0,5 ± 0,1 trên 2.000 điểm ngẫu nhiên). Cài đặt → PASS.
 - [ ] **Step 2 [EXP]:** Chạy `kwd translate` cho M1 và M2 → `kwd label` → `kwd signals` (S1–S5, L1, L3).
-- [ ] **Step 3 [EXP]:** `kwd report --exp e0` sinh `runs/<id>/e0_report.md` có đủ mục ở spec 13 §2: `μ` theo mô hình × mức và theo op; tỷ lệ lỗi parse và infeasible; tỷ lệ lỗi không binding; AUROC (CI 95%) của S1–S5 so với L3; coverage tối đa theo α; **chi phí thật mỗi câu cho từng mô hình** và ước tính chi phí bản chính.
+- [ ] **Step 3 [EXP]:** `kwd report --exp e0` sinh `runs/<id>/e0_report.md` có đủ mục ở spec 13 §3: `μ` theo mô hình × mức và theo op; tỷ lệ lỗi parse và infeasible; tỷ lệ lỗi không binding; AUROC (CI 95%) của S1–S5 so với L3; coverage tối đa theo α; **chi phí thật mỗi câu cho từng mô hình** và ước tính chi phí bản chính.
 - [ ] **Step 4 [DECIDE]: Go / No-go (10/11).** Go khi (1) ở mức 2–3, `μ ≥ 3–5%` với ít nhất 1 mô hình và lớn hơn rõ α dự kiến; và (2) ít nhất 1 tín hiệu solver có AUROC cao hơn L3 (CI không chồng lấn hoặc hơn ≥ 0,05). Nếu No-go: thử theo thứ tự (a) nhấn mạnh mô hình nhỏ, (b) tăng câu ghép khó ở mức 3, chạy lại pilot trong 1 ngày; nếu vẫn thất bại, chuyển đề tài dự phòng (`MoTaDeTai.md` §6.2).
-- [ ] **Step 5 [DECIDE]:** Chốt danh sách 6–8 op (bỏ op gần như không bao giờ sai). Chốt kích thước benchmark chính (mặc định ~3.000) và `k` (mặc định 4) theo chi phí thật; nếu vượt ngân sách thì giảm theo spec 15 §3. Sửa spec 06 §3 và spec 10 §5.
-- [ ] **Step 5a [DECIDE] — Chốt `α_main`:** giá trị lớn nhất trong `{0,01; 0,02; 0,05; 0,10}` mà ≤ `μ` của M1 ở mức 2–3 chia 2 (spec 13 §14.0). Ghi vào `configs/risk.yaml` và `CONTENT.md` §6.
+- [ ] **Step 5 [DECIDE]:** Chốt danh sách op: giữ 6 op hoặc bỏ op gần như không bao giờ sai (không thêm op). Chốt kích thước benchmark chính (mặc định ~3.000) và `k` (mặc định 4) theo chi phí thật; nếu vượt ngân sách thì giảm theo spec 15 §3. Sửa spec 06 §3 và spec 10 §5.
+- [ ] **Step 5a [DECIDE] — Chốt `α_main`:** giá trị lớn nhất trong `{0,01; 0,02; 0,05; 0,10}` mà ≤ `min(μ_M1, μ_M2) / 2`, với `μ` tính trên **toàn bộ** câu pilot (spec 13 §14.0). Không giá trị nào đạt → `α_main = 0,01` và mô hình có `μ ≤ 0,02` chỉ báo mô tả. Ghi vào `configs/risk.yaml` và `CONTENT.md` §6.
 - [ ] **Step 5b [DECIDE] — Đóng băng tín hiệu solver:** chốt định nghĩa S1–S5 và quy tắc counter-reading (phần đóng góp). Commit riêng `exp: freeze solver signal definitions`, ghi hash commit vào `docs/CONTENT.md` §6. Từ đây không sửa tín hiệu dựa trên kết quả benchmark chính hay tập người viết (kiểm tra V3). Các baseline L2, L4–L6, G1 (Phase 3) chỉ được thiết kế và chỉnh trên **dữ liệu pilot**, rồi cũng đóng băng trước khi chạy bản chính.
 - [ ] **Step 5c [GVHD] (10/11, ~20 phút):** GVHD đọc `e0_report.md` và trả lời: có nên làm tiếp không, có số liệu nào đáng ngờ không. Quyết định Go/No-go chỉ chốt sau khi có ý kiến GVHD.
 - [ ] **Step 6:** Ghi quyết định vào `docs/CONTENT.md` §6. Commit `exp: pilot E0 and go/no-go decision`.

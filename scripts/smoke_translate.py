@@ -156,12 +156,19 @@ def prepare() -> int:
 def call(client: httpx.Client, spec: dict, route_text: str, q: str) -> str:
     body = {
         "model": spec["model"],
-        "messages": [{"role": "system", "content": SYSTEM},
-                     {"role": "user", "content": f'{route_text}\n\nRequest: "{q}"'}],
-        "temperature": 0, "seed": 0, "max_tokens": 600,
+        "messages": [
+            {"role": "system", "content": SYSTEM},
+            {"role": "user", "content": f'{route_text}\n\nRequest: "{q}"'},
+        ],
+        "temperature": 0,
+        "seed": 0,
+        "max_tokens": 600,
         "response_format": {"type": "json_object"},
-        "provider": {"order": [spec["endpoint"]], "allow_fallbacks": False,
-                     "require_parameters": True},
+        "provider": {
+            "order": [spec["endpoint"]],
+            "allow_fallbacks": False,
+            "require_parameters": True,
+        },
         **{k: v for k, v in spec.get("params", {}).items() if k != "logprobs"},
     }
     for attempt in range(5):
@@ -173,7 +180,7 @@ def call(client: httpx.Client, spec: dict, route_text: str, q: str) -> str:
             err = data.get("error", resp.text[:200])
         except (httpx.HTTPError, ValueError) as exc:
             err = str(exc)
-        time.sleep(2 ** attempt * 3)  # 3, 6, 12, 24, 48 s: rides out 429 rate limits
+        time.sleep(2**attempt * 3)  # 3, 6, 12, 24, 48 s: rides out 429 rate limits
     return f"<API error: {err}>"
 
 
@@ -193,15 +200,23 @@ def canon(edits: list[dict]) -> list[str]:
     for e in edits:
         e = dict(e)
         if e.get("op") == "deadline":
-            e = {"op": "set_time_window", "stop": e.get("stop"), "start": None, "end": e.get("time")}
+            e = {
+                "op": "set_time_window",
+                "stop": e.get("stop"),
+                "start": None,
+                "end": e.get("time"),
+            }
         out.append(json.dumps(e, sort_keys=True))
     return sorted(set(out))
 
 
 def short(edits: list[dict]) -> str:
     return "<br>".join(
-        f"{e.get('op')}(" + ", ".join("null" if v is None else str(v) for k, v in e.items() if k != "op") + ")"
-        for e in edits)
+        f"{e.get('op')}("
+        + ", ".join("null" if v is None else str(v) for k, v in e.items() if k != "op")
+        + ")"
+        for e in edits
+    )
 
 
 def run(models: list[str], retry_failed: bool = False) -> int:
@@ -220,8 +235,12 @@ def run(models: list[str], retry_failed: bool = False) -> int:
             r = json.loads(line)
             if not r["raw"].startswith("<API error"):
                 previous[(r["id"], r["model"])] = r["raw"]
-    with httpx.Client(base_url=config["backend"]["base_url"], headers=headers,
-                      timeout=120) as client, ThreadPoolExecutor(4) as pool:
+    with (
+        httpx.Client(
+            base_url=config["backend"]["base_url"], headers=headers, timeout=120
+        ) as client,
+        ThreadPoolExecutor(4) as pool,
+    ):
         for m in models:
             spec = config["models"][m]
 
@@ -234,33 +253,57 @@ def run(models: list[str], retry_failed: bool = False) -> int:
             for it, raw in zip(items, raws):
                 p = parsed(raw)
                 results[(it["id"], m)] = p
-                rows.append({"id": it["id"], "model": m, "model_id": spec["model"], "raw": raw,
-                             "parsed_ok": p is not None})
-            print(f"{m}: {sum(r['parsed_ok'] for r in rows if r['model'] == m)}/{len(items)} "
-                  "parsed OK")
+                rows.append(
+                    {
+                        "id": it["id"],
+                        "model": m,
+                        "model_id": spec["model"],
+                        "raw": raw,
+                        "parsed_ok": p is not None,
+                    }
+                )
+            print(
+                f"{m}: {sum(r['parsed_ok'] for r in rows if r['model'] == m)}/{len(items)} "
+                "parsed OK"
+            )
     with open(SMOKE / "outputs.jsonl", "w") as f:
         f.writelines(json.dumps(r, ensure_ascii=False) + "\n" for r in rows)
 
     cols = []
     for m in models:
         cols += [f"{m} trả về", f"{m} conf", f"{m} tự so", f"{m} đánh giá"]
-    lines = ["# Smoke test review",
-             "", "Nhãn: ✅ đúng · 🟡 sai vô hại · 🔴 sai có hại (ghi loại lỗi) · ⚪ hỏng.",
-             "Cột 'tự so' chỉ là gợi ý (= khớp đáp án sau khi đổi deadline → set_time_window).",
-             "", "| id | tuyến | nhóm | câu | đáp án | " + " | ".join(cols) + " |",
-             "|" + "---|" * (5 + len(cols))]
+    lines = [
+        "# Smoke test review",
+        "",
+        "Nhãn: ✅ đúng · 🟡 sai vô hại · 🔴 sai có hại (ghi loại lỗi) · ⚪ hỏng.",
+        "Cột 'tự so' chỉ là gợi ý (= khớp đáp án sau khi đổi deadline → set_time_window).",
+        "",
+        "| id | tuyến | nhóm | câu | đáp án | " + " | ".join(cols) + " |",
+        "|" + "---|" * (5 + len(cols)),
+    ]
     for it in items:
-        cells = [it["id"], it["route"], it["kind"], it["q"].replace("|", "/"),
-                 short(it["gold"]["edits"])]
+        cells = [
+            it["id"],
+            it["route"],
+            it["kind"],
+            it["q"].replace("|", "/"),
+            short(it["gold"]["edits"]),
+        ]
         for m in models:
             p = results[(it["id"], m)]
             if p is None:
-                cells += ["⚪ " + next(r["raw"] for r in rows if r["id"] == it["id"] and
-                                       r["model"] == m)[:80].replace("|", "/"), "", "", ""]
+                cells += [
+                    "⚪ "
+                    + next(r["raw"] for r in rows if r["id"] == it["id"] and r["model"] == m)[
+                        :80
+                    ].replace("|", "/"),
+                    "",
+                    "",
+                    "",
+                ]
             else:
                 same = canon(p["edits"]) == canon(it["gold"]["edits"])
-                cells += [short(p["edits"]), str(p.get("confidence", "")),
-                          "=" if same else "≠", ""]
+                cells += [short(p["edits"]), str(p.get("confidence", "")), "=" if same else "≠", ""]
         lines.append("| " + " | ".join(cells) + " |")
     (SMOKE / "review.md").write_text("\n".join(lines) + "\n")
     print(f"-> {SMOKE / 'review.md'}")
@@ -271,7 +314,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Phase 0b smoke test")
     parser.add_argument("command", choices=["prepare", "run"])
     parser.add_argument("--models", nargs="+", default=["M1", "M2"])
-    parser.add_argument("--retry-failed", action="store_true",
-                        help="reuse outputs.jsonl; only re-call rows that hit an API error")
+    parser.add_argument(
+        "--retry-failed",
+        action="store_true",
+        help="reuse outputs.jsonl; only re-call rows that hit an API error",
+    )
     args = parser.parse_args()
     sys.exit(prepare() if args.command == "prepare" else run(args.models, args.retry_failed))

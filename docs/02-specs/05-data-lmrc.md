@@ -1,6 +1,6 @@
 # 05 · Data: LMRC → Route Snapshots
 
-> Status: Draft v0.2 · Updated 2026-11-06 · v0.2: reserve list for the solver fixed-point filter (spec 08 §2.1).
+> Status: Draft v0.3 · Updated 2026-11-07 · v0.3: render budget aligned with spec 10 (≤ ~2.5k tokens). · v0.2: reserve list for the solver fixed-point filter (spec 08 §2.1).
 > Source: Amazon Last Mile Routing Research Challenge 2021 (Merchán et al., 2022, ref P20). License CC BY-NC 4.0.
 > File and field names below were **checked against the live files on 2026-11-05** (first bytes of each file). Remaining checks after the full download: `scripts/inspect_lmrc.py`.
 
@@ -101,7 +101,7 @@ Storage: one JSONL file `data/interim/snapshots.jsonl`; travel matrices as `.npy
 
 ## 6. Rendering for humans / LLMs
 
-`render_snapshot(P) -> str` produces a compact table of **remaining** stops: order, name, category, zone, ETA (`HH:MM`), time window if any; plus header lines `Current time`, `Vehicle at`, `Shift ends`. The same renderer is used in prompts (spec 10) and the review UI (spec 08). Keep it under ~4k tokens for 150 stops; drop lat/lng.
+`render_snapshot(P) -> str` produces a compact table of **remaining** stops: order, name, category, zone, ETA (`HH:MM`), time window if any; plus header lines `Current time`, `Vehicle at`, `Shift ends`. The same renderer is used in prompts (spec 10) and the review UI (spec 08). Keep it under ~2.5k tokens for 150 stops (measured 2026-11-06: ~6,500 characters); drop lat/lng (spec 10 §5).
 
 ## 7. Acceptance criteria
 

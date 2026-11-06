@@ -87,8 +87,10 @@ def ping_api_model(client: httpx.Client, model_id: str, spec: dict) -> bool:
 
     print(f"  provider     {first.get('provider')}")
     print(f"  latency      {latency:.2f} s")
-    print(f"  tokens       in={usage.get('prompt_tokens')} out={usage.get('completion_tokens')} "
-          f"reasoning={reasoning_tokens}")
+    print(
+        f"  tokens       in={usage.get('prompt_tokens')} out={usage.get('completion_tokens')} "
+        f"reasoning={reasoning_tokens}"
+    )
     print(f"  cost         {usage.get('cost')} USD")
     print(f"  logprobs     {has_logprobs}")
     print(f"  valid JSON   {valid_json}")
@@ -102,8 +104,10 @@ def ping_api_model(client: httpx.Client, model_id: str, spec: dict) -> bool:
         checks["no reasoning tokens"] = reasoning_tokens == 0
     failed = [name for name, ok in checks.items() if not ok]
     if not same_answer:
-        print("  WARN  seeded answers differ (noted, not a failure: provider may not be fully "
-              "deterministic)")
+        print(
+            "  WARN  seeded answers differ (noted, not a failure: provider may not be fully "
+            "deterministic)"
+        )
     print(f"  {'FAIL  ' + ', '.join(failed) if failed else 'OK'}")
     return not failed
 
@@ -114,8 +118,10 @@ def ping_embedding(spec: dict) -> bool:
 
     start = time.perf_counter()
     model = SentenceTransformer(spec["model"], device="cpu")
-    sentences = ["Deliver to Mercy Hospital before 15:00.",
-                 "Don't send anyone to the hospital until 3."]
+    sentences = [
+        "Deliver to Mercy Hospital before 15:00.",
+        "Don't send anyone to the hospital until 3.",
+    ]
     emb = model.encode(sentences, normalize_embeddings=True)
     cosine = float(emb[0] @ emb[1])
     print(f"  load+encode  {time.perf_counter() - start:.2f} s")
@@ -143,8 +149,9 @@ def main() -> int:
             print(f"Missing {config['backend']['api_key_env']} in .env (see .env.example).")
             return 1
         headers = {"Authorization": f"Bearer {key}"}
-        with httpx.Client(base_url=config["backend"]["base_url"], headers=headers,
-                          timeout=120) as client:
+        with httpx.Client(
+            base_url=config["backend"]["base_url"], headers=headers, timeout=120
+        ) as client:
             credits = client.get("/key")
             if credits.status_code == 200:
                 info = credits.json().get("data", {})

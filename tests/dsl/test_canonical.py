@@ -59,10 +59,10 @@ def test_editset_rejects_meaningless_edits():
 
 
 def test_deadline_equals_window_end(hospital):
-    deadline = parse(hospital, {"op": "deadline", "stop": "An Binh Hospital", "time": "15:00"})
+    deadline = parse(hospital, {"op": "deadline", "stop": "Green Valley Hospital", "time": "15:00"})
     window = parse(
         hospital,
-        {"op": "set_time_window", "stop": "An Binh Hospital", "start": None, "end": "3 pm"},
+        {"op": "set_time_window", "stop": "Green Valley Hospital", "start": None, "end": "3 pm"},
     )
     assert canonical(deadline, hospital) == (("set_time_window", "HO", 0, 7200),)
     assert equivalent(deadline, window, hospital)
@@ -71,11 +71,11 @@ def test_deadline_equals_window_end(hospital):
 def test_hospital_wrong_not_equivalent(hospital):
     gold = parse(
         hospital,
-        {"op": "set_time_window", "stop": "An Binh Hospital", "start": "15:00", "end": None},
+        {"op": "set_time_window", "stop": "Green Valley Hospital", "start": "15:00", "end": None},
     )
     wrong = parse(
         hospital,
-        {"op": "set_time_window", "stop": "An Binh Hospital", "start": None, "end": "15:00"},
+        {"op": "set_time_window", "stop": "Green Valley Hospital", "start": None, "end": "15:00"},
     )
     assert canonical(gold, hospital) == (("set_time_window", "HO", 7200, 16200),)
     assert canonical(wrong, hospital) == (("set_time_window", "HO", 0, 7200),)
@@ -198,7 +198,9 @@ def test_op_type_single(hospital, edit, expected):
 
 def test_render_hospital_gold(hospital):
     e = EditSet(edits=[SetTimeWindow(stop="HO", start=7200, end=None)])
-    assert render_editset_en(e, hospital) == "Deliver to An Binh Hospital no earlier than 15:00."
+    assert (
+        render_editset_en(e, hospital) == "Deliver to Green Valley Hospital no earlier than 15:00."
+    )
 
 
 @pytest.mark.parametrize(
@@ -206,17 +208,17 @@ def test_render_hospital_gold(hospital):
     [
         (
             SetTimeWindow(stop="HO", start=None, end=7200),
-            "Deliver to An Binh Hospital no later than 15:00.",
+            "Deliver to Green Valley Hospital no later than 15:00.",
         ),
         (
             SetTimeWindow(stop="SC", start=3600, end=7200),
-            "Deliver to Nguyen Du School between 14:00 and 15:00.",
+            "Deliver to Lincoln School between 14:00 and 15:00.",
         ),
-        (Deadline(stop="PH", time=1800), "Deliver to Minh Chau Pharmacy by 13:30."),
-        (RemoveStop(stop="SH"), "Do not visit Thanh Cong Shop."),
-        (Precedence(before="SC", after="PH"), "Visit Nguyen Du School before Minh Chau Pharmacy."),
+        (Deadline(stop="PH", time=1800), "Deliver to Cedar Pharmacy by 13:30."),
+        (RemoveStop(stop="SH"), "Do not visit Harbor Shop."),
+        (Precedence(before="SC", after="PH"), "Visit Lincoln School before Cedar Pharmacy."),
         (DriverEndTime(time=14400), "Return to the depot by 17:00."),
-        (AvoidZoneUntil(zone="B", time=5400), "Do not arrive at any stop in zone B before 14:30."),
+        (AvoidZoneUntil(zone="B", time=5400), "Do not serve any stop in zone B before 14:30."),
     ],
 )
 def test_render_every_op(hospital, edit, sentence):
@@ -226,7 +228,7 @@ def test_render_every_op(hospital, edit, sentence):
 def test_render_keeps_written_order(hospital):
     e = EditSet(edits=[RemoveStop(stop="SH"), Precedence(before="SC", after="PH")])
     assert render_editset_en(e, hospital) == (
-        "Do not visit Thanh Cong Shop.\nVisit Nguyen Du School before Minh Chau Pharmacy."
+        "Do not visit Harbor Shop.\nVisit Lincoln School before Cedar Pharmacy."
     )
 
 
@@ -292,7 +294,12 @@ def test_dump_uses_names_and_local_clock(hospital):
     e = EditSet(edits=[SetTimeWindow(stop="HO", start=7200, end=None)], confidence=80)
     assert json.loads(dump_editset(e, hospital)) == {
         "edits": [
-            {"op": "set_time_window", "stop": "An Binh Hospital", "start": "15:00", "end": None}
+            {
+                "op": "set_time_window",
+                "stop": "Green Valley Hospital",
+                "start": "15:00",
+                "end": None,
+            }
         ],
         "confidence": 80,
     }

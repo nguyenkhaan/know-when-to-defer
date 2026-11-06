@@ -20,10 +20,10 @@ SERVICE_S = 300
 DEPOT = "DP"
 # stop id, name, category, zone, original window in seconds since departure (13:00)
 DELIVERIES = [
-    ("PH", "Minh Chau Pharmacy", "pharmacy", "A", (0, 3600)),
-    ("HO", "An Binh Hospital", "hospital", "A", None),
-    ("SC", "Nguyen Du School", "school", "B", (0, 7200)),
-    ("SH", "Thanh Cong Shop", "shop", "B", None),
+    ("PH", "Cedar Pharmacy", "pharmacy", "A", (0, 3600)),
+    ("HO", "Green Valley Hospital", "hospital", "A", None),
+    ("SC", "Lincoln School", "school", "B", (0, 7200)),
+    ("SH", "Harbor Shop", "shop", "B", None),
 ]
 # Symmetric, in minutes; satisfies the triangle inequality.
 TRAVEL_ORDER = [DEPOT, "PH", "HO", "SC", "SH"]
@@ -45,8 +45,8 @@ def build_stops() -> dict[str, Stop]:
             name=name,
             category=category,
             zone_id=zone,
-            lat=21.00 + i / 100,
-            lng=105.80 + i / 100,
+            lat=round(41.88 + i / 100, 2),
+            lng=round(-87.63 + i / 100, 2),
             service_s=0 if stop_id == DEPOT else SERVICE_S,
             tw=window,
         )
@@ -64,7 +64,7 @@ def main() -> None:
         snapshot_id="hospital@0",
         route_id="hospital",
         station_code="HOSPITAL",
-        tz="Asia/Ho_Chi_Minh",
+        tz="America/Chicago",
         departure_local="13:00:00",
         t_now=0,
         current_stop=DEPOT,

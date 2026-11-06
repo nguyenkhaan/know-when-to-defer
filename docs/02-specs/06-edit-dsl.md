@@ -1,6 +1,6 @@
 # 06 · Edit DSL
 
-> Status: Draft v0.5 · Updated 2026-11-07 · v0.5: `service_time` dropped, 6 ops; the DSL covers constraints on the plan only (§3, decided 07/11) · v0.4: parsing keeps ops as written; edge cases of `schema` / `invalid_json` / `unknown_stop` / `done_stop`; `tol_min` on times (§5) · v0.3: `bad_interval` covers every past time, compared by the minute (§4, decided 07/11) · v0.2: `op_type` defined in §5.1 · Final op list frozen at end of week 1 (6–8 ops).
+> Status: Draft v0.7 · Updated 2026-11-07 · v0.7: prompt schema is `editset_json_schema()` (§6). · v0.6: op meanings stated on service start ("served"), matching spec 07 §5 and harm R1. · v0.5: `service_time` dropped, 6 ops; the DSL covers constraints on the plan only (§3, decided 07/11) · v0.4: parsing keeps ops as written; edge cases of `schema` / `invalid_json` / `unknown_stop` / `done_stop`; `tol_min` on times (§5) · v0.3: `bad_interval` covers every past time, compared by the minute (§4, decided 07/11) · v0.2: `op_type` defined in §5.1 · The pilot may drop ops from the 6 (never add).
 
 ## 1. Purpose
 
@@ -23,12 +23,12 @@ A request maps to an `EditSet` — one or more ops (compound requests → severa
 
 | `op` | Arguments | Meaning (hard constraint on `P̂`) |
 |---|---|---|
-| `set_time_window` | `stop`, `start: HH:MM \| null`, `end: HH:MM \| null` | Arrive at `stop` within `[start, end]`. `null` = open side (`start` → `t_now`, `end` → `shift_end`). |
+| `set_time_window` | `stop`, `start: HH:MM \| null`, `end: HH:MM \| null` | Serve `stop` within `[start, end]` (service starts in the window; the vehicle may wait). `null` = open side (`start` → `t_now`, `end` → `shift_end`). |
 | `remove_stop` | `stop` | `stop` is not visited. |
 | `precedence` | `before`, `after` | `before` is visited before `after`. |
 | `driver_end_time` | `time` | Vehicle returns to depot by `time`. |
-| `avoid_zone_until` | `zone`, `time` | No arrival at any stop in `zone` before `time`. |
-| `deadline` | `stop`, `time` | Arrive at `stop` no later than `time`. |
+| `avoid_zone_until` | `zone`, `time` | No stop in `zone` is served before `time`. |
+| `deadline` | `stop`, `time` | Serve `stop` no later than `time`. |
 
 Notes:
 
@@ -89,7 +89,7 @@ class EditSet(BaseModel):
     confidence: int | None = None
 ```
 
-Expose `EditSet.json_schema()` — it is pasted into the LLM prompt (spec 10).
+`editset_json_schema()` returns the schema of `JsonEditSet` (display names, local `HH:MM`); it is pasted into the LLM prompt (spec 10). `EditSet` is the parsed form (stop ids, seconds) and is never shown to the LLM.
 
 ## 7. Acceptance criteria
 
@@ -97,4 +97,4 @@ Expose `EditSet.json_schema()` — it is pasted into the LLM prompt (spec 10).
 - [ ] Each reason code in §4 has a unit test.
 - [ ] `canonical` makes `deadline(X, 15:00)` ≡ `set_time_window(X, null, 15:00)`.
 - [ ] `op_type` returns `set_time_window` for a single `deadline`, and `compound` for two ops of the same type.
-- [ ] The hospital wrong edit `[00:00, 15:00]` is **not** equivalent to gold `[15:00, null]`.
+- [ ] The hospital wrong edit `[null, 15:00]` is **not** equivalent to gold `[15:00, null]` (a wrong edit written with `"00:00"` would be a `bad_interval` parse error, not the non-binding harm of the paper's example).

@@ -114,7 +114,7 @@ StopName = Annotated[str, Field(description="stop name exactly as listed")]
 
 
 class JsonSetTimeWindow(_Op):
-    """Arrive at `stop` within [start, end]; null leaves that side open."""
+    """Serve `stop` within [start, end]; null leaves that side open."""
 
     op: Literal["set_time_window"]
     stop: StopName
@@ -155,7 +155,7 @@ class JsonDriverEndTime(_Op):
 
 
 class JsonAvoidZoneUntil(_Op):
-    """No arrival at any stop in `zone` before `time`."""
+    """No stop in `zone` is served before `time`."""
 
     op: Literal["avoid_zone_until"]
     zone: Annotated[str, Field(description="zone exactly as listed")]
@@ -163,7 +163,7 @@ class JsonAvoidZoneUntil(_Op):
 
 
 class JsonDeadline(_Op):
-    """Arrive at `stop` no later than `time`."""
+    """Serve `stop` no later than `time`."""
 
     op: Literal["deadline"]
     stop: StopName

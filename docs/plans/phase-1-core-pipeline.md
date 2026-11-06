@@ -53,7 +53,7 @@
 - [X] **Step 1 [CODE]:** Test `test_snapshot_freezes_prefix`: với `rho=0.25` trên fixture mini → `len(p.done) == 3`, `p.current_stop == p.done[-1]`, `set(p.done).isdisjoint(p.remaining)`.
 - [X] **Step 2 [CODE]:** Test `test_baseline_arrivals_monotone`: arrival tăng dần theo `p.remaining`.
 - [X] **Step 3 [CODE]:** Test `test_display_names_unique_and_seeded`: tên hiển thị duy nhất; cùng seed → cùng tên.
-- [X] **Step 4 [CODE]:** Test `test_render_hospital`: `render_snapshot(load_fixture_snapshot("hospital"))` chứa `"An Binh Hospital"`, `"14:10"`, `"Current time: 13:00"`.
+- [X] **Step 4 [CODE]:** Test `test_render_hospital`: `render_snapshot(load_fixture_snapshot("hospital"))` chứa `"Green Valley Hospital"`, `"14:10"`, `"Current time: 13:00"`.
 - [X] **Step 5:** FAIL → cài đặt theo spec 05 §4 (tên giả lấy từ danh sách cố định ~10 loại trong `names.py`; múi giờ theo bảng `station_code` đã kiểm ở Phase 0). Tạo `hospital.json` bằng tay: 4 điểm + depot, ma trận thời gian sao cho ETA đúng 13:20/14:10/14:45/15:25.
 - [X] **Step 6:** PASS. Commit `feat(data): in-service snapshots and renderer`.
 
@@ -71,12 +71,12 @@
   - `parse_editset(raw: str, p: RouteSnapshot) -> EditSet | ParseError` (trả `EditSet` đã đổi tên → `stop_id`, giờ → giây tính từ lúc xuất phát)
   - `canonical(e: EditSet, p: RouteSnapshot) -> tuple`
   - `equivalent(a: EditSet, b: EditSet, p: RouteSnapshot, tol_min: int = 0) -> bool`
-  - `render_editset_en(e: EditSet, p: RouteSnapshot) -> str` (vd. `"Deliver to An Binh Hospital no earlier than 15:00."`)
+  - `render_editset_en(e: EditSet, p: RouteSnapshot) -> str` (vd. `"Deliver to Green Valley Hospital no earlier than 15:00."`)
   - `editset_json_schema() -> dict`
   - `op_type(e: EditSet, p: RouteSnapshot) -> str` (spec 06 §5.1): tính trên dạng chuẩn hóa; một thao tác → tên thao tác (`deadline` → `"set_time_window"`); từ hai thao tác trở lên (kể cả cùng loại) → `"compound"`. Hàm dùng chung cho `ĉ = op_type(ê)` (Phase 4, CRC theo nhóm) và `c = op_type(e*)` (gold, spec 08, phân tích lỗi).
 
 - [X] **Step 1 [CODE]:** Một test cho mỗi mã lỗi ở spec 06 §4 (`test_parse_error_<code>`).
-- [X] **Step 2 [CODE]:** Review Focus #1: `test_stop_name_normalized` — `" an binh HOSPITAL "` khớp `An Binh Hospital`; `"Binh Hospital"` → `unknown_stop`.
+- [X] **Step 2 [CODE]:** Review Focus #1: `test_stop_name_normalized` — `" green valley HOSPITAL "` khớp `Green Valley Hospital`; `"Valley Hospital"` → `unknown_stop`.
 - [X] **Step 3 [CODE]:** Review Focus #2: `test_time_formats` — `"15:00"`, `"3:00 PM"`, `"3 pm"`, `"3pm"` đều thành cùng một số phút; `"15h"` và `"afternoon"` → `schema`.
 - [X] **Step 4 [CODE]:** `test_deadline_equals_window_end` (spec 06 §7); `test_hospital_wrong_not_equivalent`; `test_op_type_deadline_canonical` (`deadline(X, 15:00)` → `"set_time_window"`); `test_op_type_compound` (hai `set_time_window` cho hai điểm → `"compound"`; một `remove_stop` → `"remove_stop"`).
 - [X] **Step 5 [CODE]:** `test_roundtrip`: sinh ngẫu nhiên 1.000 `EditSet` hợp lệ trên fixture, `parse_editset(json.dumps(...)) ` rồi `equivalent(...)` với bản gốc → luôn True.
@@ -93,20 +93,20 @@
 
 - Consumes: `RouteSnapshot`, `EditSet`, `travel()`.
 - Produces:
-  - `SolverConfig(time_limit_s=3.0, solution_limit: int | None = None, first_solution: str = "PATH_CHEAPEST_ARC", late_penalty=10.0, dev_weight=2.0, shift_penalty=10.0)` — `time_limit_s` và `first_solution` đổi được để chạy kiểm tra V1 (spec 13 §11)
+  - `SolverConfig(solution_limit: int = 100, time_limit_s: float = 10.0, warm_start: bool = True, first_solution: str = "PATH_CHEAPEST_ARC", late_penalty=10.0, shift_penalty=10.0, dev_weight=2.0)` — `solution_limit` là điểm dừng chính, chỉnh trong task này sao cho median ≤ 3 s trên 150 điểm rồi ghi vào `configs/solver.yaml`; `time_limit_s` chỉ là chốt an toàn (spec 07 §4). `solution_limit`, `warm_start` và `first_solution` đổi được để chạy kiểm tra V1 (spec 13 §11). Các trọng số phạt chỉ dùng khi tìm kiếm; cost cho harm dùng phút, trọng số 1 (spec 09 §2)
   - `Plan`, `Infeasible` (spec 07 §5); `Plan.digest() -> str` (băm thứ tự **và** `service_start` làm tròn phút, cùng `end_time`; quyết định 06/11)
   - `schedule(p: RouteSnapshot, sequence: list[str], e: EditSet | None) -> tuple[dict[str, int], dict[str, int], int]` (`arrival`, `service_start`, `end_time`; spec 07 §5). Mọi giờ trong `Plan` lấy từ hàm này, không đọc cumul của OR-Tools; dùng lại `travel()` và quy tắc đi tuyến của spec 05 §4.
   - `current_plan(p: RouteSnapshot) -> Plan` (= `schedule(p, p.remaining, None)`)
   - `is_fixed_point(p: RouteSnapshot, cfg: SolverConfig) -> bool` (= `solve(p, None, cfg).digest() == current_plan(p).digest()`; bộ lọc snapshot của spec 08 §2.1)
   - `solve(p: RouteSnapshot, e: EditSet | None, cfg: SolverConfig) -> Plan | Infeasible`
-  - `check_constraints(p: RouteSnapshot, plan: Plan, e: EditSet, tol_min: int = 1) -> list[Violation]` với `Violation(op: str, stop: str | None, amount_min: float)`
+  - `check_constraints(p: RouteSnapshot, plan: Plan, e: EditSet, tol_min: int = 1) -> list[Violation]` với `Violation(op: str, stop: str | None, amount_min: float)`; mức vi phạm từng op theo bảng ở spec 07 §5
   - `solve_cached(p, e, cfg, cache_dir: Path) -> Plan | Infeasible` (khóa: `snapshot_id` + `canonical(e)` + hash cfg)
 
-- [ ] **Step 1 [CODE]:** `test_empty_edit_keeps_plan`: `solve(hospital, None)` có `cost ≤ cost(current_plan)`; `is_fixed_point(hospital, cfg)` là True.
+- [ ] **Step 1 [CODE]:** `test_empty_edit_keeps_plan`: `solve(hospital, None)` có hàm mục tiêu solver (spec 07 §3) ≤ của `current_plan`; `is_fixed_point(hospital, cfg)` là True.
 - [ ] **Step 2 [CODE]:** Một test cho mỗi op: sau `solve`, `check_constraints(p, plan, e) == []`.
-- [ ] **Step 3 [CODE]:** `test_hospital_gold_moves_after_15` (arrival ≥ 15:00); `test_hospital_wrong_keeps_plan` (`plan.digest() == current_plan(p).digest()`).
-- [ ] **Step 4 [CODE]:** Review Focus #3: `test_conflicting_edits_infeasible` — `set_time_window(H, 15:00, 16:00)` + `deadline(H, 14:00)` → `Infeasible`; `precedence(A,B)` + `precedence(B,A)` → `Infeasible`. Không ném exception.
-- [ ] **Step 5 [CODE]:** `test_deterministic`: 3 lần `solve` trên snapshot thật 120 điểm → cùng digest. `test_solve_time`: median ≤ 3 s. `test_current_plan_matches_baseline`: `current_plan(p).arrival == baseline_arrivals(p)`. `test_digest_detects_wait_only_change`: giữ nguyên thứ tự, thêm `set_time_window` có `start` muộn hơn giờ phục vụ hiện tại của một điểm → digest khác `current_plan`; `start` sớm hơn → digest bằng.
+- [ ] **Step 3 [CODE]:** `test_hospital_gold_moves_after_15` (`service_start` của bệnh viện ≥ 15:00); `test_hospital_wrong_keeps_plan` (`plan.digest() == current_plan(p).digest()`).
+- [ ] **Step 4 [CODE]:** Review Focus #3: `test_conflicting_edits_infeasible` — `set_time_window(H, 15:00, 16:00)` + `deadline(H, 14:00)` → `Infeasible`; `precedence(A,B)` + `precedence(B,A)` → `Infeasible(reason="precheck")`. Không ném exception.
+- [ ] **Step 5 [CODE]:** `test_deterministic`: 3 lần `solve` trên snapshot thật 120 điểm, và 3 lần chia cho 4 process chạy song song → cùng digest; không lần nào dừng vì `time_limit_s`. `test_solve_time`: median ≤ 3 s. `test_current_plan_matches_baseline`: `current_plan(p).arrival == baseline_arrivals(p)`. `test_digest_detects_wait_only_change`: giữ nguyên thứ tự, thêm `set_time_window` có `start` muộn hơn giờ phục vụ hiện tại của một điểm → digest khác `current_plan`; `start` sớm hơn → digest bằng.
 - [ ] **Step 6:** FAIL → cài đặt theo spec 07 §2–§4 (warm start bằng `ReadAssignmentFromRoutes`; `GUIDED_LOCAL_SEARCH`; 1 worker). `check_constraints` tính độc lập với OR-Tools, từ `plan.service_start`.
 - [ ] **Step 7:** PASS. Commit `feat(solver): TSPTW re-optimization with edits`.
 
@@ -122,10 +122,10 @@
 - Produces:
   - `HarmConfig(eps_abs=5.0, eps_rel=0.02, tol_min=1)`
   - `HarmLabel` (spec 09 §5)
-  - `label_item(p: RouteSnapshot, gold: EditSet, pred: EditSet | ParseError, solver_cfg, harm_cfg, cache_dir) -> HarmLabel`
+  - `label_item(item_id: str, model: str, p: RouteSnapshot, gold: EditSet, pred: EditSet | ParseError, solver_cfg, harm_cfg, cache_dir) -> HarmLabel` (cost tính bằng phút, trọng số 1; `rule` theo thứ tự R1 > R2 > R3; `late_min`, `tw_violations` theo spec 09 §4)
 
 - [ ] **Step 1 [CODE]:** `test_hospital_is_harm_r1_nonbinding` → `h == 1`, `rule == "R1"`, `nonbinding_error is True`.
-- [ ] **Step 2 [CODE]:** `test_r2_wrong_stop_removed`; `test_r3_excess_cost` (lệnh thêm precedence vô lý gây đi vòng > ε); `test_equivalent_is_harmless`.
+- [ ] **Step 2 [CODE]:** `test_r2_wrong_stop_removed`; `test_r3_excess_cost` (lệnh thêm precedence vô lý gây đi vòng > ε); `test_equivalent_is_harmless`; `test_rule_precedence` (R1 và R3 cùng kích hoạt → `rule = "R1"`); `test_cost_in_minutes` (thêm 1 phút trễ → `delta_cost` tăng 1, không phải 10); `test_late_min_and_tw_violations_zero_when_equal_to_gold`.
 - [ ] **Step 3 [CODE]:** `test_parse_error_not_executed` và `test_infeasible_not_executed` → `executed is False`, `h is None`.
 - [ ] **Step 4:** FAIL → cài đặt theo spec 09 §2–§4. PASS. Commit `feat(harm): plan-level harm labels`.
 

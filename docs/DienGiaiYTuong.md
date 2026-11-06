@@ -1,6 +1,8 @@
 Author: Nguyen Kha An
 
-Tài liệu này diễn giải ngắn gọn ý tưởng nghiên cứu *Know When to Defer: Risk-Controlled Execution of LLM-Translated Dispatcher Edits for Last-Mile Route Re-planning*. Mô tả chính thức, danh mục tài liệu kiểm chứng và kế hoạch thực hiện nằm trong `MoTaDeTai.md`. Cập nhật 05/11/2026 theo kết quả đánh giá tính mới ngày 04/11/2026.
+Tài liệu này diễn giải ngắn gọn ý tưởng nghiên cứu *Know When to Defer: Risk-Controlled Execution of LLM-Translated Dispatcher Edits for Last-Mile Route Re-planning*. Mô tả chính thức, danh mục tài liệu kiểm chứng và kế hoạch thực hiện nằm trong `MoTaDeTai.md`. Cập nhật 05/11/2026 theo kết quả đánh giá tính mới ngày 04/11/2026; đồng bộ 07/11/2026.
+
+> Bản diễn giải để đọc hiểu. Khi lệch với spec (`02-specs/`, `03-experiments/`) hoặc `CONTRACT.md`, spec thắng.
 
 # Tổng quan ý tưởng
 
@@ -26,7 +28,7 @@ Vai trò của từng thành phần:
 - Điểm rủi ro `s`.
 - Kế hoạch mới (nếu lệnh được thực thi).
 
-**Các loại lệnh trong DSL (dự kiến):** `set_time_window(stop, a, b)`, `remove_stop`, `precedence(i, j)`, `driver_end_time(t)`, `avoid_zone_until(z, t)`, `deadline(stop, t)`. (`service_time` đã bỏ 07/11: đổi dữ liệu, không phải ràng buộc.) Danh sách cuối sẽ chốt ở tuần 1 (6–8 loại).
+**Các loại lệnh trong DSL (dự kiến):** `set_time_window(stop, a, b)`, `remove_stop`, `precedence(i, j)`, `driver_end_time(t)`, `avoid_zone_until(z, t)`, `deadline(stop, t)`. (`service_time` đã bỏ 07/11: đổi dữ liệu, không phải ràng buộc.) Sau pilot chỉ có thể bỏ bớt, không thêm.
 
 **Phạm vi MVP:** chỉ chỉnh sửa trên **một tuyến (một xe)** của bộ dữ liệu Amazon Last Mile Routing Research Challenge 2021 (LMRC). Yêu cầu kiểu "chuyển đơn sang tài xế B" nằm ngoài MVP, vì ma trận thời gian di chuyển chỉ có trong nội bộ từng tuyến.
 
@@ -50,7 +52,7 @@ Câu hỏi trung tâm:
 
 - **RQ1.** LLM dịch sai ngữ nghĩa với tần suất bao nhiêu, theo loại lệnh và mức độ mơ hồ? Bao nhiêu phần trăm lỗi gây tác hại vận hành thực sự, bao nhiêu phần trăm vô hại, bao nhiêu phần trăm là lỗi không binding?
 - **RQ2 (trọng tâm).** Các tín hiệu kiểm chứng dựa trên solver có dự báo lỗi tốt hơn các tín hiệu chỉ từ LLM (độ tự tin tự khai, xác suất token, self-consistency, LLM tự chấm lệnh) không?
-- **RQ3.** Với ngưỡng chọn bằng CRC, tỷ lệ "thực thi và gây hại" có giữ ≤ `α` mà vẫn tự động hóa cao không? Một `α` chung có che giấu vi phạm ở những loại lệnh hiếm không? Bảo đảm còn đứng được không khi phân phối yêu cầu thay đổi (điều phối viên mới, cách diễn đạt mới, loại yêu cầu mới)?
+- **RQ3.** Với ngưỡng chọn bằng CRC, tỷ lệ "thực thi và gây hại" có giữ ≤ `α` mà vẫn tự động hóa cao không? Một `α` chung có che giấu vi phạm ở những loại lệnh hiếm không? Bảo đảm còn đứng được không khi phân phối yêu cầu thay đổi (thành phố mới, câu do người thật viết)?
 
 **Tác hại được đánh giá ở mức kế hoạch**, không bằng cách so chuỗi văn bản hay JSON với đáp án. Một kế hoạch do lệnh của LLM tạo ra bị gán nhãn **gây hại** khi:
 
@@ -66,37 +68,27 @@ Một tài xế đang chạy tuyến sau:
 
 | Thứ tự | Điểm giao            | Giờ dự kiến |
 | ------ | -------------------- | ----------: |
-| 1      | Nhà thuốc Minh Châu  |       13:20 |
-| 2      | Bệnh viện An Bình    |       14:10 |
-| 3      | Trường Nguyễn Du     |       14:45 |
-| 4      | Cửa hàng Thành Công  |       15:25 |
+| 1      | Nhà thuốc Cedar  |       13:20 |
+| 2      | Bệnh viện Green Valley    |       14:10 |
+| 3      | Trường Lincoln     |       14:45 |
+| 4      | Cửa hàng Harbor  |       15:25 |
 
-Điều phối viên nhập: *"Bệnh viện An Bình chỉ nhận hàng từ 15 giờ trở đi."*
+Điều phối viên nhập: *"Bệnh viện Green Valley chỉ nhận hàng từ 15 giờ trở đi."*
 
 Lệnh đúng (gold edit):
 
 ```json
-{
-  "operation": "set_time_window",
-  "stop": "Bệnh viện An Bình",
-  "start": "15:00",
-  "end": "<giờ kết thúc ca>"
-}
+{"op": "set_time_window", "stop": "Green Valley Hospital", "start": "15:00", "end": null}
 ```
 
-Yêu cầu không nêu giờ kết thúc, nên cận trên lấy theo quy ước chung của benchmark (ví dụ giờ kết thúc ca). Quy ước này phải cố định khi sinh gold edit để nhãn có tính tái lập.
+Yêu cầu không nêu giờ kết thúc, nên cận trên để `null` (không giới hạn); khi chuẩn hóa, `null` ở cận trên được hiểu là giờ hết ca (spec 06 §5). Quy ước này cố định, nên nhãn tái lập được.
 
-Áp lệnh đúng, solver đổi tuyến thành *Nhà thuốc → Trường Nguyễn Du → Bệnh viện An Bình → Cửa hàng*, bệnh viện được giao lúc khoảng 15:10, đúng yêu cầu.
+Áp lệnh đúng, solver đổi tuyến thành *Nhà thuốc → Trường Lincoln → Bệnh viện Green Valley → Cửa hàng*, bệnh viện được giao lúc khoảng 15:10, đúng yêu cầu.
 
 Nếu LLM hiểu nhầm thành "phải giao trước 15 giờ", nó sẽ tạo lệnh:
 
 ```json
-{
-  "operation": "set_time_window",
-  "stop": "Bệnh viện An Bình",
-  "start": "00:00",
-  "end": "15:00"
-}
+{"op": "set_time_window", "stop": "Green Valley Hospital", "start": null, "end": "15:00"}
 ```
 
 Lệnh này đúng cú pháp, và solver giải thành công. Tuyến cũ giao bệnh viện lúc 14:10, đã thỏa ràng buộc sai, nên solver giữ nguyên kế hoạch và báo khả thi. Thực tế kế hoạch này giao **sớm 50 phút** so với yêu cầu thật, tức vi phạm gold edit, nên được gán nhãn **gây hại**. Đây đúng là trường hợp ràng buộc sai không binding mà phần trên đã nêu.
@@ -110,15 +102,15 @@ Các tín hiệu kiểm chứng (RQ2) có thể bắt được lỗi này. Hai t
 
 Mức độ mơ hồ và loại lệnh được dùng để phân tầng kết quả (RQ1), để hiệu chỉnh ngưỡng theo loại lệnh và để thiết kế thí nghiệm dịch chuyển phân phối (RQ3).
 
-Nếu điểm rủi ro vượt ngưỡng, hệ thống dừng lại và hỏi điều phối viên: *"Bạn muốn Bệnh viện An Bình chỉ được giao từ 15:00 trở đi, đúng không?"*
+Nếu điểm rủi ro vượt ngưỡng, hệ thống dừng lại và hỏi điều phối viên: *"Bạn muốn Bệnh viện Green Valley chỉ được giao từ 15:00 trở đi, đúng không?"*
 
 ## Kiểm soát rủi ro
 
 CRC và các biến thể ở đây là **công cụ chuẩn**, không phải đóng góp mới.
 
 - **Chính – rủi ro kết hợp** `E[1{thực thi ∧ gây hại}] ≤ α`: loss đơn điệu theo ngưỡng, nên áp dụng được CRC.
-- **Theo loại lệnh:** nếu tỷ lệ lỗi gốc `μ` chênh lệch lớn giữa các loại lệnh, hiệu chỉnh ngưỡng riêng cho từng loại (theo hướng Role-Stratified CRC), vì một `α` chung có thể che giấu vi phạm ở loại hiếm nhưng dễ sai.
-- **Dịch chuyển phân phối:** calibrate trên tuyến của một số trạm, kiểm tra trên trạm khác, và báo cáo trung thực khi bảo đảm bị phá vỡ. Chia dữ liệu theo tuyến, vì các yêu cầu trên cùng tuyến phụ thuộc nhau.
+- **Theo loại lệnh:** luôn hiệu chỉnh thêm một ngưỡng riêng cho từng loại lệnh do LLM sinh (theo hướng Role-Stratified CRC), vì một `α` chung có thể che giấu vi phạm ở loại hiếm nhưng dễ sai.
+- **Dịch chuyển phân phối:** lần lượt giữ lại một thành phố, chọn ngưỡng trên các thành phố còn lại và kiểm tra trên thành phố đó, và báo cáo trung thực khi bảo đảm bị phá vỡ. Chia dữ liệu theo tuyến, vì các yêu cầu trên cùng tuyến phụ thuộc nhau.
 - **Rủi ro có điều kiện** `P(gây hại | thực thi) ≤ α`: loss **không đơn điệu**, không áp CRC được (CRC, Prop. 1). Đã cắt khỏi bài (07/11/2026).
 - **Mở rộng (ngoài MVP):** cập nhật ngưỡng online khi con người chỉ kiểm tra ngẫu nhiên một phần lệnh đã thực thi.
 

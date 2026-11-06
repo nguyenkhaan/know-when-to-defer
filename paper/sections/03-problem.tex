@@ -5,10 +5,10 @@
 % Paragraphs: (1) setting and notation, (2) harm, (3) decision rule and risk, (4) coverage bound.
 \section{Problem Formulation}\label{sec:problem}
 
-% --- Paragraph 1: setting and notation (v3, 2026-11-07: gold type c removed, paper uses only \hat{c}) ---
+% --- Paragraph 1: setting and notation (v4, 2026-11-07: gold type c removed; plan times are service times, spec 07 §5) ---
 % Note: "LLM" must be spelled out as "large language model (LLM)" at first use in the Introduction.
 \textit{Setting.} A single vehicle is executing a route. At the current time $t_{\mathrm{now}}$, its plan $P$
-consists of the fixed, already-served stops and the remaining stops in their planned order, each with a scheduled arrival time.
+consists of the fixed, already-served stops and the remaining stops in their planned order, each with a scheduled service time.
 A dispatcher issues a natural-language request $q$ to change $P$. An LLM
 translates $q$ into an edit $\hat{e} = \mathrm{LLM}(P, q)$, a set of one or more typed operations,
 such as a time window, a stop removal, or a precedence constraint (Section~\ref{sec:method}). We
@@ -18,11 +18,11 @@ $\hat{P} = \mathrm{Solve}(P, \hat{e})$. For evaluation, each request also has a 
 and the gold plan $P^\star = \mathrm{Solve}(P, e^\star)$, computed with the same solver
 configuration. Neither $e^\star$ nor $P^\star$ is available at deployment.
 
-% --- Paragraph 2: plan-level harm (v3, 2026-11-07: pointer to the fixed-point filter; spec 09, spec 08 §2.1) ---
+% --- Paragraph 2: plan-level harm (v4, 2026-11-07: fixed-point pointer; cost in plain minutes, spec 09 §2) ---
 \textit{Harm.} We judge an edit by the plan it produces instead of its text.
 Let $V(\hat{P}, e^\star)$ be the largest violation, in minutes, of any constraint of $e^\star$ in $\hat{P}$, such as how early a stop is served before its new window opens.
-Let $S(\cdot)$ be the set of stops a plan visits and $\mathrm{cost}(\cdot)$ the travel time plus a penalty on minutes late
-against time windows.
+Let $S(\cdot)$ be the set of stops a plan visits and $\mathrm{cost}(\cdot)$ its travel time plus its minutes
+late against time windows and past the shift end, all in minutes.
 The executed edit is harmful, $h = 1$, if
 \begin{equation}\label{eq:harm}
   V(\hat{P}, e^\star) > \tau \;\lor\; S(\hat{P}) \neq S(P^\star) \;\lor\;

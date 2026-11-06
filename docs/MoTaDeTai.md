@@ -2,7 +2,7 @@
 
 **Hội nghị mục tiêu:** IEEE MOST 2027, hạn nộp **01/12/2026**, tối đa 8 trang, IEEE format, double-blind.
 **Tài liệu liên quan:** bản diễn giải ngắn `DienGiaiYTuong.md`; PDF tham khảo trong `../reference-documents/`.
-**Cập nhật:** 05/11/2026, đồng bộ kết quả đánh giá tính mới ngày 04/11/2026 (bổ sung CORA, Role-Stratified CRC; định vị lại đóng góp; kế hoạch pilot tuần 1). 06/11/2026: §2.2 đủ 3 luật tác hại R1–R3 theo spec 09; §2.3 thêm điều kiện áp CRC Thm. 1 và cận coverage có `π`; ngưỡng theo loại dùng loại `ĉ` của lệnh LLM sinh.
+**Cập nhật:** 05/11/2026, đồng bộ kết quả đánh giá tính mới ngày 04/11/2026 (bổ sung CORA, Role-Stratified CRC; định vị lại đóng góp; kế hoạch pilot tuần 1). 06/11/2026: §2.2 đủ 3 luật tác hại R1–R3 theo spec 09; §2.3 thêm điều kiện áp CRC Thm. 1 và cận coverage có `π`; ngưỡng theo loại dùng loại `ĉ` của lệnh LLM sinh. 07/11/2026: DSL còn 6 op; cắt LTT; shift theo thành phố; cost của R3 tính bằng phút; ví dụ bệnh viện viết lệnh sai với cận `null`. Khi lệch với spec hoặc `CONTRACT.md`, spec thắng.
 
 ---
 
@@ -47,7 +47,7 @@ Với mỗi mẫu `i`:
 | `P_i` | Kế hoạch tuyến hiện tại (trình tự điểm dừng, giờ dự kiến) |
 | `q_i` | Yêu cầu bằng ngôn ngữ tự nhiên của điều phối viên |
 | `e*_i` | Lệnh chỉnh sửa chuẩn (gold edit), chỉ biết khi xây benchmark |
-| `c_i` | Loại lệnh của `e*_i` (một trong 6–8 loại DSL) |
+| `c_i` | Loại lệnh của `e*_i`; chỉ dùng khi sinh dữ liệu và phân tích trong `runs/`. Paper chỉ dùng `ĉ_i = op_type(ê_i)`, loại của lệnh LLM sinh |
 | `ê_i = LLM(P_i, q_i)` | Lệnh do LLM sinh, theo DSL |
 | `P̂_i = Solver(P_i, ê_i)` | Kế hoạch mới khi áp lệnh của LLM |
 | `P*_i = Solver(P_i, e*_i)` | Kế hoạch tối ưu khi áp gold edit |
@@ -65,7 +65,7 @@ Với mỗi mẫu `i`:
 
 1. **R1 · Vi phạm đáp án:** `P̂_i` vi phạm một ràng buộc của `e*_i` (khung giờ, thứ tự, giờ về kho, khu cấm, điểm phải bỏ…) quá `tol_min`, tức yêu cầu thật không được thực hiện;
 2. **R2 · Sai tập điểm:** tập điểm được ghé trong `P̂_i` khác trong `P*_i` (bỏ nhầm điểm, hoặc bỏ một điểm mà yêu cầu không hề đòi bỏ); hoặc
-3. **R3 · Chi phí vượt:** `cost(P̂_i) − cost(P*_i) > ε`, với `cost` = phút di chuyển + phạt phút trễ, `ε = max(5 phút, 2% · cost(P*_i))`.
+3. **R3 · Chi phí vượt:** `cost(P̂_i) − cost(P*_i) > ε`, với `cost` = phút di chuyển + phút trễ + phút quá ca, tất cả tính bằng phút (trọng số 1, để so được với `ε` tính bằng phút), `ε = max(5 phút, 2% · cost(P*_i))`.
 
 Cần R2 vì nếu thiếu nó, lỗi "bỏ điểm thay vì dời giờ" (loại lỗi nhiều nhất của M1 ở smoke test) bị chấm vô hại: khung giờ của đáp án gắn với một điểm không còn trong tuyến nên R1 không bắt, và tuyến ngắn hơn nên R3 không bắt.
 
@@ -78,7 +78,7 @@ Hệ quả là một lệnh sai nhưng không vi phạm luật nào thì đượ
 | Dạng | Công thức | Công cụ | Vai trò trong bài |
 |---|---|---|---|
 | Rủi ro kết hợp | `E[1{s ≤ λ} · h] ≤ α` | CRC [P11] Thm. 1 (xem ghi chú điều kiện bên dưới) | **Chính** |
-| Rủi ro theo loại lệnh | `E[1{s ≤ λ_ĉ} · h \| x = 1, ĉ] ≤ α` với mỗi loại `ĉ` của **lệnh LLM sinh** | CRC hiệu chỉnh riêng từng nhóm `ĉ`, theo hướng Role-Stratified CRC [P22] | Dùng nếu pilot cho thấy `μ` chênh lệch lớn giữa các nhóm `ĉ` |
+| Rủi ro theo loại lệnh | `E[1{s ≤ λ_ĉ} · h \| x = 1, ĉ] ≤ α` với mỗi loại `ĉ` của **lệnh LLM sinh** | CRC hiệu chỉnh riêng từng nhóm `ĉ`, theo hướng Role-Stratified CRC [P22] | Luôn chạy; T3 có một dòng ở `α_main` (spec 12 §2.2) |
 | Rủi ro có điều kiện | `P(h = 1 \| s ≤ λ) ≤ α` | LTT [P12], cận selective classification [P16] (loss **không đơn điệu**, không dùng CRC được — CRC Prop. 1 [P11]) | **Không làm** (đã cắt 07/11/2026); không báo cáo trong paper |
 
 Phân biệt rủi ro kết hợp với rủi ro có điều kiện, và kiểm tra bảo đảm dưới shift, **đã có trong CORA** [P21] (chỉ số HR và mHR, weighted CRC). Đề tài dùng các công cụ này để đánh giá, không claim mới. Báo cáo sai loại bảo đảm vẫn là lỗi reviewer dễ bắt nhất.
@@ -114,9 +114,9 @@ Từ đó suy ra tỷ lệ tự động hóa tối đa có thể đạt, dùng l
 
 | RQ | Câu hỏi | Giả thuyết (cần kiểm chứng bằng thực nghiệm) |
 |---|---|---|
-| **RQ1** | Trên tuyến last-mile thực, LLM dịch sai ngữ nghĩa yêu cầu sửa tuyến với tần suất bao nhiêu, theo loại lệnh và mức mơ hồ? Bao nhiêu lỗi gây tác hại thực sự, bao nhiêu lỗi không binding (kế hoạch không đổi dù lệnh sai)? | **H1:** Tỷ lệ lỗi có hại tăng theo mức mơ hồ. Ở mức mơ hồ 2–3 và yêu cầu ghép, mô hình mạnh nhất vẫn có `μ` ≥ 3–5%, và `μ` chênh lệch rõ giữa các loại lệnh. Một phần đáng kể lỗi là vô hại, nên nhãn mức kế hoạch khác nhãn mức chuỗi ký tự. **Đây là giả thuyết rủi ro nhất** (xem Mục 6). |
+| **RQ1** | Trên tuyến last-mile thực, LLM dịch sai ngữ nghĩa yêu cầu sửa tuyến với tần suất bao nhiêu, theo mức mơ hồ? Bao nhiêu lỗi gây tác hại thực sự, bao nhiêu lỗi không binding (kế hoạch không đổi dù lệnh sai)? | **H1:** Tỷ lệ lỗi có hại tăng theo mức mơ hồ. Ở mức mơ hồ 2–3 và yêu cầu ghép, mô hình mạnh nhất vẫn có `μ` ≥ 3–5%. Một phần đáng kể lỗi là vô hại, nên nhãn mức kế hoạch khác nhãn mức chuỗi ký tự. **Đây là giả thuyết rủi ro nhất** (xem Mục 6). |
 | **RQ2** *(trọng tâm)* | Tín hiệu kiểm chứng dựa trên phản hồi solver có dự báo lỗi có hại tốt hơn các tín hiệu chỉ từ LLM (độ tự tin tự khai, log-prob, self-consistency, LLM tự chấm lệnh) không? | **H2:** Ít nhất một tín hiệu dựa trên solver (probe binding, độ thay đổi kế hoạch) có AUROC cao hơn rõ so với verbalized confidence, đặc biệt trên nhóm lỗi không binding. Kết hợp các tín hiệu cho đường risk–coverage tốt hơn chỉ dùng tín hiệu từ LLM. |
-| **RQ3** | Với ngưỡng chọn bằng CRC, rủi ro có giữ ≤ `α` mà vẫn tự động hóa cao không? Một `α` chung có che giấu vi phạm ở loại lệnh hiếm không? Bảo đảm còn giữ được khi phân phối yêu cầu đổi không? | **H3:** Trên split ngẫu nhiên, tần suất vi phạm `α` qua 100 split nằm trong mức lý thuyết cho phép. Ngưỡng chung có thể vi phạm `α` ở loại lệnh có `μ` cao; hiệu chỉnh theo loại khắc phục được với chi phí coverage. Trên split theo loại yêu cầu, bảo đảm có thể bị phá vỡ. |
+| **RQ3** | Với ngưỡng chọn bằng CRC, rủi ro có giữ ≤ `α` mà vẫn tự động hóa cao không? Một `α` chung có che giấu vi phạm ở loại lệnh hiếm không? Bảo đảm còn giữ được khi phân phối yêu cầu đổi không? | **H3:** Trên split ngẫu nhiên, rủi ro thực tế **trung bình** qua 100 split ≤ `α` (CRC chỉ bảo đảm trung bình; tần suất vi phạm chỉ báo cáo). Ngưỡng chung có thể vi phạm `α` ở nhóm lệnh `ĉ` có `μ` cao; hiệu chỉnh theo nhóm khắc phục được với chi phí coverage. Khi giữ lại một thành phố (leave-one-city-out), bảo đảm có thể bị phá vỡ. |
 
 ---
 
@@ -160,7 +160,7 @@ Dùng DSL thay code tự do để thu hẹp bề mặt lỗi và để chấm đ
    - **Mức 3 – Ghép hoặc ẩn ý:** một nửa là nhiều yêu cầu trong một câu (lệnh ghép 2–3 op), một nửa là một yêu cầu nêu qua lý do thay vì nói thẳng.
    Dồn phần lớn mẫu vào mức 2–3 và yêu cầu ghép, vì ở mức 1 LLM gần như không sai.
 4. Kiểm duyệt thủ công khoảng 300 câu, báo cáo inter-annotator agreement.
-5. Quy mô: 6–8 loại lệnh × 3 mức mơ hồ (20/40/40), bộ chính ~3.000 yêu cầu, trong đó ~600 lệnh ghép; mỗi loại lệnh ≥ 250 câu một op (spec 08 §3).
+5. Quy mô: tối đa 6 loại lệnh × 3 mức mơ hồ (20/40/40), bộ chính ~3.000 yêu cầu, trong đó ~600 lệnh ghép; mỗi loại lệnh ≥ 250 câu một op (spec 08 §3).
 
 Gold edit có trước câu chữ, nên nhãn đúng **tái lập được** mà không cần người gán nhãn cho từng mẫu.
 
@@ -171,7 +171,7 @@ Gold edit có trước câu chữ, nên nhãn đúng **tái lập được** mà
 | Probe làm ràng buộc binding *(solver)* | Dựng biến thể instance hoặc so các diễn giải ứng viên sao cho ràng buộc trở nên chặt, rồi xem kế hoạch có phân biệt được các cách hiểu không | Đảo chiều, thừa hoặc thiếu ràng buộc không binding | [P3] §1; [P8] §5.3 (đánh giá trên hai horizon để lộ lỗi không hiện ra trên horizon nhỏ); [P7] §3.1 |
 | Độ thay đổi kế hoạch so với phạm vi yêu cầu *(solver)* | So mức thay đổi của `P̂` so với `P` (logical edits, tỷ lệ giữ nguyên, độ lệch giờ, km) với phạm vi mà câu yêu cầu đề cập | Lệnh không có hiệu lực (như ví dụ bệnh viện), lệnh tác động sai điểm | [P10] §2.3 |
 | Đồng thuận nhiều mẫu (self-consistency) *(LLM)* | Lấy k lệnh DSL, chuẩn hóa JSON, đo tỷ lệ khớp ngữ nghĩa với lệnh đa số | Mơ hồ, chọn nhầm điểm | [P18], [P14] |
-| Dịch ngược (back-translation) *(LLM)* | Chuyển `ê` về câu tự nhiên, kiểm tra khớp nghĩa với `q` | Đảo chiều, sai điểm | Đề xuất của đề tài |
+| Dịch ngược (back-translation) *(LLM)* | Chuyển `ê` về câu tự nhiên, kiểm tra khớp nghĩa với `q` | Đảo chiều, sai điểm | Baseline L2 (spec 11 §3) |
 | Baseline: độ tự tin tự khai, log-prob | Lấy trực tiếp từ LLM | — | [P19] |
 | Baseline: LLM tự chấm `(q, ê)` không dùng solver | LLM đánh giá lệnh có đúng ý không, chỉ từ câu và lệnh | — | Tương ứng "guardian" chấm theo hành động của CORA [P21], nhưng không cần huấn luyện |
 
@@ -180,28 +180,28 @@ Tín hiệu đánh dấu *(solver)* là phần đóng góp chính, không cần 
 ### 4.5. Kiểm soát rủi ro
 
 - **(i) Chính – rủi ro kết hợp:** chọn `λ` bằng CRC [P11] Thm. 1.
-- **(ii) Theo loại lệnh:** nếu pilot cho thấy `μ` chênh lệch lớn giữa các loại, hiệu chỉnh `λ_ĉ` riêng cho từng loại `ĉ` của lệnh LLM sinh [P22] (xem §2.3). So sánh với ngưỡng chung về tỷ lệ vi phạm từng loại và coverage. Đây cũng là một điểm khác so với CORA.
-- **(iii) Dịch chuyển phân phối:** calibrate trên tuyến của một số trạm, test trên trạm khác (spec 13 §8). Chỉ mô tả, không sửa.
+- **(ii) Theo loại lệnh:** luôn hiệu chỉnh `λ_ĉ` riêng cho từng loại `ĉ` của lệnh LLM sinh [P22] (xem §2.3), song song với ngưỡng chung; so sánh rủi ro từng nhóm và coverage (spec 12 §2.2). Đây cũng là một điểm khác so với CORA.
+- **(iii) Dịch chuyển phân phối:** leave-one-city-out trên 5 thành phố: học và calibrate trên 4 thành phố, test trên thành phố còn lại (spec 13 §8). Chỉ mô tả, không sửa.
 - **(iv) Rủi ro có điều kiện (LTT):** đã cắt 07/11/2026 để paper tập trung vào tín hiệu solver.
 - **(Mở rộng, ngoài MVP)** Cập nhật ngưỡng online khi người chỉ kiểm tra ngẫu nhiên một phần lệnh đã thực thi; ACI [P17] là baseline; khi người chỉ kiểm tra ngẫu nhiên thì cần biến thể ACI cho phản hồi gián đoạn (sẽ tra cứu khi làm phần mở rộng). Có thể dùng bộ mô phỏng stakeholder có utility ẩn của [P9] để mô phỏng điều phối viên trả lời câu hỏi xác nhận, đo giá trị đầu–cuối của việc chuyển duyệt.
 
 ### 4.6. Thiết lập thí nghiệm
 
 - **LLM:** hai mô hình dịch, gọi qua API vì máy không có GPU (spec 10 §2): M1 mô hình mở nhỏ `qwen/qwen3.5-9b` (có log-prob, thường sai nhiều hơn) và M2 mô hình mạnh chi phí thấp `deepseek/deepseek-v4-flash`.
-- **Chia dữ liệu:** 100 lần chia calibration/test ngẫu nhiên **theo tuyến**, cộng một split theo trạm (shift).
+- **Chia dữ liệu:** 100 lần chia calibration/test ngẫu nhiên **theo tuyến**, cộng leave-one-city-out cho shift (5 thành phố).
 - **Baseline:** luôn thực thi (trùng với validator chỉ kiểm tra khả thi của ReOpt-LLM [P4]); độ tự tin tự khai; log-prob; chỉ self-consistency; LLM tự chấm không dùng solver (L5), LLM chấm có xem thay đổi kế hoạch (L6); bộ chấm học G1 (spec 13 §12).
-- **Chỉ số:** tỷ lệ tự động hóa (coverage), so với mức tối đa lý thuyết ở Mục 2.3; tỷ lệ thực thi-gây-hại thực tế so với `α`, tổng và **theo từng loại lệnh**, kèm tần suất vi phạm qua 100 split; đường risk–coverage và AURC [P16]; chi phí tác hại (km thêm, phút trễ, số khung giờ bị vi phạm); độ lệch so với kế hoạch cũ.
-- **Ablation (bắt buộc):** bỏ lần lượt từng tín hiệu, và so "chỉ tín hiệu LLM" với "LLM + tín hiệu solver", báo riêng trên nhóm lỗi không binding. Đây là bằng chứng rằng chính tín hiệu đặc thù miền tạo ra khác biệt, chứ không phải bản thân cơ chế conformal.
+- **Chỉ số** (spec 13 §14): tỷ lệ tự động hóa (coverage), so với mức tối đa lý thuyết ở Mục 2.3; rủi ro kết hợp thực tế so với `α`, tổng và **theo nhóm `ĉ`**, kèm tần suất vi phạm qua 100 split; đường risk–coverage và AURC [P16]; tác hại tránh được trên 1.000 yêu cầu (số lần thực thi gây hại, phút trễ, khung giờ bị vi phạm).
+- **Ablation (bắt buộc):** bỏ lần lượt từng tín hiệu, và so "chỉ tín hiệu LLM" với "LLM + tín hiệu solver", báo riêng AUROC trong nhóm kế hoạch không đổi (`P̂ = P`), nơi tín hiệu S1 là hằng số nên kết quả phải đến từ probe. Đây là bằng chứng rằng chính tín hiệu đặc thù miền tạo ra khác biệt, chứ không phải bản thân cơ chế conformal.
 
 ### 4.7. Ví dụ
 
-Tuyến: Nhà thuốc (13:20) → **Bệnh viện (14:10)** → Trường học (14:45) → Cửa hàng (15:25). Yêu cầu: *"Bệnh viện An Bình chỉ nhận hàng từ 15 giờ trở đi."*
+Tuyến: Nhà thuốc (13:20) → **Bệnh viện (14:10)** → Trường học (14:45) → Cửa hàng (15:25). Yêu cầu: *"Bệnh viện Green Valley chỉ nhận hàng từ 15 giờ trở đi."*
 
-- **Gold edit:** `set_time_window(Bệnh viện, 15:00, <giờ kết thúc ca>)`. Solver đổi tuyến, giao bệnh viện lúc khoảng 15:10.
-- **LLM dịch sai:** `set_time_window(Bệnh viện, 00:00, 15:00)`. Kế hoạch cũ (14:10) đã thỏa ràng buộc sai, nên solver giữ nguyên và báo khả thi. Kết quả vi phạm gold edit 50 phút, tức `h = 1`.
+- **Gold edit:** `set_time_window(Bệnh viện, 15:00, null)` (`null` = không giới hạn, khi chuẩn hóa là giờ hết ca). Solver đổi tuyến, giao bệnh viện lúc khoảng 15:10.
+- **LLM dịch sai:** `set_time_window(Bệnh viện, null, 15:00)`. Kế hoạch cũ (14:10) đã thỏa ràng buộc sai, nên solver giữ nguyên và báo khả thi. Kết quả vi phạm gold edit 50 phút, tức `h = 1`.
 - **Vì sao chỉ kiểm tra khả thi hay chấm từng hành động không bắt được:** lệnh đúng cú pháp, đúng tên điểm dừng, solver giải thành công, kế hoạch không đổi. Tác hại chỉ lộ ra khi so kế hoạch với ý định thật.
 - **Tín hiệu bắt được lỗi:** câu yêu cầu nói đến giờ của bệnh viện nhưng kế hoạch không đổi (độ thay đổi kế hoạch); probe đặt bệnh viện vào thời điểm sau 15:00 cho thấy hai cách hiểu cho kế hoạch khác nhau; dịch ngược ra "giao trước 15:00", ngược nghĩa với câu gốc.
-- Khi `s > λ`, hệ thống hỏi: *"Bạn muốn Bệnh viện An Bình chỉ được giao từ 15:00 trở đi, đúng không?"*
+- Khi `s > λ`, hệ thống hỏi: *"Bạn muốn Bệnh viện Green Valley chỉ được giao từ 15:00 trở đi, đúng không?"*
 
 ---
 
@@ -220,8 +220,8 @@ Tính mới ở **mức bài toán** vẫn còn, nhưng khung "lớp CRC chặn 
 | Định nghĩa bài toán + loss tác hại mức kế hoạch | Còn mới | Đóng góp 1 |
 | Benchmark sửa tuyến trên LMRC, gold sinh trước câu | Còn mới | Đóng góp 2 |
 | Tín hiệu solver không cần gold (probe binding, độ thay đổi kế hoạch) | Còn mới, phải chứng minh bằng ablation | **Đóng góp chính** (3) |
-| CRC/LTT, rủi ro kết hợp vs có điều kiện, kiểm tra dưới shift | Đã có trong CORA [P21] | Thành phần đánh giá, trích CORA |
-| Một `α` chung cho mọi loại lệnh | Bị phản biện bởi Role-Stratified CRC [P22] | Hiệu chỉnh theo loại lệnh nếu `μ` chênh lệch |
+| CRC, rủi ro kết hợp, kiểm tra dưới shift | Đã có trong CORA [P21] | Thành phần đánh giá, trích CORA |
+| Một `α` chung cho mọi loại lệnh | Bị phản biện bởi Role-Stratified CRC [P22] | Luôn hiệu chỉnh thêm theo nhóm `ĉ` |
 
 ### 5.2. Các vấn đề đã được giải quyết, phương pháp và hạn chế còn lại
 
@@ -241,7 +241,7 @@ Tính mới ở **mức bài toán** vẫn còn, nhưng khung "lớp CRC chặn 
 2. **Loss:** **tác hại vận hành ở mức kế hoạch** (vi phạm ràng buộc gold, chi phí vượt `ε`), thay cho trùng giá trị mục tiêu [P5], Pass@1 [P3], update correctness [P4], "câu trả lời sai" [P13], [P14], hay tác hại gán theo từng hành động [P21].
 3. **Lỗi không binding:** lệnh sai có thể khả thi và không làm kế hoạch thay đổi, nên mọi bộ chấm chỉ nhìn vào lệnh hoặc hành động đều khó bắt. Đề tài đo và phân tích riêng nhóm lỗi này.
 4. **Tín hiệu:** điểm rủi ro dựa trên **phản hồi của solver**, không cần gold lúc triển khai (Constraint Injection [P3] cần gold) và không cần huấn luyện một mô hình chấm lớn (guardian của CORA [P21] cần nhãn để fine-tune).
-5. **Hiệu chỉnh theo loại lệnh** (nếu pilot cho thấy `μ` chênh lệch): áp lập luận của [P22] cho lệnh chỉnh sửa tối ưu.
+5. **Hiệu chỉnh theo loại lệnh** (luôn chạy, song song với ngưỡng chung): áp lập luận của [P22] cho lệnh chỉnh sửa tối ưu.
 
 ### 5.4. Phân loại mức độ chắc chắn của đóng góp
 
@@ -291,7 +291,7 @@ Pilot khoảng 300 yêu cầu × 2 LLM:
 - [ ] Báo `μ` riêng cho từng loại lệnh DSL, không chỉ một con số chung.
 - [ ] Đo riêng tỷ lệ lỗi không binding (kế hoạch không đổi dù lệnh sai), vì đây là phần tín hiệu solver phải bắt được.
 - [ ] Dùng cận ở Mục 2.3 để tính trước tỷ lệ tự động hóa tối đa có thể đạt với mỗi `α`.
-- [ ] Nếu `μ` chênh lệch lớn giữa các loại lệnh: thử hiệu chỉnh CRC theo loại lệnh [P22].
+- [ ] Đếm số câu thực thi được theo nhóm `ĉ` để biết nhóm nào sẽ đủ `min_n(α)` ở bộ chính (CRC theo nhóm luôn chạy, spec 12 §2.2).
 
 **Go** khi cả hai điều kiện sau đúng:
 
@@ -335,7 +335,7 @@ Pilot khoảng 300 yêu cầu × 2 LLM:
 ## 8. Từ khóa
 
 - **Chính:** LLM-assisted dispatching; natural-language route editing; last-mile delivery; route re-optimization; conformal risk control; selective execution / abstention; human-in-the-loop optimization.
-- **Phương pháp:** solver-grounded verification; constraint probing; non-binding constraint errors; stratified conformal risk control; risk-controlled agents; Learn-then-Test; selective classification; risk–coverage; self-consistency; verbalized confidence; distribution shift; exchangeability.
+- **Phương pháp:** solver-grounded verification; constraint probing; non-binding constraint errors; stratified conformal risk control; risk-controlled agents; selective classification; risk–coverage; self-consistency; verbalized confidence; distribution shift; exchangeability.
 - **Miền và dữ liệu:** TSPTW; vehicle routing with time windows; Amazon Last Mile Routing Research Challenge; dispatcher; plan stability.
 - **Gợi ý chuỗi tìm kiếm:** `("large language model" OR LLM) AND (dispatch* OR "route re-optimization" OR "re-planning") AND (verification OR "risk control" OR abstention)`; `"conformal risk control" AND (optimization OR planning OR agent) AND LLM`; `"natural language" AND "vehicle routing" AND (constraint OR edit)`.
 
@@ -396,7 +396,7 @@ Cách 1 không bắt được lỗi ngữ nghĩa. Cách 2 cần gold nên không
 - Chưa có công trình nào cho lớp tương tác điều phối viên ↔ solver trong định tuyến [P2, tr.13–14].
 - Các bảo đảm conformal hiện có là marginal và giả định exchangeable [P13], [P15], [P17]; một ngân sách `α` chung có thể che giấu vi phạm ở nhóm hiếm [P22].
 
-**(d) Đề tài khác ở đâu.** Đề tài ghép hai nửa còn rời nhau: **tín hiệu từ solver** (ý tưởng probe của [P3], [P7], [P8], nhưng bỏ phụ thuộc vào gold) và **bảo đảm thống kê** (CRC/LTT [P11], [P12], dùng như công cụ). Ghép như vậy trên một **đối tượng rủi ro mới**: lệnh sửa kế hoạch tuyến đang chạy được thực thi nhưng gây hại vận hành, với tác hại chỉ nhìn thấy ở mức kế hoạch. Chi tiết ở Mục 5.3.
+**(d) Đề tài khác ở đâu.** Đề tài ghép hai nửa còn rời nhau: **tín hiệu từ solver** (ý tưởng probe của [P3], [P7], [P8], nhưng bỏ phụ thuộc vào gold) và **bảo đảm thống kê** (CRC [P11], dùng như công cụ). Ghép như vậy trên một **đối tượng rủi ro mới**: lệnh sửa kế hoạch tuyến đang chạy được thực thi nhưng gây hại vận hành, với tác hại chỉ nhìn thấy ở mức kế hoạch. Chi tiết ở Mục 5.3.
 
 **(e) Đóng góp thực sự và bằng chứng.** Đóng góp nằm ở **mức bài toán** và ở **thiết kế điểm rủi ro đặc thù miền từ phản hồi solver**; phần CRC chỉ là công cụ đánh giá. Bằng chứng cho tính mới hiện mới là bằng chứng về **gap** (các trích dẫn tường minh ở trên). Bằng chứng về **giá trị** của đóng góp (H1–H3) chỉ có sau thực nghiệm. Điểm cần cảnh giác nhất: CORA [P21] đã làm khung CRC chặn hành động "thực thi ∧ gây hại", kèm HR/mHR và weighted CRC; dạng rủi ro kết hợp gần như trùng [P14, Eq. (1)]; cơ chế hỏi người trùng [P13]. Vì vậy phần mới phải được chứng minh bằng ablation tín hiệu solver và bằng định nghĩa tác hại mức kế hoạch.
 
@@ -406,6 +406,6 @@ Cách 1 không bắt được lỗi ngữ nghĩa. Cách 2 cần gold nên không
 
 Dùng cho mục Related Work của paper. Mã [P#] cần thay theo file `.bib`.
 
-> **Risk-controlled execution of LLM actions.** Conformal risk control (CRC) [P11] and Learn-then-Test [P12] provide distribution-free bounds on expected loss and have been used to let LLM systems abstain or ask for help: KnowNo asks a human when the conformal prediction set over candidate plans is not a singleton [P13], and conformal abstention bounds the rate of answers that are both emitted and wrong [P14]. Closest to our setting, CORA calibrates an execute/abstain threshold on a learned, action-conditional risk score so that the rate of executed harmful GUI actions stays below a user-set budget, and adds weighted calibration for covariate shift [P21]. Role-stratified CRC further shows that a single action-level budget can hide violations concentrated in rare argument roles of structured tool calls [P22]. These works control risk over actions whose harm is judged directly from the action and its context. In route re-planning, by contrast, a semantically wrong edit can be syntactically valid, solver-feasible, and even leave the plan unchanged when the mistranslated constraint is non-binding; its harm is visible only at the level of the resulting plan. We therefore define harm on the re-optimized plan and build risk scores from solver feedback that require no gold edit at deployment, and we use CRC/LTT as calibration tools rather than as a contribution.
+> **Risk-controlled execution of LLM actions.** Conformal risk control (CRC) [P11] and related methods [P12] provide distribution-free bounds on expected loss and have been used to let LLM systems abstain or ask for help: KnowNo asks a human when the conformal prediction set over candidate plans is not a singleton [P13], and conformal abstention bounds the rate of answers that are both emitted and wrong [P14]. Closest to our setting, CORA calibrates an execute/abstain threshold on a learned, action-conditional risk score so that the rate of executed harmful GUI actions stays below a user-set budget, and adds weighted calibration for covariate shift [P21]. Role-stratified CRC further shows that a single action-level budget can hide violations concentrated in rare argument roles of structured tool calls [P22]. These works control risk over actions whose harm is judged directly from the action and its context. In route re-planning, by contrast, a semantically wrong edit can be syntactically valid, solver-feasible, and even leave the plan unchanged when the mistranslated constraint is non-binding; its harm is visible only at the level of the resulting plan. We therefore define harm on the re-optimized plan and build risk scores from solver feedback that require no gold edit at deployment, and we use CRC as a calibration tool rather than as a contribution.
 
 > **LLM-guided re-optimization.** ReOpt-LLM translates user prompts into typed patches of a deployed MIP and re-solves with warm starts [P4]; its validator checks feasibility but explicitly performs no separate semantic check of intent. Constraint injection exposes over-constraints and omissions that survive objective-equivalence checks, but its verifier needs the ground-truth model [P3]. MeetMate reports LLM-coded scheduling constraints with inverted inequalities that only surface over a longer horizon [P8]. Our probes build on these observations without access to gold.

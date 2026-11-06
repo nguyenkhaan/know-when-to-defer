@@ -4,7 +4,9 @@
 
 **Goal:** Từ các bản nháp có sẵn, hoàn thành paper 8 trang: Results, Limitations, Conclusion, Introduction bản cuối, Abstract, tiêu đề. Có 2 lượt đọc soát và 1 ngày dự phòng.
 
-**Spec:** `docs/01-research/03-paper-outline.md`, `docs/01-research/02-research-questions-and-claims.md`, `paper/NOTES.md`
+**Spec:** `docs/CONTRACT.md` (§4 "Reported results"), `debit-last-submit.md`, `docs/01-research/03-paper-outline.md`, `docs/01-research/02-research-questions-and-claims.md`, `paper/NOTES.md`
+
+**Mỗi step viết paper (5.1–5.4):** trước khi viết, liệt kê các nợ mở thuộc phạm vi section trong `debit-last-submit.md` và báo người phụ trách; viết xong, trả nợ (xóa nợ đã trả, ghi quyết định vào `docs/CONTENT.md`) và ghi nợ mới nếu có (`CLAUDE.md`).
 
 ## Vấn đề cần giải quyết
 
@@ -34,7 +36,7 @@ Abstract và Introduction phải viết **sau** Results để khớp với nhữ
 Mỗi đoạn mở đầu bằng câu kết luận, sau đó mới đến số liệu (macro từ `paper/macros/results.tex`):
 
 - [ ] **E1 · LLM sai bao nhiêu (RQ1):** `μ` theo mức mơ hồ (T1); tỷ lệ lỗi vô hại (lý do cần nhãn mức kế hoạch); tỷ lệ lỗi không binding (lý do kiểm tra khả thi là không đủ).
-- [ ] **E2 + E4 · Tín hiệu nào hiệu quả (RQ2, đóng góp chính):** T2 + F2. Thêm tín hiệu solver làm AURC/coverage cải thiện bao nhiêu so với `LLM`; so với bộ chấm học `LEARNED` và judge xem thay đổi kế hoạch `L6`; mức cải thiện trên nhóm không binding.
+- [ ] **E2 + E4 · Tín hiệu nào hiệu quả (RQ2, đóng góp chính):** T2 + F2. Đúng ba phép so sánh chính, mỗi phép viết theo luật ở spec 13 §14.6: `ALL` vs `LLM` (AUROC + coverage ở `α_main`), `ALL` vs `LEARNED` (AURC), `SOLVER` vs `L6`; AUROC trong nhóm kế hoạch không đổi (`P̂ = P`), một câu.
 - [ ] **E7 · Lỗi thật nào được bắt:** T4 + 1 ví dụ ngắn. Loại lỗi nào tín hiệu solver bắt tốt, loại nào không.
 - [ ] **E3 · CRC và giá trị vận hành (RQ3):** T3. Giữ α trên split ngẫu nhiên; ngưỡng chung vi phạm ở loại nào; hiệu chỉnh theo loại mất bao nhiêu coverage; **tác hại được tránh** trên 1.000 yêu cầu ở `α_main`.
 - [ ] **E5 + E6 · Shift và câu người viết:** 2–3 câu cùng dòng shift theo trạm và dòng human trong T2, T3; theo từng người viết một câu. Nói thẳng khi bảo đảm bị vỡ.

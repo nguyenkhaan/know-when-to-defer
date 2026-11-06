@@ -1,6 +1,6 @@
 # 10 · LLM Translation
 
-> Status: Draft v0.3 · Updated 2026-11-05 · v0.3: final roster on OpenRouter (§2). v0.2: 5-model roster (medium translator dropped), cost controls, all models via API (no GPU).
+> Status: Draft v0.4 · Updated 2026-11-07 · v0.4: prompt uses `editset_json_schema()` (spec 06 §6). · v0.3: final roster on OpenRouter (§2). v0.2: 5-model roster (medium translator dropped), cost controls, all models via API (no GPU).
 
 ## 1. Purpose
 
@@ -28,7 +28,7 @@ Dropped vs v0.1: the optional medium translator (Qwen2.5-14B). Rules: the judge 
 
 ```
 SYSTEM: You convert a dispatcher's request into route edits.
-Output ONLY JSON matching this schema: <EditSet.json_schema()>
+Output ONLY JSON matching this schema: <editset_json_schema()>
 Use stop names exactly as listed. Times are local HH:MM.
 Add "confidence": 0-100 = how sure you are the edits match the request.
 

@@ -71,9 +71,7 @@ def _sentence(edit: Edit, p: RouteSnapshot) -> str:
         case DriverEndTime():
             return f"Return to the depot by {clock_str(p, edit.time)}."
         case AvoidZoneUntil():
-            return (
-                f"Do not arrive at any stop in zone {edit.zone} before {clock_str(p, edit.time)}."
-            )
+            return f"Do not serve any stop in zone {edit.zone} before {clock_str(p, edit.time)}."
     raise AssertionError(f"unhandled op: {edit.op}")
 
 

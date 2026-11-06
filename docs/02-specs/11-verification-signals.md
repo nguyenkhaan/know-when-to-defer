@@ -1,6 +1,6 @@
 # 11 · Verification Signals & Risk Score
 
-> Status: Draft v0.5 · Updated 2026-11-07 · v0.5: no counter-reading for the dropped `service_time` op. v0.4: `ALL+` dropped; paper T2 shows the 5 score sets and S1–S5, leave-one-out in one sentence (lean paper scope). · v0.3: "plan unchanged" / digest equality in S3–S4 uses the digest of spec 07 §5 (order + service-start times). · **Main contribution (C3).** Solver signals are the novelty; LLM signals and the learned guardian are baselines. v0.2 adds L6 and G1. Signal definitions are **frozen after the pilot** (spec 13 §3).
+> Status: Draft v0.7 · Updated 2026-11-07 · v0.7: S5 category lexicon; open bounds stay open in counter-readings; zone distance metric. · v0.6: S2, S3 counter-readings and S5 fully specified (deterministic, ready to freeze on 10/11); L2 uses `render_editset_en`. · v0.5: no counter-reading for the dropped `service_time` op. v0.4: `ALL+` dropped; paper T2 shows the 5 score sets and S1–S5, leave-one-out in one sentence (lean paper scope). · v0.3: "plan unchanged" / digest equality in S3–S4 uses the digest of spec 07 §5 (order + service-start times). · **Main contribution (C3).** Solver signals are the novelty; LLM signals and the learned guardian are baselines. v0.2 adds L6 and G1. Signal definitions are **frozen after the pilot** (spec 13 §3).
 
 ## 1. Purpose
 
@@ -10,30 +10,32 @@ For each item, compute features that predict `h = 1` **without** gold, then comb
 
 ## 2. Solver-grounded signals (S*)
 
-Let `ê` = greedy edit, `P̂ = solve(P, ê)`, and `ref(ê)` = stops/zones referenced by `ê`.
+Let `ê` = greedy edit, `P̂ = solve(P, ê)`, and `ref(ê)` = the stops named by `ê` plus the remaining stops of every zone named by `ê` (`driver_end_time` names none). All signals are computed on the canonical form of `ê` (spec 06 §5). Times are compared on `service_start` (spec 07 §5).
 
 | ID | Name | Computation | Catches |
 |---|---|---|---|
-| S1 | `edit_nonbinding` | 1 if the **current plan `P` already satisfies `ê`** (no change needed), else 0 | edits that do nothing, as in the hospital case |
-| S2 | `change_magnitude` | `P̂.changed_positions`, `max |Δarrival|` over `ref(ê)`, `Δtravel_min` vs `P` (3 numbers) | no-op or over-reaching edits |
-| S3 | `flip_exposes` | Build rule-based **counter-readings** of `ê` (§2.1). 1 if `ê` is non-binding **but** at least one counter-reading is binding (would change the plan: digest differs, spec 07 §5), else 0. Also the fraction of counter-readings whose plan differs from `P̂` | direction flips, wrong stop, non-binding errors |
-| S4 | `plan_disagreement` | Solve each sampled edit; `1 − share of samples whose plan digest == P̂.digest` (digest: order + service times, spec 07 §5); plus mean `|Δcost|` vs `P̂` | ambiguity visible **in plans**, not in JSON |
-| S5 | `scope_mismatch` | Stops/categories/zones **mentioned in `q`** (string match on display names, categories, zone words) vs `ref(ê)`: Jaccard distance | wrong stop, missing part of compound request |
+| S1 | `edit_nonbinding` | 1 if the **current plan `P` already satisfies `ê`** (`check_constraints(P, current_plan(P), ê) == []`, Task 1.4), else 0 | edits that do nothing, as in the hospital case |
+| S2 | `change_magnitude` | 3 numbers vs the current plan `P`: `S2_changed` = `P̂.changed_positions`; `S2_dmax` = max `|Δservice_start|` (min) over `ref(ê)` ∩ `P̂`, and `|Δend_time|` if `ê` has `driver_end_time` (0 if empty); `S2_dtravel` = `travel_min(P̂) − travel_min(P)` | no-op or over-reaching edits |
+| S3 | `flip_exposes` | Build rule-based **counter-readings** of `ê` (§2.1). `S3_flag` = 1 if `P̂.digest == P.digest` **and** at least one counter-reading gives a different digest (or is `Infeasible`), else 0. `S3_frac` = share of counter-readings whose plan digest differs from `P̂` (`Infeasible` counts as different); 0 if there is none | direction flips, wrong stop, non-binding errors |
+| S4 | `plan_disagreement` | Solve each of the k samples; `S4_disagree` = `1 − share of samples whose plan digest == P̂.digest` (parse errors and `Infeasible` count as disagreeing; all k failing ⇒ 1); `S4_dcost` = mean `|cost − cost(P̂)|` (harm `cost` of spec 09 §2, no gold needed) over feasible samples, 0 if none | ambiguity visible **in plans**, not in JSON |
+| S5 | `scope_mismatch` | `M` = `mentions(q, P)`: remaining stops whose display name occurs in `q` (after `normalize_name`, whole words), all remaining stops of a category mentioned in `q` (category words = every category name except `residence` and `depot`, plus its name suffixes in `kwd.data.names.SUFFIXES`, e.g. shop/store/market; singular or plural; whole words, case-insensitive), and all remaining stops of a zone id in `q` (whole token, case-insensitive). `S5 = 1 − |M ∩ ref(ê)| / |M ∪ ref(ê)|`; 0 if both are empty | wrong stop, missing part of compound request |
 
 ### 2.1 Counter-readings (for S3)
 
-Derived from `ê` alone, per op:
+Derived from the canonical `ê` alone. For each op, candidates in this fixed priority order (each replaces that op only; the other ops of a compound `ê` stay):
 
-| Op | Counter-readings |
+| Op (canonical) | Counter-readings, in order |
 |---|---|
-| `set_time_window [a, b]` | swap side: `[t_now, a]` ↔ `[b, shift_end]`; shift bound ±60 min |
-| `deadline t` | `set_time_window [t, shift_end]` (opposite direction) |
-| `precedence(i, j)` | `precedence(j, i)` |
-| `remove_stop s` / any stop arg | same op on the 2 most similar stops (same category, then nearest name edit distance) |
-| `avoid_zone_until(z, t)` | adjacent zone; `t ± 60` |
-| `driver_end_time t` | `t ± 60` |
+| `set_time_window [a, b]` (also `deadline`) | flip side: `[t_now, a]` if `a > t_now`, then `[b, shift_end]` if `b < shift_end`; same window on the most similar stop; every closed bound `+60` min (a bound equal to `t_now` or `shift_end` is open and stays open) |
+| `precedence(i, j)` | `precedence(j, i)`; `precedence(i', j)` with `i'` most similar to `i` |
+| `remove_stop s` | remove the most similar stop, then the second most similar |
+| `avoid_zone_until(z, t)` | same `t` on the nearest zone; `t + 60`; `t − 60` |
+| `driver_end_time t` | `t + 60`; `t − 60` |
 
-Cap at 4 counter-readings per edit; deterministic order. All solves are cached (spec 07 §6).
+- **Most similar stop:** another remaining stop of the same category first, then smallest edit distance between normalized names, ties by `stop_id`.
+- **Nearest zone:** the other zone with the smallest Euclidean distance between the mean (lat, lng) of its remaining stops and that of `z`, ties by zone id.
+- Times are clipped to `[t_now, shift_end]`; a candidate equal to `ê` after clipping, or with an empty window, is dropped.
+- **Cap 4 per `ê`**, taken round-robin over the canonical ops (first candidate of each op, then the second, …), so a compound `ê` probes each part. Deterministic order; all solves are cached (spec 07 §6).
 
 Rationale: a mistranslated constraint is often invisible on the current plan; testing the opposite reading makes it visible (Constraint Injection P3 §1; MeetMate P8 evaluates on a longer horizon for the same reason).
 
@@ -42,7 +44,7 @@ Rationale: a mistranslated constraint is often invisible on the current plan; te
 | ID | Name | Computation |
 |---|---|---|
 | L1 | `json_consistency` | share of k samples whose canonical form ≡ greedy (spec 06 §5) |
-| L2 | `backtranslation_match` | render `ê` to English with a **deterministic template** (e.g. "Deliver to Mercy Hospital before 15:00"); a judge LLM scores 0–100 whether it means the same as `q` |
+| L2 | `backtranslation_match` | render `ê` to English with `render_editset_en` (spec 06; e.g. "Deliver to Green Valley Hospital no later than 15:00."); a judge LLM scores 0–100 whether it means the same as `q` |
 | L3 | `verbalized_conf` | from the prediction (0–1) |
 | L4 | `mean_logprob` | when the provider returns log-probs (expected for M1), else `NA` |
 | L5 | `llm_judge` | judge LLM sees `render_snapshot(P)`, `q`, `ê` JSON; outputs P(edit is wrong) 0–100. Mirrors an action-level "guardian" (CORA, P21) without training |
@@ -91,5 +93,6 @@ File: `runs/<run_id>/signals/<model>.parquet`.
 
 - [ ] Isolation test: `kwd.signals` cannot access `gold`/`harm` (import check + schema without gold fields).
 - [ ] Hospital example: `S1 = 1`, `S3_flag = 1`; L2 judge flags mismatch.
-- [ ] All signals computed for 100% of executed items (NA allowed only for L4 on API models).
+- [ ] All signals computed for 100% of executed items (NA allowed only for L4 when the provider returns no log-probs, expected for M2).
+- [ ] Counter-readings: same `ê` ⇒ same list; at most 4; every time inside `[t_now, shift_end]`; a compound `ê` gets candidates for each of its ops.
 - [ ] Runtime per item ≤ ~30 s average including solves (with cache and process pool).

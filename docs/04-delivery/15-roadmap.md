@@ -20,7 +20,7 @@
 |---|---|---|
 | 06/11 | Chốt 5 mô hình và ngân sách `max_usd` | Giá, có logprobs, chạy thử (spec 10 §2) |
 | 07/11 | **Báo động sớm**: làm tiếp / điều chỉnh / dừng | Kiểm tra nhanh 50 câu (`plans/phase-0b-smoke-test.md`) |
-| 08/11 | Chốt 6–8 loại lệnh DSL | Chạy thử pilot |
+| 08/11 | Chốt danh sách lệnh DSL (6 op, chỉ có thể bỏ bớt) | Chạy thử pilot |
 | 10/11 | **Go / No-go**; đóng băng định nghĩa tín hiệu; chốt `α_main` | E0 (spec 13 §3, §14.0) |
 | 10/11 | Kích thước benchmark chính và `k` | Chi phí thật mỗi câu từ E0 |
 | 14/11 | Có gộp nhóm `ĉ` nhỏ thành `other` không (mặc định: **không**) | Chỉ xét nếu ở `α_main` có ≥ 3 nhóm dưới `min_n(α) = max(20, ⌈1/α⌉ − 1)` mẫu calibration (99 ở α = 0,01; 49 ở 0,02). Gộp quyết định trên split fit, không dùng calibration (spec 12 §2.2). Đã chốt 06/11: CRC theo nhóm chạy ở mọi α, T3 luôn có hàng này ở `α_main`, C5 dùng `α_F3` (spec 13 §14.0); **không đổi `α_main`** |
@@ -34,7 +34,7 @@
 | Tín hiệu solver không hơn LLM hoặc G1 (H2 sai) | AUROC E0 chồng lấn | Vẫn báo cáo trung thực; nếu L6 thắng thì nhấn mạnh "phản hồi kế hoạch có giá trị" |
 | Thiếu câu cho tập human | Tới 13/11 có dưới 150 câu | B và C viết thêm tới ngày 14/11; tối thiểu 150 câu |
 | Chi phí API vượt | Ước tính từ E0 vượt ngân sách | Giảm benchmark chính còn ~2.000 câu; `k = 3`; judge chỉ chạy trên tập con 1.000 câu |
-| Solver chậm hoặc nhãn không ổn định | > 3 s/lần giải; V1 ≥ 1% | Tăng time limit cho `P*`; chạy song song; cache |
+| Solver chậm hoặc nhãn không ổn định | > 3 s/lần giải; V1 ≥ 1% | Tăng `solution_limit` (spec 07 §4); chạy song song; cache |
 | Trễ viết paper | 22/11 chưa có bảng | Results viết với số nháp trước, thay bằng macro khi có số cuối |
 | Vi phạm double-blind | — | Rà checklist (spec 16) trước 29/11 |
 

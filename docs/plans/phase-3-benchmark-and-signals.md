@@ -41,7 +41,7 @@ Việc của người (kiểm duyệt, viết câu) chạy song song với việ
 - Consumes: `sample_gold`, `render_snapshot`, `render_editset_en`.
 - Produces: `BenchmarkItem` với `level = 0`, thêm trường `writer_id: str`.
 
-- [ ] **Step 1 [CODE] [A]:** `make_intent_cards.py --routes 40 --n 200 --seed 7`: dùng ~40 tuyến riêng (không thuộc main, pilot); sinh gold theo cùng tỷ lệ op, ~50 lệnh ghép. Mỗi thẻ là một file markdown gồm bảng tuyến rút gọn có đánh dấu điểm liên quan, và một **tình huống** (có thể viết tiếng Việt, ví dụ "Bệnh viện gọi: hôm nay 15:00 bàn nhận hàng mới mở"). A viết sẵn 6–8 mẫu tình huống cho mỗi loại lệnh. **Không** ghi câu tiếng Anh nêu lệnh lên thẻ; gold nằm trong file riêng mà người viết không xem.
+- [ ] **Step 1 [CODE] [A]:** `make_intent_cards.py --routes 40 --n 200 --seed 7`: dùng ~40 tuyến riêng (không thuộc main, pilot); sinh gold theo cùng tỷ lệ op, ~40 lệnh ghép (20%). Mỗi thẻ là một file markdown gồm bảng tuyến rút gọn có đánh dấu điểm liên quan, và một **tình huống** (có thể viết tiếng Việt, ví dụ "Bệnh viện gọi: hôm nay 15:00 bàn nhận hàng mới mở"). A viết sẵn 6–8 mẫu tình huống cho mỗi loại lệnh. **Không** ghi câu tiếng Anh nêu lệnh lên thẻ; gold nằm trong file riêng mà người viết không xem.
 - [ ] **Step 2 [HUMAN] [B, C] (11–13/11):** B và C mỗi người viết ~100 thẻ, làm độc lập, không trao đổi câu với nhau. B chưa được xem code, cấu hình hay dữ liệu benchmark (quy tắc "mù template", `00-README.md`). Hướng dẫn: *"Viết tin nhắn bạn sẽ gõ cho trợ lý điều phối. Tự nhiên, ngắn, mơ hồ hay viết tắt đều được."* Người viết không được xem template hay câu paraphrase.
 - [ ] **Step 3 [HUMAN] [A]:** A đọc tuyến + câu (không xem thẻ) và trả lời: *thẻ có phải là một cách hiểu hợp lý của câu không?* (`yes`/`no`). Chỉ giữ câu `yes`; báo tỷ lệ giữ lại.
 - [ ] **Step 4 [CODE]:** `collect_human_items.py` gộp câu + thẻ thành `items.jsonl`; test `test_human_items_valid`: mỗi item có gold khả thi, có `writer_id`, tuyến không thuộc main hay pilot.
@@ -72,7 +72,7 @@ Việc của người (kiểm duyệt, viết câu) chạy song song với việ
   - `Guardian.fit(texts: list[str], h: np.ndarray) -> Guardian`; `Guardian.predict(texts: list[str]) -> np.ndarray` (G1; embedding M5 + logistic regression; text = `q + " || " + render_editset_en(ê)`)
 
 - [ ] **Step 1 [CODE]:** `test_judges_with_stub`: judge trả `"85"` → 0,85; trả rác → `None`. `test_judge_model_differs`: cấu hình judge trùng mô hình dịch của cùng hàng → báo lỗi ngay khi khởi động.
-- [ ] **Step 2 [CODE]:** `test_plan_diff_hospital`: lệnh sai → chuỗi diff chứa `"An Binh Hospital: 14:10 → 14:10"` và `"changed positions: 0"`.
+- [ ] **Step 2 [CODE]:** `test_plan_diff_hospital`: lệnh sai → chuỗi diff chứa `"Green Valley Hospital: 14:10 → 14:10"` và `"changed positions: 0"`.
 - [ ] **Step 3 [CODE]:** `test_guardian_learns`: 200 câu giả, `h = 1` khi text chứa `"before"` → AUROC > 0,9; `test_guardian_uses_fit_only`: hàm huấn luyện từ chối dữ liệu có `route_id` ngoài `fit_routes`.
 - [ ] **Step 4:** FAIL → cài đặt theo spec 11 §3, §3b → PASS. Thiết kế và chỉnh prompt judge **chỉ trên dữ liệu pilot**, rồi commit `feat(signals): baselines L2 L4 L5 L6 G1` và ghi hash commit (đóng băng baseline).
 
@@ -80,7 +80,7 @@ Việc của người (kiểm duyệt, viết câu) chạy song song với việ
 
 - [ ] **Step 1 [EXP]:** `kwd translate` cho M1 và M2 trên main + human (để chạy nền, có `max_usd`). Sau 500 câu đầu: so chi phí thật với ước tính; vượt thì giảm theo spec 15 §3.
 - [ ] **Step 2 [EXP]:** `kwd label` cho mọi dự đoán; in tỷ lệ lỗi parse và infeasible.
-- [ ] **Step 3 [EXP] — V1:** chọn ngẫu nhiên 500 câu, giải lại `P*` và `P̂` với `time_limit_s × 2` và `first_solution="SAVINGS"`, gán nhãn lại. Tỷ lệ nhãn đổi phải < 1%. Không đạt → xử lý theo spec 13 §11 **trước** khi sang Phase 4.
+- [ ] **Step 3 [EXP] — V1:** chọn ngẫu nhiên 500 câu, giải lại `P*` và `P̂` với `solution_limit × 2`, `warm_start=False` và `first_solution="SAVINGS"`, gán nhãn lại. Tỷ lệ nhãn đổi phải < 1%. Không đạt → xử lý theo spec 13 §11 **trước** khi sang Phase 4.
 - [ ] **Step 4 [EXP]:** `kwd signals` (S1–S5, L1–L6) cho main và human. 100% câu được thực thi có đủ tín hiệu (chỉ L4 được thiếu với M2).
 
 ### Task 3.6: Chia dữ liệu và mô hình điểm · **[B]**
@@ -113,7 +113,7 @@ Việc của người (kiểm duyệt, viết câu) chạy song song với việ
 
 ## Kết thúc Phase 3 khi (M2 · 16/11)
 
-- [ ] Main ≥ 3.000 câu (hoặc số đã chốt theo ngân sách), đã kiểm duyệt, có κ; tập human ≥ 120 câu.
+- [ ] Main ≥ 3.000 câu (hoặc số đã chốt theo ngân sách), đã kiểm duyệt, có κ; tập human ≥ 150 câu được giữ.
 - [ ] V1 đạt (< 1% nhãn đổi).
 - [ ] Bảng tín hiệu S1–S5, L1–L6, G1 và điểm cho M1, M2 trên main và human.
 - [ ] Paper có nháp: Intro v0, Related Work, Problem, Method, Benchmark, F1.

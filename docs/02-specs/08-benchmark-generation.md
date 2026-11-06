@@ -1,6 +1,6 @@
 # 08 · Benchmark Generation
 
-> Status: Draft v0.6 · Updated 2026-11-07 · v0.6: fixed-point filter reported in one sentence of paper §V, no separate §VII limitation. · v0.5: op mix balanced per op and per level instead of per op × level cell; level 3 is half compound, half implicit single-op (§3, §4, decided 07/11). v0.4: snapshots must be solver fixed points (§2.1, decided 06/11). v0.3: `gold_type = op_type(gold)` (spec 06 §5.1) is the only source of gold type `c`; `gold_binding` uses the digest of spec 07 §5 (order + service times). · v0.2: main set ~3,000 items; paraphraser = M3; new §10 human-written test set.
+> Status: Draft v0.7 · Updated 2026-11-07 · v0.7: `remove_stop` always binding; binding mix stated in §V; human items `level = 0` + `writer_id` in the schema; ~40 compound human items; balance check for ≤ 6 ops. · v0.6: fixed-point filter reported in one sentence of paper §V, no separate §VII limitation. · v0.5: op mix balanced per op and per level instead of per op × level cell; level 3 is half compound, half implicit single-op (§3, §4, decided 07/11). v0.4: snapshots must be solver fixed points (§2.1, decided 06/11). v0.3: `gold_type = op_type(gold)` (spec 06 §5.1) is the only source of gold type `c`; `gold_binding` uses the digest of spec 07 §5 (order + service times). · v0.2: main set ~3,000 items; paraphraser = M3; new §10 human-written test set.
 
 ## 1. Purpose
 
@@ -29,12 +29,12 @@ Keep a snapshot only if `solve(P, ∅).digest == P.digest` (`is_fixed_point`, sp
 ## 3. Gold sampling rules
 
 - **Op mix** (decided 2026-11-07): levels 1 and 2 hold single-op items; level 3 is **half compound** items (2–3 ops) and **half single-op items with an implied intent** (§4). Single-op items are spread evenly over the ops at every level, and compound items draw their ops evenly too. Main set (~3,000 items, levels 20/40/40): ~2,400 single-op items and ~600 compound items (20%).
-- **Balance check** (main set): every op has **≥ 250 single-op items** summed over the three levels, and every op × level cell is non-empty with ≥ 3 templates (spec 13 §14.7). Why 250: per-group CRC needs `min_n(0.02) = 49` calibration items per group `ĉ` (spec 12 §2.2), and calibration holds ~35% of the main set (70% × 50%), so ~140 items per op plus room for non-executable outputs. The check holds with 6, 7 or 8 ops (~400 / ~343 / ~300 single-op items per op), so it does not depend on the op list frozen after the pilot. Balance uses the sampled op names `ops` (§7); since `deadline` and `set_time_window` share one group `ĉ`, that group is about twice as large.
+- **Balance check** (main set): every op has **≥ 250 single-op items** summed over the three levels, and every op × level cell is non-empty with ≥ 3 templates (spec 13 §14.7). Why 250: per-group CRC needs `min_n(0.02) = 49` calibration items per group `ĉ` (spec 12 §2.2), and calibration holds ~35% of the main set (70% × 50%), so ~140 items per op plus room for non-executable outputs. The check holds with 6, 5 or 4 ops (~400 / ~480 / ~600 single-op items per op), so it does not depend on which ops the pilot drops. Balance uses the sampled op names `ops` (§7); since `deadline` and `set_time_window` share one group `ĉ`, that group is about twice as large.
 - Arguments are realistic and relative to the snapshot:
   - time-window bounds: rounded to 15 min, within `[t_now + 15, shift_end − 30]`;
   - `set_time_window` targets: mostly stops **without** an existing window;
   - `precedence`: pairs where the current order is `after → before` (binding) or already correct (non-binding), per the target mix.
-- **Binding mix**: target ~70% binding / ~30% non-binding gold. Non-binding gold is realistic ("just make sure…") and tests whether harm labeling and signals behave sensibly.
+- **Binding mix**: target ~70% binding / ~30% non-binding gold, over the ops that admit non-binding gold. `remove_stop` is always binding (removing a stop always changes the plan), so `sample_gold(..., "remove_stop", want_binding=False)` returns `None`; per-op targets live in `configs/bench.yaml`. Non-binding gold is realistic ("just make sure…") and tests whether harm labeling and signals behave sensibly. The mix is a design parameter that shapes the non-binding share (C1'); paper §V states it in one clause.
 - Infeasible gold ⇒ resample (max 20 tries), else skip the snapshot.
 
 ## 4. Ambiguity levels
@@ -76,7 +76,8 @@ class BenchmarkItem(BaseModel):
     gold_binding: bool          # evaluation-only
     ops: list[str]              # raw op names sampled for gold; generation balance only (§3), never used as c
     gold_type: str              # c = op_type(gold, P), spec 06 §5.1; the only gold type used in analysis
-    level: Literal[1, 2, 3]
+    level: Literal[0, 1, 2, 3]  # 0 = human-written set (§9)
+    writer_id: str | None = None  # human set only
     q_template: str
     q: str
     template_id: str
@@ -102,7 +103,7 @@ Splits are **by route** (spec 12), so items of the same route never straddle cal
 
 Purpose: check that results hold on language people actually produce, not only on templates and paraphrases.
 
-1. Pick ~40 routes **not** in the main or pilot set; build snapshots; sample ~200 gold edits with the same op mix (§3), including ~50 compound ones.
+1. Pick ~40 routes **not** in the main or pilot set; build snapshots; sample ~200 gold edits with the same op mix (§3), so ~40 compound ones (20%).
 2. For each gold, make an **intent card** (A writes 6–8 situation templates per op): the snapshot table + a short situation ("the hospital called: their receiving desk opens at 15:00 today"). The gold itself stays hidden.
 3. **Two writers**, ~100 requests each: **B** (team member kept blind to templates until done) and **C** (external helper, never sees templates or code). They write: *"Write the message you would type to a routing assistant. Be natural; short, vague or informal is fine."* They must not see templates or paraphrases.
 4. **Check**: A (not the writer) reads the snapshot + request (without the card) and marks whether the card is a reasonable reading (`yes / no`). Keep `yes` items; report the keep rate.

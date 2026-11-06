@@ -26,13 +26,16 @@ Lỗi hình thức có thể làm bài bị loại không qua review: lộ danh 
 
 ### Step 6.2 [CODE] — Phát hành code và benchmark ẩn danh (29/11) · **[B]**
 
-- [ ] Tạo bản sạch: `git archive` sang thư mục mới (không có `.git`), xóa `docs/plans/`, `paper/NOTES.md`, `.env`; tìm tên, email bằng `grep -rniE "nguyen|kha an|@gmail|cloudian" .` → kết quả phải rỗng.
+- [ ] Tạo bản sạch theo **danh sách cho phép**: chỉ chép `src/`, `tests/`, `configs/`, `scripts/` (bỏ `scripts/smoke_translate.py`), `pyproject.toml`, `uv.lock`, `.python-version`, README ẩn danh và gói benchmark. Không chép `docs/`, `paper/`, `reference-documents/`, `IEEE-conference-template-062824/`, `CLAUDE.md`, `.claude/`, `debit-last-submit.md`, `mynote.md`, `PROMPT_TEMPLATE.md`, ảnh, `.env`, `.git`.
+- [ ] Trong bản sạch: xóa khối `authors` của `pyproject.toml`; tìm tên, email bằng `grep -rniE "nguyen|kha an|khaan|@gmail|cloudian" .` → kết quả phải rỗng (fixture bệnh viện dùng tên điểm trung tính từ 07/11).
 - [ ] README ẩn danh: cài đặt (`uv sync`), tải LMRC, tái tạo benchmark (`kwd snapshot`, `kwd bench`), tái tạo bảng (`kwd report`), giấy phép (code MIT; benchmark dẫn xuất từ LMRC theo CC BY-NC 4.0).
 - [ ] Đóng gói benchmark: `main/items.jsonl`, `human/items.jsonl` (không kèm tên người viết, chỉ `writer_id`) + snapshot + config sinh dữ liệu (không kèm cache LLM có API key hay metadata cá nhân).
 - [ ] Đẩy lên một repo GitHub riêng rồi tạo link ẩn danh qua https://anonymous.4open.science; mở link ở cửa sổ ẩn danh để kiểm tra không lộ tên.
 - [ ] Thêm link ẩn danh vào paper (chân trang của Abstract hoặc đầu Experiments).
 
 ### Step 6.3 [PAPER] — Kiểm tra kỹ thuật PDF (29/11 chiều) · **[B]**
+
+- [ ] Đọc `debit-last-submit.md`: mọi nợ P3 đã trả hoặc được ghi lý do bỏ qua.
 
 - [ ] `make check` → ≤ 8 trang.
 - [ ] `pdffonts build/main.pdf`: mọi font có cột `emb` = `yes`.

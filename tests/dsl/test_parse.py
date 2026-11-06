@@ -44,7 +44,9 @@ def error_code(result) -> str:
 
 
 def test_parse_hospital_gold(hospital):
-    result = parse_editset(raw(window("An Binh Hospital", "15:00", None), confidence=80), hospital)
+    result = parse_editset(
+        raw(window("Green Valley Hospital", "15:00", None), confidence=80), hospital
+    )
     assert result == EditSet(
         edits=[SetTimeWindow(stop="HO", start=2 * 3600, end=None)], confidence=80
     )
@@ -53,9 +55,9 @@ def test_parse_hospital_gold(hospital):
 def test_parse_every_op(hospital):
     result = parse_editset(
         raw(
-            window("An Binh Hospital", None, "16:00"),
-            {"op": "remove_stop", "stop": "Thanh Cong Shop"},
-            {"op": "precedence", "before": "Nguyen Du School", "after": "Minh Chau Pharmacy"},
+            window("Green Valley Hospital", None, "16:00"),
+            {"op": "remove_stop", "stop": "Harbor Shop"},
+            {"op": "precedence", "before": "Lincoln School", "after": "Cedar Pharmacy"},
             {"op": "driver_end_time", "time": "17:00"},
         ),
         hospital,
@@ -75,7 +77,7 @@ def test_parse_every_op(hospital):
     result = parse_editset(
         raw(
             {"op": "avoid_zone_until", "zone": "B", "time": "14:30"},
-            {"op": "deadline", "stop": "Nguyen Du School", "time": "14:00"},
+            {"op": "deadline", "stop": "Lincoln School", "time": "14:00"},
         ),
         hospital,
     )
@@ -88,10 +90,10 @@ def test_parse_every_op(hospital):
 def test_parse_keeps_deadline_and_open_bounds(hospital):
     """Parsing resolves names and clocks but does not rewrite ops: that is canonical()'s job."""
     result = parse_editset(
-        raw({"op": "deadline", "stop": "An Binh Hospital", "time": "15:00"}), hospital
+        raw({"op": "deadline", "stop": "Green Valley Hospital", "time": "15:00"}), hospital
     )
     assert result == EditSet(edits=[Deadline(stop="HO", time=7200)])
-    result = parse_editset(raw(window("An Binh Hospital", None, "15:00")), hospital)
+    result = parse_editset(raw(window("Green Valley Hospital", None, "15:00")), hospital)
     assert result.edits[0] == SetTimeWindow(stop="HO", start=None, end=7200)
 
 
@@ -112,7 +114,7 @@ def test_zone_matches_after_normalization(mini):
 
 
 def test_confidence_bounds(hospital):
-    edit = {"op": "remove_stop", "stop": "Thanh Cong Shop"}
+    edit = {"op": "remove_stop", "stop": "Harbor Shop"}
     assert parse_editset(raw(edit, confidence=0), hospital).confidence == 0
     assert parse_editset(raw(edit, confidence=100), hospital).confidence == 100
     assert error_code(parse_editset(raw(edit, confidence=101), hospital)) == "schema"
@@ -127,7 +129,7 @@ def test_confidence_bounds(hospital):
         "",
         "not json",
         '{"edits": [',
-        '```json\n{"edits": [{"op": "remove_stop", "stop": "Thanh Cong Shop"}]}\n```',
+        '```json\n{"edits": [{"op": "remove_stop", "stop": "Harbor Shop"}]}\n```',
     ],
     ids=["empty", "prose", "truncated", "code_fence"],
 )
@@ -141,23 +143,27 @@ def test_parse_error_invalid_json(hospital, text):
     [
         [],
         {"edits": []},
-        {"edits": [{"op": "remove_stop", "stop": "Thanh Cong Shop"}] * 5},
-        {"edits": [{"op": "teleport", "stop": "Thanh Cong Shop"}]},
-        {"edits": [{"stop": "Thanh Cong Shop"}]},
+        {"edits": [{"op": "remove_stop", "stop": "Harbor Shop"}] * 5},
+        {"edits": [{"op": "teleport", "stop": "Harbor Shop"}]},
+        {"edits": [{"stop": "Harbor Shop"}]},
         {"edits": [{"op": "remove_stop"}]},
-        {"edits": [{"op": "remove_stop", "stop": "Thanh Cong Shop", "why": "closed"}]},
-        {"edits": [{"op": "remove_stop", "stop": "Thanh Cong Shop"}], "note": "x"},
+        {"edits": [{"op": "remove_stop", "stop": "Harbor Shop", "why": "closed"}]},
+        {"edits": [{"op": "remove_stop", "stop": "Harbor Shop"}], "note": "x"},
         {"edits": [{"op": "remove_stop", "stop": 3}]},
-        {"edits": [window("An Binh Hospital", "25:00", None)]},
-        {"edits": [window("An Binh Hospital", None, None)]},
+        {"edits": [window("Green Valley Hospital", "25:00", None)]},
+        {"edits": [window("Green Valley Hospital", None, None)]},
         {
             "edits": [
-                {"op": "precedence", "before": "An Binh Hospital", "after": "an binh hospital"}
+                {
+                    "op": "precedence",
+                    "before": "Green Valley Hospital",
+                    "after": "green valley hospital",
+                }
             ]
         },
-        {"edits": [{"op": "service_time", "stop": "An Binh Hospital", "minutes": 10}]},
-        {"edits": [{"op": "remove_stop", "stop": "Thanh Cong Shop"}], "confidence": 85.5},
-        {"edits": [{"op": "remove_stop", "stop": "Thanh Cong Shop"}], "confidence": "high"},
+        {"edits": [{"op": "service_time", "stop": "Green Valley Hospital", "minutes": 10}]},
+        {"edits": [{"op": "remove_stop", "stop": "Harbor Shop"}], "confidence": 85.5},
+        {"edits": [{"op": "remove_stop", "stop": "Harbor Shop"}], "confidence": "high"},
     ],
     ids=[
         "not_object",
@@ -184,9 +190,9 @@ def test_parse_error_schema(hospital, body):
 @pytest.mark.parametrize(
     "edit",
     [
-        {"op": "remove_stop", "stop": "Binh Hospital"},
+        {"op": "remove_stop", "stop": "Valley Hospital"},
         {"op": "remove_stop", "stop": "Depot"},
-        {"op": "precedence", "before": "An Binh Hospital", "after": "Nowhere Shop"},
+        {"op": "precedence", "before": "Green Valley Hospital", "after": "Nowhere Shop"},
     ],
 )
 def test_parse_error_unknown_stop(hospital, edit):
@@ -218,10 +224,10 @@ def test_parse_error_done_stop(mini, which):
 @pytest.mark.parametrize(
     "edit",
     [
-        window("An Binh Hospital", "16:00", "15:00"),
-        window("An Binh Hospital", None, "12:30"),
-        window("An Binh Hospital", "03:00", None),  # "3" read as 3 am, before now
-        {"op": "deadline", "stop": "An Binh Hospital", "time": "12:59"},
+        window("Green Valley Hospital", "16:00", "15:00"),
+        window("Green Valley Hospital", None, "12:30"),
+        window("Green Valley Hospital", "03:00", None),  # "3" read as 3 am, before now
+        {"op": "deadline", "stop": "Green Valley Hospital", "time": "12:59"},
         {"op": "driver_end_time", "time": "11:00"},
         {"op": "avoid_zone_until", "zone": "A", "time": "09:00"},
     ],
@@ -249,7 +255,7 @@ def test_current_minute_is_not_in_the_past(mini):
 
 
 def test_point_window_is_allowed(hospital):
-    result = parse_editset(raw(window("An Binh Hospital", "15:00", "15:00")), hospital)
+    result = parse_editset(raw(window("Green Valley Hospital", "15:00", "15:00")), hospital)
     assert result.edits[0] == SetTimeWindow(stop="HO", start=7200, end=7200)
 
 
@@ -269,12 +275,12 @@ def test_first_error_wins(hospital):
 
 
 def test_stop_name_normalized(hospital):
-    result = parse_editset(raw({"op": "remove_stop", "stop": " an binh HOSPITAL "}), hospital)
+    result = parse_editset(raw({"op": "remove_stop", "stop": " green valley HOSPITAL "}), hospital)
     assert result == EditSet(edits=[RemoveStop(stop="HO")])
-    result = parse_editset(raw({"op": "remove_stop", "stop": "An  Binh\tHospital"}), hospital)
+    result = parse_editset(raw({"op": "remove_stop", "stop": "Green  Valley\tHospital"}), hospital)
     assert result == EditSet(edits=[RemoveStop(stop="HO")])
     assert (
-        error_code(parse_editset(raw({"op": "remove_stop", "stop": "Binh Hospital"}), hospital))
+        error_code(parse_editset(raw({"op": "remove_stop", "stop": "Valley Hospital"}), hospital))
         == "unknown_stop"
     )
 
@@ -283,7 +289,7 @@ def test_stop_name_normalized(hospital):
     "text", ["15:00", "3:00 PM", "3 pm", "3pm", "3:00pm", " 15:00 ", "3 P.M.", "03:00 pm"]
 )
 def test_time_formats(hospital, text):
-    result = parse_editset(raw(window("An Binh Hospital", text, None)), hospital)
+    result = parse_editset(raw(window("Green Valley Hospital", text, None)), hospital)
     assert isinstance(result, EditSet), result
     assert result.edits[0].start == 2 * 3600
 
@@ -294,7 +300,7 @@ def test_time_formats(hospital, text):
 )
 def test_twelve_hour_edges(hospital, text, seconds):
     # The hospital snapshot departs at 13:00, so noon is in the past.
-    edit = window("An Binh Hospital", None, text)
+    edit = window("Green Valley Hospital", None, text)
     result = parse_editset(raw(edit), hospital)
     if seconds < 0:
         assert error_code(result) == "bad_interval"
@@ -306,7 +312,7 @@ def test_twelve_hour_edges(hospital, text, seconds):
     "text", ["15h", "afternoon", "3", "15", "13 pm", "0 am", "3:0", "15:00:00", "noon", "3 p m"]
 )
 def test_time_formats_rejected(hospital, text):
-    result = parse_editset(raw(window("An Binh Hospital", text, None)), hospital)
+    result = parse_editset(raw(window("Green Valley Hospital", text, None)), hospital)
     assert error_code(result) == "schema"
 
 

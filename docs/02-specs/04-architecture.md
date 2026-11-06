@@ -1,7 +1,6 @@
 # 04 · Architecture
 
-> Status: Draft v0.1 · Updated 2026-11-05
-> Technology choices below are **proposals**, not yet separately approved. Change them only with a stated reason.
+> Status: Draft v0.2 · Updated 2026-11-07 · v0.2: layout and stack are in use (Python 3.12). Change them only with a stated reason.
 
 ## 1. Data flow
 
@@ -41,7 +40,7 @@
 | `kwd.risk` | 12 | scores + calibration labels | `λ`, decisions |
 | `kwd.eval` | 13 | result tables | metrics, tables, figures |
 
-## 3. Repository layout (proposed)
+## 3. Repository layout
 
 ```
 ieee-most-2027/
@@ -57,11 +56,11 @@ ieee-most-2027/
 └── reference-documents/  # reference PDFs (exists)
 ```
 
-## 4. Stack (proposed)
+## 4. Stack
 
 | Concern | Choice | Why |
 |---|---|---|
-| Language | Python 3.11, `uv` | fast, lockfile |
+| Language | Python 3.12, `uv` | fast, lockfile |
 | Solver | Google OR-Tools routing (TSPTW) | open source, precedent in P5 |
 | Data models | `pydantic` v2 | DSL schema validation, JSON I/O |
 | Tables | `pandas` + JSONL / Parquet | simple, inspectable |
