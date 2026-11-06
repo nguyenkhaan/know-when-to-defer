@@ -131,12 +131,12 @@
 
 ## Song song [PAPER] (06–08/11)
 
-- [ ] **[PAPER] [A]** Viết nháp `03-problem.tex` (~0,75 trang) từ `MoTaDeTai.md` §2 và spec 09: ký hiệu `P, q, e*, ê, P̂, P*, h, s, λ, α, μ`; định nghĩa harm R1–R3; rủi ro kết hợp `E[1{s≤λ}h] ≤ α`; rủi ro theo loại; điều kiện áp CRC Thm. 1 (đổi biến `θ = −λ`, `λ = −∞` có loss 0; spec 12 §2.1); cận coverage oracle `1 − π − max(0, μ − α)` với `π` là tỷ lệ lệnh không thực thi được. Không có số liệu.
-- [ ] **[READ] [A]** Đọc lại CRC (P11) Thm. 1 và Prop. 1 để viết đúng điều kiện đơn điệu; ghi trích dẫn vào section.
-- [ ] Commit `paper: draft problem formulation`.
+- [x] **[PAPER] [A]** Viết nháp `03-problem.tex` (~0,75 trang) từ `MoTaDeTai.md` §2 và spec 09: ký hiệu `P, q, e*, ê, P̂, P*, h, s, λ, α, μ`; định nghĩa harm R1–R3; rủi ro kết hợp `E[1{s≤λ}h] ≤ α`; rủi ro theo loại; điều kiện áp CRC Thm. 1 (đổi biến `θ = −λ`, `λ = −∞` có loss 0; spec 12 §2.1); cận coverage oracle `1 − π − max(0, μ − α)` với `π` là tỷ lệ lệnh không thực thi được. Không có số liệu.
+- [x] **[READ] [A]** Đọc lại CRC (P11) Thm. 1 và Prop. 1 để viết đúng điều kiện đơn điệu; ghi trích dẫn vào section.
+- [x] Commit `paper: draft problem formulation`. (Xong 06/11: commit `9a87b93`. Bản nháp 4 đoạn: bối cảnh, tác hại R1–R3, quy tắc quyết định + CRC (ngưỡng theo `ĉ`), cận coverage; ~520 từ, vượt ngân sách ~0,75 trang, cắt khi có PDF đủ trang.)
 
 ## Kết thúc Phase 1 khi
 
 - [ ] `uv run pytest -q` pass toàn bộ, gồm `test_e2e_hospital`.
 - [ ] Có snapshot cho 30 tuyến pilot.
-- [ ] `03-problem.tex` có bản nháp đầy đủ.
+- [x] `03-problem.tex` có bản nháp đầy đủ.
