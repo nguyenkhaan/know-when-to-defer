@@ -102,13 +102,13 @@
   - `check_constraints(p: RouteSnapshot, plan: Plan, e: EditSet, tol_min: int = 1) -> list[Violation]` với `Violation(op: str, stop: str | None, amount_min: float)`; mức vi phạm từng op theo bảng ở spec 07 §5
   - `solve_cached(p, e, cfg, cache_dir: Path) -> Plan | Infeasible` (khóa: `snapshot_id` + `canonical(e)` + hash cfg)
 
-- [ ] **Step 1 [CODE]:** `test_empty_edit_keeps_plan`: `solve(hospital, None)` có hàm mục tiêu solver (spec 07 §3) ≤ của `current_plan`; `is_fixed_point(hospital, cfg)` là True.
-- [ ] **Step 2 [CODE]:** Một test cho mỗi op: sau `solve`, `check_constraints(p, plan, e) == []`.
-- [ ] **Step 3 [CODE]:** `test_hospital_gold_moves_after_15` (`service_start` của bệnh viện ≥ 15:00); `test_hospital_wrong_keeps_plan` (`plan.digest() == current_plan(p).digest()`).
-- [ ] **Step 4 [CODE]:** Review Focus #3: `test_conflicting_edits_infeasible` — `set_time_window(H, 15:00, 16:00)` + `deadline(H, 14:00)` → `Infeasible`; `precedence(A,B)` + `precedence(B,A)` → `Infeasible(reason="precheck")`. Không ném exception.
-- [ ] **Step 5 [CODE]:** `test_deterministic`: 3 lần `solve` trên snapshot thật 120 điểm, và 3 lần chia cho 4 process chạy song song → cùng digest; không lần nào dừng vì `time_limit_s`. `test_solve_time`: median ≤ 3 s. `test_current_plan_matches_baseline`: `current_plan(p).arrival == baseline_arrivals(p)`. `test_digest_detects_wait_only_change`: giữ nguyên thứ tự, thêm `set_time_window` có `start` muộn hơn giờ phục vụ hiện tại của một điểm → digest khác `current_plan`; `start` sớm hơn → digest bằng.
-- [ ] **Step 6:** FAIL → cài đặt theo spec 07 §2–§4 (warm start bằng `ReadAssignmentFromRoutes`; `GUIDED_LOCAL_SEARCH`; 1 worker). `check_constraints` tính độc lập với OR-Tools, từ `plan.service_start`.
-- [ ] **Step 7:** PASS. Commit `feat(solver): TSPTW re-optimization with edits`.
+- [X] **Step 1 [CODE]:** `test_empty_edit_keeps_plan`: `solve(hospital, None)` có hàm mục tiêu solver (spec 07 §3) ≤ của `current_plan`; `is_fixed_point(hospital, cfg)` là True.
+- [X] **Step 2 [CODE]:** Một test cho mỗi op: sau `solve`, `check_constraints(p, plan, e) == []`.
+- [X] **Step 3 [CODE]:** `test_hospital_gold_moves_after_15` (`service_start` của bệnh viện ≥ 15:00); `test_hospital_wrong_keeps_plan` (`plan.digest() == current_plan(p).digest()`).
+- [X] **Step 4 [CODE]:** Review Focus #3: `test_conflicting_edits_infeasible` — `set_time_window(H, 15:00, 16:00)` + `deadline(H, 14:00)` → `Infeasible`; `precedence(A,B)` + `precedence(B,A)` → `Infeasible(reason="precheck")`. Không ném exception.
+- [X] **Step 5 [CODE]:** `test_deterministic`: 3 lần `solve` trên snapshot thật 120 điểm, và 3 lần chia cho 4 process chạy song song → cùng digest; không lần nào dừng vì `time_limit_s`. `test_solve_time`: median ≤ 3 s. `test_current_plan_matches_baseline`: `current_plan(p).arrival == baseline_arrivals(p)`. `test_digest_detects_wait_only_change`: giữ nguyên thứ tự, thêm `set_time_window` có `start` muộn hơn giờ phục vụ hiện tại của một điểm → digest khác `current_plan`; `start` sớm hơn → digest bằng.
+- [X] **Step 6:** FAIL → cài đặt theo spec 07 §2–§4 (warm start bằng `ReadAssignmentFromRoutes`; `GUIDED_LOCAL_SEARCH`; 1 worker). `check_constraints` tính độc lập với OR-Tools, từ `plan.service_start`.
+- [X] **Step 7:** PASS. Commit `feat(solver): TSPTW re-optimization with edits`.
 
 ### Task 1.5: Nhãn tác hại · **[B]**
 
@@ -124,10 +124,10 @@
   - `HarmLabel` (spec 09 §5)
   - `label_item(item_id: str, model: str, p: RouteSnapshot, gold: EditSet, pred: EditSet | ParseError, solver_cfg, harm_cfg, cache_dir) -> HarmLabel` (cost tính bằng phút, trọng số 1; `rule` theo thứ tự R1 > R2 > R3; `late_min`, `tw_violations` theo spec 09 §4)
 
-- [ ] **Step 1 [CODE]:** `test_hospital_is_harm_r1_nonbinding` → `h == 1`, `rule == "R1"`, `nonbinding_error is True`.
-- [ ] **Step 2 [CODE]:** `test_r2_wrong_stop_removed`; `test_r3_excess_cost` (lệnh thêm precedence vô lý gây đi vòng > ε); `test_equivalent_is_harmless`; `test_rule_precedence` (R1 và R3 cùng kích hoạt → `rule = "R1"`); `test_cost_in_minutes` (thêm 1 phút trễ → `delta_cost` tăng 1, không phải 10); `test_late_min_and_tw_violations_zero_when_equal_to_gold`.
-- [ ] **Step 3 [CODE]:** `test_parse_error_not_executed` và `test_infeasible_not_executed` → `executed is False`, `h is None`.
-- [ ] **Step 4:** FAIL → cài đặt theo spec 09 §2–§4. PASS. Commit `feat(harm): plan-level harm labels`.
+- [X] **Step 1 [CODE]:** `test_hospital_is_harm_r1_nonbinding` → `h == 1`, `rule == "R1"`, `nonbinding_error is True`.
+- [X] **Step 2 [CODE]:** `test_r2_wrong_stop_removed`; `test_r3_excess_cost` (lệnh thêm precedence vô lý gây đi vòng > ε); `test_equivalent_is_harmless`; `test_rule_precedence` (R1 và R3 cùng kích hoạt → `rule = "R1"`); `test_cost_in_minutes` (thêm 1 phút trễ → `delta_cost` tăng 1, không phải 10); `test_late_min_and_tw_violations_zero_when_equal_to_gold`.
+- [X] **Step 3 [CODE]:** `test_parse_error_not_executed` và `test_infeasible_not_executed` → `executed is False`, `h is None`.
+- [X] **Step 4:** FAIL → cài đặt theo spec 09 §2–§4. PASS. Commit `feat(harm): plan-level harm labels`.
 
 ### Task 1.6: Lệnh CLI và kiểm thử end-to-end · **[B]**
 

@@ -1,0 +1,3 @@
+eps_abs: 5.0
+eps_rel: 0.02
+tol_min: 1
