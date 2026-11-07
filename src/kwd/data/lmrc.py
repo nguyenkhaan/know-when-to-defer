@@ -7,14 +7,17 @@ in `raw_dir/by_route/`, which `load_route` prefers over the raw files.
 """
 
 import json
+import math
 import random
 from collections import Counter, defaultdict
 from collections.abc import Collection, Iterator
 from datetime import UTC, datetime
+from fractions import Fraction
 from pathlib import Path
 from typing import Any
 
 import ijson
+from pydantic import BaseModel
 
 from kwd.data.jsonstream import NanToNullReader
 from kwd.data.models import RawRoute
@@ -130,6 +133,47 @@ def select_routes(
     the main benchmark disjoint from the pilot. Writes nothing.
     """
     return _sample_stratified(_eligible_routes(raw_dir, min_stops, max_stops, exclude), n, seed)
+
+
+class RouteSelection(BaseModel):
+    pilot: list[str]  # sorted
+    reserve: dict[str, list[str]]  # station -> routes, in replacement order
+
+
+def draw_reserve(
+    eligible: dict[str, str], picked: Collection[str], seed: int, reserve_frac: float
+) -> dict[str, list[str]]:
+    """Draw ceil(reserve_frac * quota) unpicked routes for each station that has a quota.
+
+    Each station has its own RNG, so a reserve never disturbs the picked routes or another station.
+    Routes stay in draw order: spec 08 §2.1 replaces a failing route by the next one of its
+    station. A station short of routes returns what it has.
+    """
+    quotas = Counter(eligible[route_id] for route_id in picked)
+    chosen = set(picked)
+    reserve = {}
+    for code in sorted(quotas):
+        pool = sorted(r for r, station in eligible.items() if station == code and r not in chosen)
+        wanted = math.ceil(Fraction(str(reserve_frac)) * quotas[code])
+        rng = random.Random(f"{seed}:reserve:{code}")
+        reserve[code] = rng.sample(pool, min(wanted, len(pool)))
+    return reserve
+
+
+def select_with_reserve(
+    raw_dir: Path,
+    n: int,
+    seed: int,
+    reserve_frac: float,
+    *,
+    min_stops: int,
+    max_stops: int,
+    exclude: Collection[str] = (),
+) -> RouteSelection:
+    """Return what `select_routes` picks plus a reserve per station, in one pass over the matrix."""
+    eligible = _eligible_routes(raw_dir, min_stops, max_stops, exclude)
+    pilot = _sample_stratified(eligible, n, seed)
+    return RouteSelection(pilot=pilot, reserve=draw_reserve(eligible, pilot, seed, reserve_frac))
 
 
 def _checked_order(route_id: str, routes: dict, sequences: dict) -> list[str]:

@@ -1,0 +1,14 @@
+raw_dir: data/raw/lmrc
+interim_dir: data/interim
+selection:
+  seed: 0
+  pilot_n: 30
+  reserve_frac: 0.3
+  min_stops: 80
+  max_stops: 200
+snapshot:
+  seed: 0
+  rho_min: 0.2
+  rho_max: 0.5
+  shift_slack_min: 60
+  min_remaining: 30
