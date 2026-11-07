@@ -10,7 +10,7 @@ from kwd.data.lmrc import load_route
 from kwd.data.models import RouteSnapshot
 from kwd.data.snapshot import baseline_arrivals, build_snapshot, load_fixture_snapshot
 from kwd.dsl import EditSet, SetTimeWindow
-from kwd.solver import Plan, SolverConfig, current_plan, is_fixed_point, solve, solve_cached
+from kwd.solver import Plan, SolverConfig, cache, current_plan, is_fixed_point, solve, solve_cached
 
 RAW_LMRC = Path("data/raw/lmrc")
 LARGE_ROUTE = "RouteID_5059625b-4bf5-4576-b778-da34326ac4dc"
@@ -157,6 +157,96 @@ def test_solver_cache_allows_concurrent_writers(tmp_path):
 
     assert len(set(digests)) == 1
     assert len(list(cache_dir.glob("*.json"))) == 1
+    assert list(cache_dir.glob("*.tmp")) == []
+
+
+def deny_replace(monkeypatch, denied_times: int, before_denial=lambda target: None) -> list[Path]:
+    """Make the first `denied_times` calls to `Path.replace` fail as Windows does."""
+    calls: list[Path] = []
+    real_replace = Path.replace
+
+    def replace(self: Path, target: Path) -> Path:
+        calls.append(target)
+        if len(calls) <= denied_times:
+            before_denial(target)
+            raise PermissionError(13, "Access is denied")
+        return real_replace(self, target)
+
+    monkeypatch.setattr(Path, "replace", replace)
+    monkeypatch.setattr(cache, "_RETRY_WAIT_S", 0)
+    return calls
+
+
+def test_solver_cache_write_denied_keeps_the_entry_of_another_writer(tmp_path, monkeypatch):
+    snapshot = load_fixture_snapshot("hospital")
+    cache_dir = tmp_path / "cache"
+    expected = solve(snapshot, None, SolverConfig())
+    calls = deny_replace(monkeypatch, 1, lambda target: target.write_text("{}", encoding="utf-8"))
+
+    result = solve_cached(snapshot, None, SolverConfig(), cache_dir)
+
+    assert isinstance(result, Plan)
+    assert result.digest() == expected.digest()
+    assert len(calls) == 1
+    assert list(cache_dir.glob("*.tmp")) == []
+
+
+def test_solver_cache_write_retries_until_it_succeeds(tmp_path, monkeypatch):
+    snapshot = load_fixture_snapshot("hospital")
+    cache_dir = tmp_path / "cache"
+    calls = deny_replace(monkeypatch, 2)
+
+    solve_cached(snapshot, None, SolverConfig(), cache_dir)
+
+    assert len(calls) == 3
+    assert len(list(cache_dir.glob("*.json"))) == 1
+    assert list(cache_dir.glob("*.tmp")) == []
+
+
+def test_solver_cache_write_raises_after_the_last_retry(tmp_path, monkeypatch):
+    snapshot = load_fixture_snapshot("hospital")
+    cache_dir = tmp_path / "cache"
+    calls = deny_replace(monkeypatch, 1000)
+
+    with pytest.raises(PermissionError):
+        solve_cached(snapshot, None, SolverConfig(), cache_dir)
+
+    assert len(calls) == cache._ATTEMPTS
+    assert list(cache_dir.iterdir()) == []
+
+
+def test_solver_cache_read_retries_while_the_entry_is_being_replaced(tmp_path, monkeypatch):
+    snapshot = load_fixture_snapshot("hospital")
+    cache_dir = tmp_path / "cache"
+    first = solve_cached(snapshot, None, SolverConfig(), cache_dir)
+    real_read = Path.read_text
+    denied = iter([True, True])
+
+    def read_text(self: Path, *args, **kwargs) -> str:
+        if next(denied, False):
+            raise PermissionError(13, "Access is denied")
+        return real_read(self, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "read_text", read_text)
+    monkeypatch.setattr(cache, "_RETRY_WAIT_S", 0)
+    monkeypatch.setattr(cache, "solve", lambda *_: pytest.fail("cache entry was not reused"))
+
+    assert solve_cached(snapshot, None, SolverConfig(), cache_dir) == first
+
+
+def test_solver_cache_read_raises_after_the_last_retry(tmp_path, monkeypatch):
+    snapshot = load_fixture_snapshot("hospital")
+    cache_dir = tmp_path / "cache"
+    solve_cached(snapshot, None, SolverConfig(), cache_dir)
+
+    def read_text(self: Path, *args, **kwargs) -> str:
+        raise PermissionError(13, "Access is denied")
+
+    monkeypatch.setattr(Path, "read_text", read_text)
+    monkeypatch.setattr(cache, "_RETRY_WAIT_S", 0)
+
+    with pytest.raises(PermissionError):
+        solve_cached(snapshot, None, SolverConfig(), cache_dir)
 
 
 def test_no_edit_never_worsens_search_objective_on_real_snapshots(tmp_path):

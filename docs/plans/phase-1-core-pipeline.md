@@ -136,9 +136,9 @@
 - Modify: `src/kwd/cli.py`
 - Create: `configs/data.yaml`, `tests/test_e2e_hospital.py`
 
-- [ ] **Step 1 [CODE]:** Thêm `kwd snapshot --config configs/data.yaml` (chọn tuyến, dựng snapshot, ghi `data/interim/snapshots.jsonl` + `.npy`).
-- [ ] **Step 2 [CODE]:** `test_e2e_hospital`: fixture + gold + lệnh sai → `label_item` cho `h = 1`; lệnh đúng cho `h = 0`.
-- [ ] **Step 3 [EXP]:** Chạy `kwd snapshot` cho 30 tuyến pilot. In thống kê spec 05 §7: số điểm/tuyến, % điểm có khung giờ. Chạy 2 lần, so hash file → bằng nhau.
+- [X] **Step 1 [CODE]:** Thêm `kwd snapshot --config configs/data.yaml` (chọn tuyến, dựng snapshot, ghi `data/interim/snapshots.jsonl` + `.npy`).
+- [X] **Step 2 [CODE]:** `test_e2e_hospital`: fixture + gold + lệnh sai → `label_item` cho `h = 1`; lệnh đúng cho `h = 0`.
+- [X] **Step 3 [EXP]:** Chạy `kwd snapshot` cho 30 tuyến pilot. In thống kê spec 05 §7: số điểm/tuyến, % điểm có khung giờ. Chạy 2 lần, so hash file → bằng nhau.
 - [ ] **Step 4:** Commit `feat(cli): snapshot command and e2e test`.
 
 ---
@@ -151,6 +151,6 @@
 
 ## Kết thúc Phase 1 khi
 
-- [ ] `uv run pytest -q` pass toàn bộ, gồm `test_e2e_hospital`.
-- [ ] Có snapshot cho 30 tuyến pilot.
+- [X] `uv run pytest -q` pass toàn bộ, gồm `test_e2e_hospital`.
+- [X] Có snapshot cho 30 tuyến pilot.
 - [X] `03-problem.tex` có bản nháp đầy đủ.
