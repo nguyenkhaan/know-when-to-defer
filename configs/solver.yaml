@@ -1,0 +1,7 @@
+solution_limit: 100
+time_limit_s: 10.0
+warm_start: true
+first_solution: PATH_CHEAPEST_ARC
+late_penalty: 10.0
+shift_penalty: 10.0
+dev_weight: 2.0
